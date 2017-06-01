@@ -20,11 +20,11 @@ MPFP = opt$mappingFP
 alphaNames = opt$alphaNames
 alphaList <- unlist(strsplit(alphaNames, ","))
 ########################### FOR TESTING #################################
-
-setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
-MPFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt'
-alphaNames = 'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
-alphaList <- unlist(strsplit(alphaNames, ","))
+# 
+# setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
+# MPFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt'
+# alphaNames = 'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
+# alphaList <- unlist(strsplit(alphaNames, ","))
 
 ########################### LOAD AND FILTER #################################
 # Load files 
@@ -184,14 +184,19 @@ TimeChar <- H.CR.mean$Time[1:4]
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
-jpeg(paste0("ALPHAPLOTS/Alpha_diversity_Hakai_",metric,".jpeg"), pointsize = 16)
+jpeg(paste0("ALPHAPLOTS/Alpha_diversity_Hakai_",metric,".jpeg"), pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(c(0,0,0,0) ~ TimeChar[1:4]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.H$chao1), max(MF.Alpha.morphonly.H$chao1))
      , xlab = "Time (minutes)"
      , ylab = "Richness (chao1)"
+     , xaxt = 'n'
      )
+axis(1
+      , at = TimeChar[1:4]
+     , labels = c("20m","1h","6h","12h")
+     , las = 2)
 points(TimeChar[1:4], H.CR.mean$x[1:4]
        , lty = 3
        # , col = 'darkgreen'
@@ -242,22 +247,22 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0
+text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,-0.15
+text(-1,-0.15
      , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
      , pos= 4)
-text(-1.2,-0.3
+text(-1,-0.3
      , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
       , pos = 4)
-text(-1.2,-0.45
+text(-1,-0.45
      , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
      , pos = 4)
-text(-1.2,-0.6
+text(-1,-0.6
      , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
      , pos = 4)
-text(-1.2,-0.8
+text(-1,-0.8
      , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -283,14 +288,20 @@ TimeChar <- P.CR.mean$Time[1:6]
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
-jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 16)
+jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.P$chao1), max(MF.Alpha.morphonly.P$chao1))
      , xlab = "Time (minutes)"
      , ylab = "Richness (chao1)"
+     , xaxt = 'n'
 )
+axis(1
+     , at = c(-20,10,0,0,0,0)+TimeChar[1:6]
+     , labels = c("20m","1h","3h","6h","12h","24h")
+     , las = 2
+     , cex.axis = 1)
 points(TimeChar[1:6], P.CR.mean$x[1:6]
        , lty = 3
        # , col = 'darkgreen'
@@ -340,28 +351,28 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0.15
+text(-1,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,0
+text(-1,0
      , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), "*"))
      , pos= 4)
-text(-1.2,-0.15
+text(-1,-0.15
      , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
      , pos = 4)
-text(-1.2,-0.3
+text(-1,-0.3
      , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.45
+text(-1,-0.45
      , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.6
+text(-1,-0.6
      , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.75
+text(-1,-0.75
      , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
      , pos = 4)
-text(-1.2,-0.95
+text(-1,-0.95
      , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -456,14 +467,19 @@ TimeChar <- H.CR.mean$Time[1:4]
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
-jpeg(paste0("ALPHAPLOTS/Alpha_diversity_Hakai_",metric,".jpeg"), pointsize = 16)
+jpeg(paste0("ALPHAPLOTS/Alpha_diversity_Hakai_",metric,".jpeg"), pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(c(0,0,0,0) ~ TimeChar[1:4]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.H$PD_whole_tree), max(MF.Alpha.morphonly.H$PD_whole_tree))
      , xlab = "Time (minutes)"
      , ylab = "Richness (PD_whole_tree)"
+     , xaxt = 'n'
 )
+axis(1
+     , at = TimeChar[1:4]
+     , labels = c("20m","1h","6h","12h")
+     , las = 2)
 points(TimeChar[1:4], H.CR.mean$x[1:4]
        , lty = 3
        # , col = 'darkgreen'
@@ -514,22 +530,22 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0
+text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,-0.15
+text(-1,-0.15
      , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
      , pos= 4)
-text(-1.2,-0.3
+text(-1,-0.3
      , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
      , pos = 4)
-text(-1.2,-0.45
+text(-1,-0.45
      , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
      , pos = 4)
-text(-1.2,-0.6
+text(-1,-0.6
      , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), '*'))
      , pos = 4)
-text(-1.2,-0.8
+text(-1,-0.8
      , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -555,14 +571,20 @@ TimeChar <- P.CR.mean$Time[1:6]
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
-jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 16)
+jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.P$PD_whole_tree), max(MF.Alpha.morphonly.P$PD_whole_tree))
      , xlab = "Time (minutes)"
      , ylab = "Richness (PD_whole_tree)"
+     , xaxt = 'n'
 )
+axis(1
+     , at = c(-20,10,0,0,0,0) + TimeChar[1:6]
+     , labels = c("20m","1h","3h","6h","12h","24h")
+     , las = 2
+     , cex.axis = 1)
 points(TimeChar[1:6], P.CR.mean$x[1:6]
        , lty = 3
        # , col = 'darkgreen'
@@ -612,28 +634,28 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0.15
+text(-1,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,0
+text(-1,0
      , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
      , pos= 4)
-text(-1.2,-0.15
+text(-1,-0.15
      , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
      , pos = 4)
-text(-1.2,-0.3
+text(-1,-0.3
      , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.45
+text(-1,-0.45
      , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
      , pos = 4)
-text(-1.2,-0.6
+text(-1,-0.6
      , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.75
+text(-1,-0.75
      , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
      , pos = 4)
-text(-1.2,-0.95
+text(-1,-0.95
      , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -728,14 +750,19 @@ TimeChar <- H.CR.mean$Time[1:4]
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
-jpeg(paste0("ALPHAPLOTS/Alpha_diversity_Hakai_",metric,".jpeg"), pointsize = 16)
+jpeg(paste0("ALPHAPLOTS/Alpha_diversity_Hakai_",metric,".jpeg"), pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(c(0,0,0,0) ~ TimeChar[1:4]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.H$observed_otus), max(MF.Alpha.morphonly.H$observed_otus))
      , xlab = "Time (minutes)"
      , ylab = "Richness (observed_otus)"
+     ,xaxt = 'n'
 )
+axis(1
+     , at = TimeChar[1:4]
+     , labels = c("20m","1h","6h","12h")
+     , las = 2)
 points(TimeChar[1:4], H.CR.mean$x[1:4]
        , lty = 3
        # , col = 'darkgreen'
@@ -786,22 +813,22 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0
+text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,-0.15
+text(-1,-0.15
      , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
      , pos= 4)
-text(-1.2,-0.3
+text(-1,-0.3
      , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
      , pos = 4)
-text(-1.2,-0.45
+text(-1,-0.45
      , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
      , pos = 4)
-text(-1.2,-0.6
+text(-1,-0.6
      , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
      , pos = 4)
-text(-1.2,-0.8
+text(-1,-0.8
      , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -827,14 +854,20 @@ TimeChar <- P.CR.mean$Time[1:6]
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
-jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 16)
+jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.P$observed_otus), max(MF.Alpha.morphonly.P$observed_otus))
      , xlab = "Time (minutes)"
      , ylab = "Richness (observed_otus)"
+     , xaxt = 'n'
 )
+axis(1
+     , at = c(-20,10,0,0,0,0) + TimeChar[1:6]
+     , labels = c("20m","1h","3h","6h","12h","24h")
+     , las = 2
+     , cex.axis = 1)
 points(TimeChar[1:6], P.CR.mean$x[1:6]
        , lty = 3
        # , col = 'darkgreen'
@@ -887,25 +920,25 @@ legend("top"
 text(-1.2,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,0
+text(-1,0
      , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
      , pos= 4)
-text(-1.2,-0.15
+text(-1,-0.15
      , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
      , pos = 4)
-text(-1.2,-0.3
+text(-1,-0.3
      , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.45
+text(-1,-0.45
      , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
      , pos = 4)
-text(-1.2,-0.6
+text(-1,-0.6
      , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
-text(-1.2,-0.75
+text(-1,-0.75
      , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
      , pos = 4)
-text(-1.2,-0.95
+text(-1,-0.95
      , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
