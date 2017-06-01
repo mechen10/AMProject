@@ -156,9 +156,13 @@ dm.BC <- dm.BC[unlist(sapply(rownames(dm.BC), function(x) {
 
 
 
-# Make sure everything in MF is in dm
+# Make sure everything in MF is in dm (only need to use one dm)
 
 MF <- MF[unlist(lapply(rownames(dm.UWUF), function(x) {
+  grep(paste0("^",x,"$"), rownames(MF))
+})),]
+
+MF.P <- MF[unlist(lapply(rownames(dm.UWUF.P), function(x) {
   grep(paste0("^",x,"$"), rownames(MF))
 })),]
 
@@ -182,6 +186,24 @@ for (ROW in 1:nrow(MF)) {
     }
 }
 
+MF.P.morphkeep <- MF.P
+dm.UWUF.P.morphonly <- dm.UWUF.P
+dm.WUF.P.morphonly <- dm.WUF.P
+dm.BC.P.morphonly <- dm.BC.P
+# ROW <- 67
+for (ROW in 1:nrow(MF.P)) {
+  typeMorph <- MF.P[ROW, 'Morph']
+  typeTime <- MF.P[ROW, 'Time']
+  rownameTemp <- rownames(MF.P)[ROW]
+  if ((!(typeMorph %in% c('CR',"BL","FB"))) | ((typeTime %in% c("5760")))) {
+    MF.P.morphkeep <- MF.P.morphkeep[-grep(paste0("^",rownameTemp,"$"), rownames(MF.P.morphkeep)),]
+    
+    dm.UWUF.P.morphonly <- dm.UWUF.P.morphonly[-grep(paste0("^",rownames(MF.P)[ROW],"$"), rownames(dm.UWUF.P.morphonly)),-grep(paste0("^",rownames(MF.P)[ROW],"$"), colnames(dm.UWUF.P.morphonly))]
+    dm.WUF.P.morphonly <- dm.WUF.P.morphonly[-grep(paste0("^",rownames(MF.P)[ROW],"$"), rownames(dm.WUF.P.morphonly)),-grep(paste0("^",rownames(MF.P)[ROW],"$"), colnames(dm.WUF.P.morphonly))]
+    dm.BC.P.morphonly <- dm.BC.P.morphonly[-grep(paste0("^",rownames(MF.P)[ROW],"$"), rownames(dm.BC.P.morphonly)),-grep(paste0("^",rownames(MF.P)[ROW],"$"), colnames(dm.BC.P.morphonly))]
+  }
+}
+
 
 
 # Get non-water out
@@ -201,10 +223,27 @@ for (ROW in 1:nrow(MF)) {
   }
 }
 
+MF.P.inclWater <- MF.P
+dm.UWUF.P.inclWater <- dm.UWUF.P
+dm.WUF.P.inclWater <- dm.WUF.P
+dm.BC.P.inclWater <- dm.BC.P
+for (ROW in 1:nrow(MF.P)) {
+  typeMorph <- MF.P[ROW, 'Morph']
+  rownameTemp <- rownames(MF.P)[ROW]
+  if (!(typeMorph %in% c('CR',"BL","FB","W"))) {
+    MF.P.inclWater <- MF.P.inclWater[-grep(paste0("^",rownameTemp,"$"), rownames(MF.P.inclWater)),]
+    
+    dm.UWUF.P.inclWater <- dm.UWUF.P.inclWater[-grep(paste0("^",rownames(MF.P)[ROW],"$"), rownames(dm.UWUF.P.inclWater)),-grep(paste0("^",rownames(MF.P)[ROW],"$"), colnames(dm.UWUF.P.inclWater))]
+    dm.WUF.P.inclWater <- dm.WUF.P.inclWater[-grep(paste0("^",rownames(MF.P)[ROW],"$"), rownames(dm.WUF.P.inclWater)),-grep(paste0("^",rownames(MF.P)[ROW],"$"), colnames(dm.WUF.P.inclWater))]
+    dm.BC.P.inclWater <- dm.BC.P.inclWater[-grep(paste0("^",rownames(MF.P)[ROW],"$"), rownames(dm.BC.P.inclWater)),-grep(paste0("^",rownames(MF.P)[ROW],"$"), colnames(dm.BC.P.inclWater))]
+  }
+}
 
-system("mkdir BETAPLOTS")
+system("mkdir BETAPLOTS_H")
+system("mkdir BETAPLOTS_P")
 
-####### UWUF #############
+#*** NOTE: ONLY WORKING ON UWUF RIGHT NOW; DO OTHERS AFTER
+####### UWUF ############# 
 metric <- "UWUF"
 
 ### NMDS #####
@@ -347,7 +386,7 @@ plot(xvalues, NULL
 axis(side = 1, at = c(1,2,3,4), labels = xvalues)
 points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
        , type = 'l'
-       , col = "red"
+       , col = "purple"
        , lwd = 2
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*0.99
@@ -359,7 +398,7 @@ arrows(x0 = c(1,2,3,4)*0.99
        , length = 0.03)
 points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
        , type = 'l'
-       , col = "blue"
+       , col = "darkgreen"
        , lwd = 2
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1
@@ -392,7 +431,7 @@ plot(0,0
 legend("center"
        , legend = c("FB:CR", "FB:BL", "CR:BL")
        , lty = 1
-       , col = c("blue","red","grey"))
+       , col = c("darkgreen","purple","grey"))
 dev.off()
 
 ####### PLOT MORPH ############
@@ -400,7 +439,7 @@ dev.off()
 MF.morphkeep$Morph <- factor(MF.morphkeep$Morph, levels = c('CR','BL','FB'))
 MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440'))
 MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
-MorphColours <- c("red","purple","blue")
+MorphColours <- c("red","magenta","blue")
 
 
 # MAKE POLYGONS for plotting
@@ -433,7 +472,7 @@ plot(NMDS.UWUF.morphonly$points
 lines(NMDS.UWUF.CR[NMDS.UWUF.CR.chull,]
       , col = "red")
 lines(NMDS.UWUF.BL[NMDS.UWUF.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.UWUF.FB[NMDS.UWUF.FB.chull,]
       , col = "blue")
 par(fig = c(0.75,1,0,1), mar = c(5,0,5,0), new = TRUE)
@@ -470,7 +509,7 @@ plot(NMDS.UWUF.morphonly$points
 # lines(NMDS.UWUF.CR[NMDS.UWUF.CR.chull,]
 #       , col = "red")
 # lines(NMDS.UWUF.BL[NMDS.UWUF.BL.chull,]
-#       , col = "purple")
+#       , col = "magenta")
 # lines(NMDS.UWUF.FB[NMDS.UWUF.FB.chull,]
 #       , col = "blue")
 par(fig = c(0.75,1,0,1), mar = c(5,0,5,0), new = TRUE)
@@ -580,7 +619,7 @@ plot(NMDS.UWUF.20.only
 lines(NMDS.UWUF.20.only.CR[NMDS.UWUF.20.only.CR.chull,]
       , col = "red")
 lines(NMDS.UWUF.20.only.BL[NMDS.UWUF.20.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.UWUF.20.only.FB[NMDS.UWUF.20.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -600,7 +639,7 @@ plot(NMDS.UWUF.60.only
 lines(NMDS.UWUF.60.only.CR[NMDS.UWUF.60.only.CR.chull,]
       , col = "red")
 lines(NMDS.UWUF.60.only.BL[NMDS.UWUF.60.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.UWUF.60.only.FB[NMDS.UWUF.60.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -620,7 +659,7 @@ plot(NMDS.UWUF.360.only
 lines(NMDS.UWUF.360.only.CR[NMDS.UWUF.360.only.CR.chull,]
       , col = "red")
 lines(NMDS.UWUF.360.only.BL[NMDS.UWUF.360.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.UWUF.360.only.FB[NMDS.UWUF.360.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -640,12 +679,161 @@ plot(NMDS.UWUF.720.only
 lines(NMDS.UWUF.720.only.CR[NMDS.UWUF.720.only.CR.chull,]
       , col = "red")
 lines(NMDS.UWUF.720.only.BL[NMDS.UWUF.720.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.UWUF.720.only.FB[NMDS.UWUF.720.only.FB.chull,]
       , col = "blue")
 #STOP
 dev.off()
 
+############ COMBO DISP BETA ################
+# Disp and beta through time combined
+ylimits <- c(0.45,0.7)
+# xvalues <- log(FB.BL.UWUF.ALL.mean[,1])
+xvalues <- as.character(FB.BL.UWUF.ALL.mean[,1])
+
+jpeg(paste0("BETAPLOTS/COMBO_dispbeta_",metric,".jpeg"), width = 1000, height = 800, pointsize = 16)
+par(fig = c(0.5,0.8,0,1))
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = "Time"
+     , ylab = "Distance (Unweighted Unifrac)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4)
+     , labels = c("20 min","1 h","6 h","12 h")
+     , las = 2)
+points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "purple"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*0.99
+       , x1 = c(1,2,3,4)*0.99
+       , y0 = c(FB.BL.UWUF.ALL.mean[,2] - FB.BL.UWUF.ALL.sd[,2]/2)
+       , y1 = c(FB.BL.UWUF.ALL.mean[,2] + FB.BL.UWUF.ALL.sd[,2]/2)
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "darkgreen"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1
+       , x1 = c(1,2,3,4)*1
+       , y0 = c(FB.CR.UWUF.ALL.mean[,2] - FB.CR.UWUF.ALL.sd[,2]/2)
+       , y1 = c(FB.CR.UWUF.ALL.mean[,2] + FB.CR.UWUF.ALL.sd[,2]/2)
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(CR.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "grey"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1.01
+       , x1 = c(1,2,3,4)*1.01
+       , y0 = c(CR.BL.UWUF.ALL.mean[,2] - CR.BL.UWUF.ALL.sd[,2]/2)
+       , y1 = c(CR.BL.UWUF.ALL.mean[,2] + CR.BL.UWUF.ALL.sd[,2]/2)
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0,1), mar = c(5,0,5,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB:CR", "FB:BL", "CR:BL")
+       , lty = 1
+       , col = c("darkgreen","purple","grey"))
+par(fig = c(0,0.5,0.8,1), mfrow= c(1,4), oma = c(4,4,4,6), new = TRUE)
+par(mar = c(4,0,4,0))
+plot(NMDS.UWUF.20.only
+     # , main = "20 Minutes"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.UWUF.20.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p = ", ANOVA.UWUF.20.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+     , cex = 2
+     , cex.lab = 2
+     , cex.main = 2
+)
+lines(NMDS.UWUF.20.only.CR[NMDS.UWUF.20.only.CR.chull,]
+      , col = "red")
+lines(NMDS.UWUF.20.only.BL[NMDS.UWUF.20.only.BL.chull,]
+      , col = "magenta")
+lines(NMDS.UWUF.20.only.FB[NMDS.UWUF.20.only.FB.chull,]
+      , col = "blue")
+par(mar = c(4,0,4,0))
+plot(NMDS.UWUF.60.only
+     # , main = "1 Hour"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.UWUF.60.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p =  ",ANOVA.UWUF.60.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+     , cex = 2
+     , cex.lab = 2
+     , cex.main = 2
+)
+lines(NMDS.UWUF.60.only.CR[NMDS.UWUF.60.only.CR.chull,]
+      , col = "red")
+lines(NMDS.UWUF.60.only.BL[NMDS.UWUF.60.only.BL.chull,]
+      , col = "magenta")
+lines(NMDS.UWUF.60.only.FB[NMDS.UWUF.60.only.FB.chull,]
+      , col = "blue")
+par(mar = c(4,0,4,0))
+plot(NMDS.UWUF.360.only
+     # , main = "6 Hours"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.UWUF.360.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p = ", ANOVA.UWUF.360.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+     , cex = 2
+     , cex.lab = 2
+     , cex.main = 2
+)
+lines(NMDS.UWUF.360.only.CR[NMDS.UWUF.360.only.CR.chull,]
+      , col = "red")
+lines(NMDS.UWUF.360.only.BL[NMDS.UWUF.360.only.BL.chull,]
+      , col = "magenta")
+lines(NMDS.UWUF.360.only.FB[NMDS.UWUF.360.only.FB.chull,]
+      , col = "blue")
+par(mar = c(4,0,4,0))
+plot(NMDS.UWUF.720.only
+     # , main = "12 Hours"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.UWUF.720.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p = ", ANOVA.UWUF.720.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+     , cex = 2
+     , cex.lab = 2
+     , cex.main = 2
+)
+lines(NMDS.UWUF.720.only.CR[NMDS.UWUF.720.only.CR.chull,]
+      , col = "red")
+lines(NMDS.UWUF.720.only.BL[NMDS.UWUF.720.only.BL.chull,]
+      , col = "magenta")
+lines(NMDS.UWUF.720.only.FB[NMDS.UWUF.720.only.FB.chull,]
+      , col = "blue")
+#STOP
+dev.off()
 
 ############ PLOT 5760 ################
 dm.UWUF.5760<- dm.UWUF.inclWater[grep("(CR|FB|BL)-5760", rownames(dm.UWUF.inclWater)),grep("(CR|FB|BL)-5760", colnames(dm.UWUF.inclWater))]
@@ -657,7 +845,7 @@ MF.5760 <- MF[sapply(rownames(NMDS.UWUF.5760$points), function(x) {
   grep(paste0("^",x,"$"), rownames(MF))
 }),]
 MF.5760$Morph <- factor(MF.5760$Morph, levels = c("CR","BL","FB"))
-MorphColours <- c("red","purple","blue")
+MorphColours <- c("red","magenta","blue")
 
 NMDS.UWUF.5760.CR <- NMDS.UWUF.5760$points[grep("CR", rownames(NMDS.UWUF.5760$points)),]
 NMDS.UWUF.5760.CR.chull <- chull(NMDS.UWUF.5760.CR)
@@ -689,7 +877,7 @@ plot(NMDS.UWUF.5760$points
 lines(NMDS.UWUF.5760.CR[NMDS.UWUF.5760.CR.chull,]
       , col = "red")
 lines(NMDS.UWUF.5760.BL[NMDS.UWUF.5760.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.UWUF.5760.FB[NMDS.UWUF.5760.FB.chull,]
       , col = "blue")
 par(fig = c(0.7,1,0,1), mar = c(0,0,0,0), new = TRUE)
@@ -704,7 +892,7 @@ legend("center"
        , legend = c("Crust","Blade","Finely Br.")
        , pch = 21
        , col= "black"
-       , pt.bg = c("red","purple","blue"))
+       , pt.bg = c("red","magenta","blue"))
 dev.off()
 
 
@@ -851,7 +1039,7 @@ plot(xvalues, NULL
 axis(side = 1, at = c(1,2,3,4), labels = xvalues)
 points(FB.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
        , type = 'l'
-       , col = "red"
+       , col = "purple"
        , lwd = 2
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*0.99
@@ -863,7 +1051,7 @@ arrows(x0 = c(1,2,3,4)*0.99
        , length = 0.03)
 points(FB.CR.WUF.ALL.mean[,2] ~ c(1,2,3,4)
        , type = 'l'
-       , col = "blue"
+       , col = "darkgreen"
        , lwd = 2
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1
@@ -896,7 +1084,7 @@ plot(0,0
 legend("center"
        , legend = c("FB:CR", "FB:BL", "CR:BL")
        , lty = 1
-       , col = c("blue","red","grey"))
+       , col = c("darkgreen","purple","grey"))
 dev.off()
 
 ####### PLOT MORPH ############
@@ -904,7 +1092,7 @@ dev.off()
 MF.morphkeep$Morph <- factor(MF.morphkeep$Morph, levels = c('CR','BL','FB'))
 MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440'))
 MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
-MorphColours <- c("red","purple","blue")
+MorphColours <- c("red","magenta","blue")
 
 
 # MAKE POLYGONS for plotting
@@ -937,7 +1125,7 @@ plot(NMDS.WUF.morphonly$points
 lines(NMDS.WUF.CR[NMDS.WUF.CR.chull,]
       , col = "red")
 lines(NMDS.WUF.BL[NMDS.WUF.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.WUF.FB[NMDS.WUF.FB.chull,]
       , col = "blue")
 par(fig = c(0.75,1,0,1), mar = c(5,0,5,0), new = TRUE)
@@ -974,7 +1162,7 @@ plot(NMDS.WUF.morphonly$points
 # lines(NMDS.WUF.CR[NMDS.WUF.CR.chull,]
 #       , col = "red")
 # lines(NMDS.WUF.BL[NMDS.WUF.BL.chull,]
-#       , col = "purple")
+#       , col = "magenta")
 # lines(NMDS.WUF.FB[NMDS.WUF.FB.chull,]
 #       , col = "blue")
 par(fig = c(0.75,1,0,1), mar = c(5,0,5,0), new = TRUE)
@@ -1084,7 +1272,7 @@ plot(NMDS.WUF.20.only
 lines(NMDS.WUF.20.only.CR[NMDS.WUF.20.only.CR.chull,]
       , col = "red")
 lines(NMDS.WUF.20.only.BL[NMDS.WUF.20.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.WUF.20.only.FB[NMDS.WUF.20.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -1104,7 +1292,7 @@ plot(NMDS.WUF.60.only
 lines(NMDS.WUF.60.only.CR[NMDS.WUF.60.only.CR.chull,]
       , col = "red")
 lines(NMDS.WUF.60.only.BL[NMDS.WUF.60.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.WUF.60.only.FB[NMDS.WUF.60.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -1124,7 +1312,7 @@ plot(NMDS.WUF.360.only
 lines(NMDS.WUF.360.only.CR[NMDS.WUF.360.only.CR.chull,]
       , col = "red")
 lines(NMDS.WUF.360.only.BL[NMDS.WUF.360.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.WUF.360.only.FB[NMDS.WUF.360.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -1144,7 +1332,7 @@ plot(NMDS.WUF.720.only
 lines(NMDS.WUF.720.only.CR[NMDS.WUF.720.only.CR.chull,]
       , col = "red")
 lines(NMDS.WUF.720.only.BL[NMDS.WUF.720.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.WUF.720.only.FB[NMDS.WUF.720.only.FB.chull,]
       , col = "blue")
 #STOP
@@ -1161,7 +1349,7 @@ MF.5760 <- MF[sapply(rownames(NMDS.WUF.5760$points), function(x) {
   grep(paste0("^",x,"$"), rownames(MF))
 }),]
 MF.5760$Morph <- factor(MF.5760$Morph, levels = c("CR","BL","FB"))
-MorphColours <- c("red","purple","blue")
+MorphColours <- c("red","magenta","blue")
 
 NMDS.WUF.5760.CR <- NMDS.WUF.5760$points[grep("CR", rownames(NMDS.WUF.5760$points)),]
 NMDS.WUF.5760.CR.chull <- chull(NMDS.WUF.5760.CR)
@@ -1193,7 +1381,7 @@ plot(NMDS.WUF.5760$points
 lines(NMDS.WUF.5760.CR[NMDS.WUF.5760.CR.chull,]
       , col = "red")
 lines(NMDS.WUF.5760.BL[NMDS.WUF.5760.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.WUF.5760.FB[NMDS.WUF.5760.FB.chull,]
       , col = "blue")
 par(fig = c(0.7,1,0,1), mar = c(0,0,0,0), new = TRUE)
@@ -1208,7 +1396,7 @@ legend("center"
        , legend = c("Crust","Blade","Finely Br.")
        , pch = 21
        , col= "black"
-       , pt.bg = c("red","purple","blue"))
+       , pt.bg = c("red","magenta","blue"))
 dev.off()
 
 
@@ -1357,7 +1545,7 @@ plot(xvalues, NULL
 axis(side = 1, at = c(1,2,3,4), labels = xvalues)
 points(FB.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
        , type = 'l'
-       , col = "red"
+       , col = "purple"
        , lwd = 2
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*0.99
@@ -1369,7 +1557,7 @@ arrows(x0 = c(1,2,3,4)*0.99
        , length = 0.03)
 points(FB.CR.BC.ALL.mean[,2] ~ c(1,2,3,4)
        , type = 'l'
-       , col = "blue"
+       , col = "darkgreen"
        , lwd = 2
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1
@@ -1402,7 +1590,7 @@ plot(0,0
 legend("center"
        , legend = c("FB:CR", "FB:BL", "CR:BL")
        , lty = 1
-       , col = c("blue","red","grey"))
+       , col = c("darkgreen","purple","grey"))
 dev.off()
 
 ####### PLOT MORPH ############
@@ -1410,7 +1598,7 @@ dev.off()
 MF.morphkeep$Morph <- factor(MF.morphkeep$Morph, levels = c('CR','BL','FB'))
 MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440'))
 MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
-MorphColours <- c("red","purple","blue")
+MorphColours <- c("red","magenta","blue")
 
 
 # MAKE POLYGONS for plotting
@@ -1443,7 +1631,7 @@ plot(NMDS.BC.morphonly$points
 lines(NMDS.BC.CR[NMDS.BC.CR.chull,]
       , col = "red")
 lines(NMDS.BC.BL[NMDS.BC.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.BC.FB[NMDS.BC.FB.chull,]
       , col = "blue")
 par(fig = c(0.75,1,0,1), mar = c(5,0,5,0), new = TRUE)
@@ -1480,7 +1668,7 @@ plot(NMDS.BC.morphonly$points
 # lines(NMDS.BC.CR[NMDS.BC.CR.chull,]
 #       , col = "red")
 # lines(NMDS.BC.BL[NMDS.BC.BL.chull,]
-#       , col = "purple")
+#       , col = "magenta")
 # lines(NMDS.BC.FB[NMDS.BC.FB.chull,]
 #       , col = "blue")
 par(fig = c(0.75,1,0,1), mar = c(5,0,5,0), new = TRUE)
@@ -1590,7 +1778,7 @@ plot(NMDS.BC.20.only
 lines(NMDS.BC.20.only.CR[NMDS.BC.20.only.CR.chull,]
       , col = "red")
 lines(NMDS.BC.20.only.BL[NMDS.BC.20.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.BC.20.only.FB[NMDS.BC.20.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -1610,7 +1798,7 @@ plot(NMDS.BC.60.only
 lines(NMDS.BC.60.only.CR[NMDS.BC.60.only.CR.chull,]
       , col = "red")
 lines(NMDS.BC.60.only.BL[NMDS.BC.60.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.BC.60.only.FB[NMDS.BC.60.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -1630,7 +1818,7 @@ plot(NMDS.BC.360.only
 lines(NMDS.BC.360.only.CR[NMDS.BC.360.only.CR.chull,]
       , col = "red")
 lines(NMDS.BC.360.only.BL[NMDS.BC.360.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.BC.360.only.FB[NMDS.BC.360.only.FB.chull,]
       , col = "blue")
 par(mar = c(4,0,4,0))
@@ -1650,7 +1838,7 @@ plot(NMDS.BC.720.only
 lines(NMDS.BC.720.only.CR[NMDS.BC.720.only.CR.chull,]
       , col = "red")
 lines(NMDS.BC.720.only.BL[NMDS.BC.720.only.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.BC.720.only.FB[NMDS.BC.720.only.FB.chull,]
       , col = "blue")
 #STOP
@@ -1667,7 +1855,7 @@ MF.5760 <- MF[sapply(rownames(NMDS.BC.5760$points), function(x) {
   grep(paste0("^",x,"$"), rownames(MF))
 }),]
 MF.5760$Morph <- factor(MF.5760$Morph, levels = c("CR","BL","FB"))
-MorphColours <- c("red","purple","blue")
+MorphColours <- c("red","magenta","blue")
 
 NMDS.BC.5760.CR <- NMDS.BC.5760$points[grep("CR", rownames(NMDS.BC.5760$points)),]
 NMDS.BC.5760.CR.chull <- chull(NMDS.BC.5760.CR)
@@ -1699,7 +1887,7 @@ plot(NMDS.BC.5760$points
 lines(NMDS.BC.5760.CR[NMDS.BC.5760.CR.chull,]
       , col = "red")
 lines(NMDS.BC.5760.BL[NMDS.BC.5760.BL.chull,]
-      , col = "purple")
+      , col = "magenta")
 lines(NMDS.BC.5760.FB[NMDS.BC.5760.FB.chull,]
       , col = "blue")
 par(fig = c(0.7,1,0,1), mar = c(0,0,0,0), new = TRUE)
@@ -1714,6 +1902,6 @@ legend("center"
        , legend = c("Crust","Blade","Finely Br.")
        , pch = 21
        , col= "black"
-       , pt.bg = c("red","purple","blue"))
+       , pt.bg = c("red","magenta","blue"))
 dev.off()
 
