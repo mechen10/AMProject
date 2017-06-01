@@ -20,11 +20,11 @@ MPFP = opt$mappingFP
 alphaNames = opt$alphaNames
 alphaList <- unlist(strsplit(alphaNames, ","))
 ########################### FOR TESTING #################################
-# 
-# setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
-# MPFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt'
-# alphaNames = 'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
-# alphaList <- unlist(strsplit(alphaNames, ","))
+
+setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
+MPFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt'
+alphaNames = 'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
+alphaList <- unlist(strsplit(alphaNames, ","))
 
 ########################### LOAD AND FILTER #################################
 # Load files 
@@ -108,6 +108,63 @@ P.morph.lm <- lm(chao1 ~ Time*Morph, data = MF.Alpha.morphonly.P)
 anova.P.morph.lm <- Anova(P.morph.lm, type = 3)
 capture.output(anova.P.morph.lm, file = paste0("ALPHAPLOTS/anova_PM_", metric, ".txt"))
 
+# Separated out Stats- Hakai
+MF.Alpha.H.20 <- MF.Alpha.morphonly.H[grep("^20$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.60 <- MF.Alpha.morphonly.H[grep("^60$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.360 <- MF.Alpha.morphonly.H[grep("^360$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.720 <- MF.Alpha.morphonly.H[grep("^720$", MF.Alpha.morphonly.H$Time),]
+
+# Anova and capture output
+H.morph.20.lm <- lm(chao1 ~ Morph, data = MF.Alpha.H.20)
+anova.H.morph.20.lm <- anova(H.morph.20.lm)
+capture.output(anova.H.morph.20.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_20.txt"))
+
+H.morph.60.lm <- lm(chao1 ~ Morph, data = MF.Alpha.H.60)
+anova.H.morph.60.lm <- anova(H.morph.60.lm)
+capture.output(anova.H.morph.60.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_60.txt"))
+
+H.morph.360.lm <- lm(chao1 ~ Morph, data = MF.Alpha.H.360)
+anova.H.morph.360.lm <- anova(H.morph.360.lm)
+capture.output(anova.H.morph.360.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_360.txt"))
+
+H.morph.720.lm <- lm(chao1 ~ Morph, data = MF.Alpha.H.720)
+anova.H.morph.720.lm <- anova(H.morph.720.lm)
+capture.output(anova.H.morph.720.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_720.txt"))
+
+# Separated out Stats- PM
+MF.Alpha.P.20 <- MF.Alpha.morphonly.P[grep("^20$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.60 <- MF.Alpha.morphonly.P[grep("^60$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.180 <- MF.Alpha.morphonly.P[grep("^180$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.360 <- MF.Alpha.morphonly.P[grep("^360$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.720 <- MF.Alpha.morphonly.P[grep("^720$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.1440 <- MF.Alpha.morphonly.P[grep("^1440$", MF.Alpha.morphonly.P$Time),]
+
+
+# Anova and capture output
+P.morph.20.lm <- lm(chao1 ~ Morph, data = MF.Alpha.P.20)
+anova.P.morph.20.lm <- anova(P.morph.20.lm)
+capture.output(anova.P.morph.20.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_20.txt"))
+
+P.morph.60.lm <- lm(chao1 ~ Morph, data = MF.Alpha.P.60)
+anova.P.morph.60.lm <- anova(P.morph.60.lm)
+capture.output(anova.P.morph.60.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_60.txt"))
+
+P.morph.180.lm <- lm(chao1 ~ Morph, data = MF.Alpha.P.180)
+anova.P.morph.180.lm <- anova(P.morph.180.lm)
+capture.output(anova.P.morph.180.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_180.txt"))
+
+P.morph.360.lm <- lm(chao1 ~ Morph, data = MF.Alpha.P.360)
+anova.P.morph.360.lm <- anova(P.morph.360.lm)
+capture.output(anova.P.morph.360.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_360.txt"))
+
+P.morph.720.lm <- lm(chao1 ~ Morph, data = MF.Alpha.P.720)
+anova.P.morph.720.lm <- anova(P.morph.720.lm)
+capture.output(anova.P.morph.720.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_1440.txt"))
+
+P.morph.1440.lm <- lm(chao1 ~ Morph, data = MF.Alpha.P.1440)
+anova.P.morph.1440.lm <- anova(P.morph.1440.lm)
+capture.output(anova.P.morph.1440.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_1440.txt"))
+
 ########### Plotting Hakai ##############
 
 H.CR.Alpha <- MF.Alpha.morphonly.H[grep("CR", MF.Alpha.morphonly.H$Morph),]
@@ -169,6 +226,10 @@ arrows(x0 = TimeChar*1.01
        , angle = 90
        , code = 3
        , length = 0.02)
+text(TimeChar, 1.05*c(H.FB.mean$x + H.FB.sd$x/2)[1:4]
+       , labels = c('','**','***','')
+       , cex = 2
+       )
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
      , bty = 'n'
@@ -185,12 +246,18 @@ text(-1.2,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1.2,-0.15
-     , labels = c(paste0("Time: ", format(anova.H.morph.lm$`Pr(>F)`[2],digits = 2), "***"))
+     , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
      , pos= 4)
 text(-1.2,-0.3
-     , labels = c(paste0("Morphology: ", format(anova.H.morph.lm$`Pr(>F)`[3], digits = 2), "**"))
+     , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
       , pos = 4)
 text(-1.2,-0.45
+     , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , pos = 4)
+text(-1.2,-0.6
+     , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
+     , pos = 4)
+text(-1.2,-0.8
      , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -211,53 +278,56 @@ P.FB.sd <- aggregate(P.FB.Alpha$chao1, by=list(Time=P.FB.Alpha$Time), FUN=sd)
 
 # TimeChar <- as.character(CR$Time)[1:4]
 # TimeChar <- log(P.CR.mean$Time[1:4],10)
-TimeChar <- P.CR.mean$Time[1:5]
+TimeChar <- P.CR.mean$Time[1:6]
 
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
 jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 16)
 par(fig = c(0,0.7,0,1))
-plot(c(0,0,0,0,0) ~ TimeChar[1:5]
+plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.P$chao1), max(MF.Alpha.morphonly.P$chao1))
      , xlab = "Time (minutes)"
      , ylab = "Richness (chao1)"
 )
-points(TimeChar[1:5], P.CR.mean$x[1:5]
+points(TimeChar[1:6], P.CR.mean$x[1:6]
        , lty = 3
        # , col = 'darkgreen'
        , type = 'l')
 arrows(x0 = TimeChar*0.99
        , x1 = TimeChar*0.99
-       , y0 = c(P.CR.mean$x - P.CR.sd$x/2)[1:5]
-       , y1 = c(P.CR.mean$x + P.CR.sd$x/2)[1:5]
+       , y0 = c(P.CR.mean$x - P.CR.sd$x/2)[1:6]
+       , y1 = c(P.CR.mean$x + P.CR.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02
 )
-points(TimeChar[1:5], P.BL.mean$x[1:5]
+points(TimeChar[1:6], P.BL.mean$x[1:6]
        , lty = 2
        # , col = "green"
        , type = 'l')
 arrows(x0 = TimeChar*1.0
        , x1 = TimeChar*1.0
-       , y0 = c(P.BL.mean$x - P.BL.sd$x/2)[1:5]
-       , y1 = c(P.BL.mean$x + P.BL.sd$x/2)[1:5]
+       , y0 = c(P.BL.mean$x - P.BL.sd$x/2)[1:6]
+       , y1 = c(P.BL.mean$x + P.BL.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02)
-points(TimeChar[1:5], P.FB.mean$x[1:5]
+points(TimeChar[1:6], P.FB.mean$x[1:6]
        , lty = 1
        # , col = "yellow"
        , type = 'l')
 arrows(x0 = TimeChar*1.01
        , x1 = TimeChar*1.01
-       , y0 = c(P.FB.mean$x - P.FB.sd$x/2)[1:5]
-       , y1 = c(P.FB.mean$x + P.FB.sd$x/2)[1:5]
+       , y0 = c(P.FB.mean$x - P.FB.sd$x/2)[1:6]
+       , y1 = c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02)
+text(TimeChar, 1.05*c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
+       , labels = c('*','**','*','*','*','')
+       , cex = 2)
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
      , bty = 'n'
@@ -270,23 +340,35 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0
+text(-1.2,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,-0.15
-     , labels = c(paste0("Time: ", format(anova.P.morph.lm$`Pr(>F)`[2],digits = 2), "***"))
+text(-1.2,0
+     , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), "*"))
      , pos= 4)
+text(-1.2,-0.15
+     , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , pos = 4)
 text(-1.2,-0.3
-     , labels = c(paste0("Morphology: ", format(anova.P.morph.lm$`Pr(>F)`[3], digits = 2), "**"))
+     , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
 text(-1.2,-0.45
+     , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(-1.2,-0.6
+     , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(-1.2,-0.75
+     , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(-1.2,-0.95
      , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
 
 
-########### *****PD_WHOLE_TREE***** ##############
+########### ****PD_WHOLE_TREE**** ##############
 metric <- 'PD_whole_tree'
 
 ########### Stats ##############
@@ -297,6 +379,63 @@ capture.output(anova.H.morph.lm, file = paste0("ALPHAPLOTS/anova_Hakai_", metric
 P.morph.lm <- lm(PD_whole_tree ~ Time*Morph, data = MF.Alpha.morphonly.P)
 anova.P.morph.lm <- Anova(P.morph.lm, type = 3)
 capture.output(anova.P.morph.lm, file = paste0("ALPHAPLOTS/anova_PM_", metric, ".txt"))
+
+# Separated out Stats- Hakai
+MF.Alpha.H.20 <- MF.Alpha.morphonly.H[grep("^20$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.60 <- MF.Alpha.morphonly.H[grep("^60$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.360 <- MF.Alpha.morphonly.H[grep("^360$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.720 <- MF.Alpha.morphonly.H[grep("^720$", MF.Alpha.morphonly.H$Time),]
+
+# Anova and capture output
+H.morph.20.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.H.20)
+anova.H.morph.20.lm <- anova(H.morph.20.lm)
+capture.output(anova.H.morph.20.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_20.txt"))
+
+H.morph.60.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.H.60)
+anova.H.morph.60.lm <- anova(H.morph.60.lm)
+capture.output(anova.H.morph.60.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_60.txt"))
+
+H.morph.360.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.H.360)
+anova.H.morph.360.lm <- anova(H.morph.360.lm)
+capture.output(anova.H.morph.360.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_360.txt"))
+
+H.morph.720.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.H.720)
+anova.H.morph.720.lm <- anova(H.morph.720.lm)
+capture.output(anova.H.morph.720.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_720.txt"))
+
+# Separated out Stats- PM
+MF.Alpha.P.20 <- MF.Alpha.morphonly.P[grep("^20$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.60 <- MF.Alpha.morphonly.P[grep("^60$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.180 <- MF.Alpha.morphonly.P[grep("^180$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.360 <- MF.Alpha.morphonly.P[grep("^360$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.720 <- MF.Alpha.morphonly.P[grep("^720$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.1440 <- MF.Alpha.morphonly.P[grep("^1440$", MF.Alpha.morphonly.P$Time),]
+
+
+# Anova and capture output
+P.morph.20.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.P.20)
+anova.P.morph.20.lm <- anova(P.morph.20.lm)
+capture.output(anova.P.morph.20.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_20.txt"))
+
+P.morph.60.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.P.60)
+anova.P.morph.60.lm <- anova(P.morph.60.lm)
+capture.output(anova.P.morph.60.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_60.txt"))
+
+P.morph.180.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.P.180)
+anova.P.morph.180.lm <- anova(P.morph.180.lm)
+capture.output(anova.P.morph.180.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_180.txt"))
+
+P.morph.360.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.P.360)
+anova.P.morph.360.lm <- anova(P.morph.360.lm)
+capture.output(anova.P.morph.360.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_360.txt"))
+
+P.morph.720.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.P.720)
+anova.P.morph.720.lm <- anova(P.morph.720.lm)
+capture.output(anova.P.morph.720.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_1440.txt"))
+
+P.morph.1440.lm <- lm(PD_whole_tree ~ Morph, data = MF.Alpha.P.1440)
+anova.P.morph.1440.lm <- anova(P.morph.1440.lm)
+capture.output(anova.P.morph.1440.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_1440.txt"))
 
 ########### Plotting Hakai ##############
 
@@ -359,6 +498,10 @@ arrows(x0 = TimeChar*1.01
        , angle = 90
        , code = 3
        , length = 0.02)
+text(TimeChar, 1.05*c(H.FB.mean$x + H.FB.sd$x/2)[1:4]
+     , labels = c('','**','***','')
+     , cex = 2
+)
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
      , bty = 'n'
@@ -375,12 +518,18 @@ text(-1.2,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1.2,-0.15
-     , labels = c(paste0("Time: ", format(anova.H.morph.lm$`Pr(>F)`[2],digits = 2), "***"))
+     , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
      , pos= 4)
 text(-1.2,-0.3
-     , labels = c(paste0("Morphology: ", format(anova.H.morph.lm$`Pr(>F)`[3], digits = 2), "**"))
+     , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
      , pos = 4)
 text(-1.2,-0.45
+     , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , pos = 4)
+text(-1.2,-0.6
+     , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), '*'))
+     , pos = 4)
+text(-1.2,-0.8
      , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -401,53 +550,56 @@ P.FB.sd <- aggregate(P.FB.Alpha$PD_whole_tree, by=list(Time=P.FB.Alpha$Time), FU
 
 # TimeChar <- as.character(CR$Time)[1:4]
 # TimeChar <- log(P.CR.mean$Time[1:4],10)
-TimeChar <- P.CR.mean$Time[1:5]
+TimeChar <- P.CR.mean$Time[1:6]
 
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
 jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 16)
 par(fig = c(0,0.7,0,1))
-plot(c(0,0,0,0,0) ~ TimeChar[1:5]
+plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.P$PD_whole_tree), max(MF.Alpha.morphonly.P$PD_whole_tree))
      , xlab = "Time (minutes)"
      , ylab = "Richness (PD_whole_tree)"
 )
-points(TimeChar[1:5], P.CR.mean$x[1:5]
+points(TimeChar[1:6], P.CR.mean$x[1:6]
        , lty = 3
        # , col = 'darkgreen'
        , type = 'l')
 arrows(x0 = TimeChar*0.99
        , x1 = TimeChar*0.99
-       , y0 = c(P.CR.mean$x - P.CR.sd$x/2)[1:5]
-       , y1 = c(P.CR.mean$x + P.CR.sd$x/2)[1:5]
+       , y0 = c(P.CR.mean$x - P.CR.sd$x/2)[1:6]
+       , y1 = c(P.CR.mean$x + P.CR.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02
 )
-points(TimeChar[1:5], P.BL.mean$x[1:5]
+points(TimeChar[1:6], P.BL.mean$x[1:6]
        , lty = 2
        # , col = "green"
        , type = 'l')
 arrows(x0 = TimeChar*1.0
        , x1 = TimeChar*1.0
-       , y0 = c(P.BL.mean$x - P.BL.sd$x/2)[1:5]
-       , y1 = c(P.BL.mean$x + P.BL.sd$x/2)[1:5]
+       , y0 = c(P.BL.mean$x - P.BL.sd$x/2)[1:6]
+       , y1 = c(P.BL.mean$x + P.BL.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02)
-points(TimeChar[1:5], P.FB.mean$x[1:5]
+points(TimeChar[1:6], P.FB.mean$x[1:6]
        , lty = 1
        # , col = "yellow"
        , type = 'l')
 arrows(x0 = TimeChar*1.01
        , x1 = TimeChar*1.01
-       , y0 = c(P.FB.mean$x - P.FB.sd$x/2)[1:5]
-       , y1 = c(P.FB.mean$x + P.FB.sd$x/2)[1:5]
+       , y0 = c(P.FB.mean$x - P.FB.sd$x/2)[1:6]
+       , y1 = c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02)
+text(TimeChar, 1.05*c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
+     , labels = c('','**','*','','*','')
+     , cex = 2)
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
      , bty = 'n'
@@ -460,23 +612,35 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0
+text(-1.2,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,-0.15
-     , labels = c(paste0("Time: ", format(anova.P.morph.lm$`Pr(>F)`[2],digits = 2), "***"))
+text(-1.2,0
+     , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
      , pos= 4)
+text(-1.2,-0.15
+     , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , pos = 4)
 text(-1.2,-0.3
-     , labels = c(paste0("Morphology: ", format(anova.P.morph.lm$`Pr(>F)`[3], digits = 2), "**"))
+     , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
 text(-1.2,-0.45
+     , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(-1.2,-0.6
+     , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(-1.2,-0.75
+     , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(-1.2,-0.95
      , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
 
 
-########### *****OBSERVED_OTUS***** ##############
+########### ****OBSERVED OTUs**** ##############
 metric <- 'observed_otus'
 
 ########### Stats ##############
@@ -487,6 +651,63 @@ capture.output(anova.H.morph.lm, file = paste0("ALPHAPLOTS/anova_Hakai_", metric
 P.morph.lm <- lm(observed_otus ~ Time*Morph, data = MF.Alpha.morphonly.P)
 anova.P.morph.lm <- Anova(P.morph.lm, type = 3)
 capture.output(anova.P.morph.lm, file = paste0("ALPHAPLOTS/anova_PM_", metric, ".txt"))
+
+# Separated out Stats- Hakai
+MF.Alpha.H.20 <- MF.Alpha.morphonly.H[grep("^20$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.60 <- MF.Alpha.morphonly.H[grep("^60$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.360 <- MF.Alpha.morphonly.H[grep("^360$", MF.Alpha.morphonly.H$Time),]
+MF.Alpha.H.720 <- MF.Alpha.morphonly.H[grep("^720$", MF.Alpha.morphonly.H$Time),]
+
+# Anova and capture output
+H.morph.20.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.H.20)
+anova.H.morph.20.lm <- anova(H.morph.20.lm)
+capture.output(anova.H.morph.20.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_20.txt"))
+
+H.morph.60.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.H.60)
+anova.H.morph.60.lm <- anova(H.morph.60.lm)
+capture.output(anova.H.morph.60.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_60.txt"))
+
+H.morph.360.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.H.360)
+anova.H.morph.360.lm <- anova(H.morph.360.lm)
+capture.output(anova.H.morph.360.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_360.txt"))
+
+H.morph.720.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.H.720)
+anova.H.morph.720.lm <- anova(H.morph.720.lm)
+capture.output(anova.H.morph.720.lm, file = paste0("ALPHAPLOTS/anova_sep_H_",metric,"_720.txt"))
+
+# Separated out Stats- PM
+MF.Alpha.P.20 <- MF.Alpha.morphonly.P[grep("^20$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.60 <- MF.Alpha.morphonly.P[grep("^60$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.180 <- MF.Alpha.morphonly.P[grep("^180$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.360 <- MF.Alpha.morphonly.P[grep("^360$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.720 <- MF.Alpha.morphonly.P[grep("^720$", MF.Alpha.morphonly.P$Time),]
+MF.Alpha.P.1440 <- MF.Alpha.morphonly.P[grep("^1440$", MF.Alpha.morphonly.P$Time),]
+
+
+# Anova and capture output
+P.morph.20.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.P.20)
+anova.P.morph.20.lm <- anova(P.morph.20.lm)
+capture.output(anova.P.morph.20.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_20.txt"))
+
+P.morph.60.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.P.60)
+anova.P.morph.60.lm <- anova(P.morph.60.lm)
+capture.output(anova.P.morph.60.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_60.txt"))
+
+P.morph.180.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.P.180)
+anova.P.morph.180.lm <- anova(P.morph.180.lm)
+capture.output(anova.P.morph.180.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_180.txt"))
+
+P.morph.360.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.P.360)
+anova.P.morph.360.lm <- anova(P.morph.360.lm)
+capture.output(anova.P.morph.360.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_360.txt"))
+
+P.morph.720.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.P.720)
+anova.P.morph.720.lm <- anova(P.morph.720.lm)
+capture.output(anova.P.morph.720.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_1440.txt"))
+
+P.morph.1440.lm <- lm(observed_otus ~ Morph, data = MF.Alpha.P.1440)
+anova.P.morph.1440.lm <- anova(P.morph.1440.lm)
+capture.output(anova.P.morph.1440.lm, file = paste0("ALPHAPLOTS/anova_sep_P_",metric,"_1440.txt"))
 
 ########### Plotting Hakai ##############
 
@@ -549,6 +770,10 @@ arrows(x0 = TimeChar*1.01
        , angle = 90
        , code = 3
        , length = 0.02)
+text(TimeChar, 1.05*c(H.FB.mean$x + H.FB.sd$x/2)[1:4]
+     , labels = c('','**','***','')
+     , cex = 2
+)
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
      , bty = 'n'
@@ -565,12 +790,18 @@ text(-1.2,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1.2,-0.15
-     , labels = c(paste0("Time: ", format(anova.H.morph.lm$`Pr(>F)`[2],digits = 2), "***"))
+     , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
      , pos= 4)
 text(-1.2,-0.3
-     , labels = c(paste0("Morphology: ", format(anova.H.morph.lm$`Pr(>F)`[3], digits = 2), "**"))
+     , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
      , pos = 4)
 text(-1.2,-0.45
+     , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , pos = 4)
+text(-1.2,-0.6
+     , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
+     , pos = 4)
+text(-1.2,-0.8
      , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
@@ -591,53 +822,56 @@ P.FB.sd <- aggregate(P.FB.Alpha$observed_otus, by=list(Time=P.FB.Alpha$Time), FU
 
 # TimeChar <- as.character(CR$Time)[1:4]
 # TimeChar <- log(P.CR.mean$Time[1:4],10)
-TimeChar <- P.CR.mean$Time[1:5]
+TimeChar <- P.CR.mean$Time[1:6]
 
 
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
 jpeg(paste0("ALPHAPLOTS/Alpha_diversity_PM_",metric,".jpeg"), pointsize = 16)
 par(fig = c(0,0.7,0,1))
-plot(c(0,0,0,0,0) ~ TimeChar[1:5]
+plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
      , main = "Richness through time"
      , ylim = c(min(MF.Alpha.morphonly.P$observed_otus), max(MF.Alpha.morphonly.P$observed_otus))
      , xlab = "Time (minutes)"
      , ylab = "Richness (observed_otus)"
 )
-points(TimeChar[1:5], P.CR.mean$x[1:5]
+points(TimeChar[1:6], P.CR.mean$x[1:6]
        , lty = 3
        # , col = 'darkgreen'
        , type = 'l')
 arrows(x0 = TimeChar*0.99
        , x1 = TimeChar*0.99
-       , y0 = c(P.CR.mean$x - P.CR.sd$x/2)[1:5]
-       , y1 = c(P.CR.mean$x + P.CR.sd$x/2)[1:5]
+       , y0 = c(P.CR.mean$x - P.CR.sd$x/2)[1:6]
+       , y1 = c(P.CR.mean$x + P.CR.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02
 )
-points(TimeChar[1:5], P.BL.mean$x[1:5]
+points(TimeChar[1:6], P.BL.mean$x[1:6]
        , lty = 2
        # , col = "green"
        , type = 'l')
 arrows(x0 = TimeChar*1.0
        , x1 = TimeChar*1.0
-       , y0 = c(P.BL.mean$x - P.BL.sd$x/2)[1:5]
-       , y1 = c(P.BL.mean$x + P.BL.sd$x/2)[1:5]
+       , y0 = c(P.BL.mean$x - P.BL.sd$x/2)[1:6]
+       , y1 = c(P.BL.mean$x + P.BL.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02)
-points(TimeChar[1:5], P.FB.mean$x[1:5]
+points(TimeChar[1:6], P.FB.mean$x[1:6]
        , lty = 1
        # , col = "yellow"
        , type = 'l')
 arrows(x0 = TimeChar*1.01
        , x1 = TimeChar*1.01
-       , y0 = c(P.FB.mean$x - P.FB.sd$x/2)[1:5]
-       , y1 = c(P.FB.mean$x + P.FB.sd$x/2)[1:5]
+       , y0 = c(P.FB.mean$x - P.FB.sd$x/2)[1:6]
+       , y1 = c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
        , angle = 90
        , code = 3
        , length = 0.02)
+text(TimeChar, 1.05*c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
+     , labels = c('','**','*','','*','')
+     , cex = 2)
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
      , bty = 'n'
@@ -650,17 +884,30 @@ legend("top"
        , legend = c("Finely Branched","Bladed","Crustose")
        , lty = c(1,2,3)
        , bty = 'n')
-text(-1.2,0
+text(-1.2,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
-text(-1.2,-0.15
-     , labels = c(paste0("Time: ", format(anova.P.morph.lm$`Pr(>F)`[2],digits = 2), "***"))
+text(-1.2,0
+     , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
      , pos= 4)
+text(-1.2,-0.15
+     , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , pos = 4)
 text(-1.2,-0.3
-     , labels = c(paste0("Morphology: ", format(anova.P.morph.lm$`Pr(>F)`[3], digits = 2), "**"))
+     , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
      , pos = 4)
 text(-1.2,-0.45
+     , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(-1.2,-0.6
+     , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(-1.2,-0.75
+     , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(-1.2,-0.95
      , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
+
