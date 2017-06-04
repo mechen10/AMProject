@@ -34,7 +34,13 @@ MFPWD = opt$mappingfile
 # WUFPWD <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt'
 # MFPWD <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt'
 # setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis")
-#   
+
+# BCPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/bray_curtis_dm.txt'
+# UWUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/unweighted_unifrac_dm.txt'
+# WUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/weighted_unifrac_dm.txt'
+# MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/MF_nochlpmito_m1000.txt'
+# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis")
+
 ########################### LOADING #################################
  
 
@@ -248,10 +254,10 @@ system("mkdir BETAPLOTS_H")
 system("mkdir BETAPLOTS_P")
 
 #*** NOTE: ONLY WORKING ON UWUF RIGHT NOW; DO OTHERS AFTER
-####### UWUF ############# 
+####### *********UWUF********* ############# 
 metric <- "UWUF"
 
-######## HAKAI ###########
+######## --HAKAI-- ###########
 ### NMDS #####
 
 NMDS.UWUF.morphonly <- isoMDS(as.matrix(dm.UWUF.morphonly), y = cmdscale(as.matrix(dm.UWUF.morphonly), 2))
@@ -935,7 +941,7 @@ legend("center"
 dev.off()
 
  
-######## PM ###########
+######## --PM-- ###########
 ### NMDS #####
 rownames(dm.UWUF.P.morphonly) <- gsub(".","-", rownames(dm.UWUF.P.morphonly), fixed = TRUE)
 colnames(dm.UWUF.P.morphonly) <- gsub(".","-", colnames(dm.UWUF.P.morphonly), fixed = TRUE)
@@ -1238,11 +1244,11 @@ legend("topleft"
 dev.off()
 
 ####### PLOT TIME ############
-TimeColours <- c("grey","lightblue","blue","darkblue", "purple","salmon")
+TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
 pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
-plot(NMDS.UWUF.P.morphonly$points
+plot(-(NMDS.UWUF.P.morphonly$points[,1]), NMDS.UWUF.P.morphonly$points[,2]
      , main = "NMDS of Artificial Seaweed Shapes"
      , pch = 21
      , col = "black"
@@ -1726,10 +1732,10 @@ legend("center"
 #STOP
 dev.off()
  
-####### WUF ############# 
+####### *********WUF********* ############# 
 metric <- "WUF"
 
-######## HAKAI ###########
+######## --HAKAI-- ###########
 ### NMDS #####
 
 NMDS.WUF.morphonly <- isoMDS(as.matrix(dm.WUF.morphonly), y = cmdscale(as.matrix(dm.WUF.morphonly), 2))
@@ -2412,7 +2418,7 @@ legend("center"
 dev.off()
 
 
-######## PM ###########
+######## --PM-- ###########
 ### NMDS #####
 rownames(dm.WUF.P.morphonly) <- gsub(".","-", rownames(dm.WUF.P.morphonly), fixed = TRUE)
 colnames(dm.WUF.P.morphonly) <- gsub(".","-", colnames(dm.WUF.P.morphonly), fixed = TRUE)
@@ -2715,11 +2721,12 @@ legend("topleft"
 dev.off()
 
 ####### PLOT TIME ############
-TimeColours <- c("grey","lightblue","blue","darkblue", "purple","salmon")
+TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
+
 
 pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
-plot(NMDS.WUF.P.morphonly$points
+plot(-(NMDS.WUF.P.morphonly$points[,1]),NMDS.WUF.P.morphonly$points[,2]
      , main = "NMDS of Artificial Seaweed Shapes"
      , pch = 21
      , col = "black"
@@ -3204,10 +3211,10 @@ legend("center"
 dev.off()
 
 
-####### BC ############# 
+####### *********BC********* ############# 
 metric <- "BC"
 
-######## HAKAI ###########
+######## --HAKAI-- ###########
 ### NMDS #####
 
 NMDS.BC.morphonly <- isoMDS(as.matrix(dm.BC.morphonly), y = cmdscale(as.matrix(dm.BC.morphonly), 2))
@@ -3890,7 +3897,7 @@ legend("center"
 dev.off()
 
 
-######## PM ###########
+######## --PM-- ###########
 ### NMDS #####
 rownames(dm.BC.P.morphonly) <- gsub(".","-", rownames(dm.BC.P.morphonly), fixed = TRUE)
 colnames(dm.BC.P.morphonly) <- gsub(".","-", colnames(dm.BC.P.morphonly), fixed = TRUE)
@@ -4193,11 +4200,11 @@ legend("topleft"
 dev.off()
 
 ####### PLOT TIME ############
-TimeColours <- c("grey","lightblue","blue","darkblue", "purple","salmon")
+TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
 pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
-plot(NMDS.BC.P.morphonly$points
+plot(NMDS.BC.P.morphonly$points[,2],NMDS.BC.P.morphonly$points[,1]
      , main = "NMDS of Artificial Seaweed Shapes"
      , pch = 21
      , col = "black"

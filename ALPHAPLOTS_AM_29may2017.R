@@ -4,6 +4,7 @@
 library("car")
 library("nlme")
 library("optparse")
+library("gridExtra")
 ########################### OPT PARSE #################################
 
 option_list = list(
@@ -21,8 +22,8 @@ alphaNames = opt$alphaNames
 alphaList <- unlist(strsplit(alphaNames, ","))
 ########################### FOR TESTING #################################
 
-# setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
-# MPFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt'
+# setwd('/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis')
+# MPFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/MF_withalpha.txt'
 # alphaNames = 'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
 # alphaList <- unlist(strsplit(alphaNames, ","))
 
@@ -183,6 +184,26 @@ H.FB.sd <- aggregate(H.FB.Alpha$chao1, by=list(Time=H.FB.Alpha$Time), FUN=sd)
 # TimeChar <- log(H.CR.mean$Time[1:4],10)
 TimeChar <- H.CR.mean$Time[1:4]
 
+# # Make table for stats
+# p <- c(format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2)
+#   , format(anova.H.morph.60.lm$`Pr(>F)`[1],digits = 2)
+#   , format(anova.H.morph.360.lm$`Pr(>F)`[1],digits = 2)
+#   , format(anova.H.morph.720.lm$`Pr(>F)`[1],digits = 2)
+#   , format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)
+#   )
+# f <- c(format(anova.H.morph.20.lm$`F value`[1],digits = 2)
+#              , format(anova.H.morph.60.lm$`F value`[1],digits = 2)
+#              , format(anova.H.morph.360.lm$`F value`[1],digits = 2)
+#              , format(anova.H.morph.720.lm$`F value`[1],digits = 2)
+#              , format(anova.H.morph.lm$`F value`[4], digits = 2)
+# )
+# statsTable <- cbind(p,f)
+# rownames(statsTable) <- c("20 min"
+#                           , "1 h"
+#                           , "6 h"
+#                           , "12 h"
+#                           , "Time:Morph")
+
 # Min and max values
 # TimeChar <- factor(TimeChar, levels = c("20","60","360","720"))
 pdf(paste0("ALPHAPLOTS_H/Alpha_diversity_Hakai_",metric,".pdf"), pointsize = 14)
@@ -252,21 +273,36 @@ text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
+     , labels = c(paste0("20 min: "))
      , pos= 4)
 text(-1,-0.3
-     , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
+     , labels = c(paste0("1 h: "))
       , pos = 4)
 text(-1,-0.45
-     , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , labels = c(paste0("6 h: "))
      , pos = 4)
 text(-1,-0.6
-     , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
+     , labels = c(paste0("12 h: "))
      , pos = 4)
 text(-1,-0.8
-     , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , labels = c(paste0("TimexMorph: "))
      , pos = 4)
 
+text(0.15,-0.15
+     , labels = c(paste0(format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
+     , pos= 4)
+text(0.15,-0.3
+     , labels = c(paste0(format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
+     , pos = 4)
+text(0.15,-0.45
+     , labels = c(paste0(format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , pos = 4)
+text(0.15,-0.6
+     , labels = c(paste0(format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
+     , pos = 4)
+text(0.15,-0.8
+     , labels = c(paste0(format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , pos = 4)
 dev.off()
 
 ########### Plotting PM ##############
@@ -338,7 +374,7 @@ arrows(x0 = TimeChar*1.01
        , code = 3
        , length = 0.02)
 text(TimeChar, 1.05*c(P.FB.mean$x + P.FB.sd$x/2)[1:6]
-       , labels = c('*','**','*','*','*','')
+       , labels = c('*','**','*','','*','')
        , cex = 2)
 par(fig = c(0.63,1,0,1), mar= c(5,0,5,0), new = TRUE)
 plot(0,0
@@ -356,25 +392,47 @@ text(-1,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,0
-     , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), "*"))
+     , labels = c(paste0("20 min: "))
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , labels = c(paste0("1 h: "))
      , pos = 4)
 text(-1,-0.3
-     , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("3 h: "))
      , pos = 4)
 text(-1,-0.45
-     , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("6 h: "))
      , pos = 4)
 text(-1,-0.6
-     , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("12 h: "))
      , pos = 4)
 text(-1,-0.75
-     , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , labels = c(paste0("24 h: "))
      , pos = 4)
 text(-1,-0.95
-     , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , labels = c(paste0("TimexMorph: "))
+     , pos = 4)
+
+text(0.15,0
+     , labels = c(paste0(format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), "*"))
+     , pos= 4)
+text(0.15,-0.15
+     , labels = c(paste0(format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , pos = 4)
+text(0.15,-0.3
+     , labels = c(paste0(format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(0.15,-0.45
+     , labels = c(paste0(format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(0.15,-0.6
+     , labels = c(paste0(format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(0.15,-0.75
+     , labels = c(paste0(format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(0.15,-0.95
+     , labels = c(paste0(format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
@@ -535,19 +593,35 @@ text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
+     , labels = c(paste0("20 min: "))
      , pos= 4)
 text(-1,-0.3
-     , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
+     , labels = c(paste0("1 h: "))
      , pos = 4)
 text(-1,-0.45
-     , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , labels = c(paste0("6 h: "))
      , pos = 4)
 text(-1,-0.6
-     , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), '*'))
+     , labels = c(paste0("12 h: "))
      , pos = 4)
 text(-1,-0.8
-     , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , labels = c(paste0("TimexMorph: "))
+     , pos = 4)
+
+text(0.15,-0.15
+     , labels = c(paste0(format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
+     , pos= 4)
+text(0.15,-0.3
+     , labels = c(paste0(format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
+     , pos = 4)
+text(0.15,-0.45
+     , labels = c(paste0(format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , pos = 4)
+text(0.15,-0.6
+     , labels = c(paste0(format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), '*'))
+     , pos = 4)
+text(0.15,-0.8
+     , labels = c(paste0(format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
@@ -639,25 +713,47 @@ text(-1,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,0
-     , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
+     , labels = c(paste0("20 min: "))
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , labels = c(paste0("1 h: "))
      , pos = 4)
 text(-1,-0.3
-     , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("3 h: "))
      , pos = 4)
 text(-1,-0.45
-     , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , labels = c(paste0("6 h: "))
      , pos = 4)
 text(-1,-0.6
-     , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("12 h: "))
      , pos = 4)
 text(-1,-0.75
-     , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , labels = c(paste0("24 h: "))
      , pos = 4)
 text(-1,-0.95
-     , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , labels = c(paste0("TimexMorph: "))
+     , pos = 4)
+
+text(0.15,0
+     , labels = c(paste0(format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
+     , pos= 4)
+text(0.15,-0.15
+     , labels = c(paste0(format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , pos = 4)
+text(0.15,-0.3
+     , labels = c(paste0(format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(0.15,-0.45
+     , labels = c(paste0(format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(0.15,-0.6
+     , labels = c(paste0(format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(0.15,-0.75
+     , labels = c(paste0(format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(0.15,-0.95
+     , labels = c(paste0(format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
@@ -818,19 +914,35 @@ text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("20 min: ", format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
+     , labels = c(paste0("20 min: "))
      , pos= 4)
 text(-1,-0.3
-     , labels = c(paste0("1 h: ", format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
+     , labels = c(paste0("1 h: "))
      , pos = 4)
 text(-1,-0.45
-     , labels = c(paste0("6 h: ", format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , labels = c(paste0("6 h: "))
      , pos = 4)
 text(-1,-0.6
-     , labels = c(paste0("12 h: ", format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
+     , labels = c(paste0("12 h: "))
      , pos = 4)
 text(-1,-0.8
-     , labels = c(paste0("TimexMorphology: ", format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , labels = c(paste0("TimexMorph: "))
+     , pos = 4)
+
+text(0.15,-0.15
+     , labels = c(paste0(format(anova.H.morph.20.lm$`Pr(>F)`[1],digits = 2), ''))
+     , pos= 4)
+text(0.15,-0.3
+     , labels = c(paste0(format(anova.H.morph.60.lm$`Pr(>F)`[1], digits = 2), '**'))
+     , pos = 4)
+text(0.15,-0.45
+     , labels = c(paste0(format(anova.H.morph.360.lm$`Pr(>F)`[1], digits = 2), '***'))
+     , pos = 4)
+text(0.15,-0.6
+     , labels = c(paste0(format(anova.H.morph.720.lm$`Pr(>F)`[1], digits = 2), ''))
+     , pos = 4)
+text(0.15,-0.8
+     , labels = c(paste0(format(anova.H.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
@@ -922,25 +1034,47 @@ text(-1,0.15
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,0
-     , labels = c(paste0("20 min: ", format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
+     , labels = c(paste0("20 min: "))
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("1 h: ", format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , labels = c(paste0("1 h: "))
      , pos = 4)
 text(-1,-0.3
-     , labels = c(paste0("3 h: ", format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("3 h: "))
      , pos = 4)
 text(-1,-0.45
-     , labels = c(paste0("6 h: ", format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , labels = c(paste0("6 h: "))
      , pos = 4)
 text(-1,-0.6
-     , labels = c(paste0("12 h: ", format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , labels = c(paste0("12 h: "))
      , pos = 4)
 text(-1,-0.75
-     , labels = c(paste0("24 h: ", format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , labels = c(paste0("24 h: "))
      , pos = 4)
 text(-1,-0.95
-     , labels = c(paste0("TimexMorphology: ", format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
+     , labels = c(paste0("TimexMorph: "))
+     , pos = 4)
+
+text(0.15,0
+     , labels = c(paste0(format(anova.P.morph.20.lm$`Pr(>F)`[1],digits = 2), ""))
+     , pos= 4)
+text(0.15,-0.15
+     , labels = c(paste0(format(anova.P.morph.60.lm$`Pr(>F)`[1], digits = 2), "**"))
+     , pos = 4)
+text(0.15,-0.3
+     , labels = c(paste0(format(anova.P.morph.180.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(0.15,-0.45
+     , labels = c(paste0(format(anova.P.morph.360.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(0.15,-0.6
+     , labels = c(paste0(format(anova.P.morph.720.lm$`Pr(>F)`[1], digits = 2), "*"))
+     , pos = 4)
+text(0.15,-0.75
+     , labels = c(paste0(format(anova.P.morph.1440.lm$`Pr(>F)`[1], digits = 2), ""))
+     , pos = 4)
+text(0.15,-0.95
+     , labels = c(paste0(format(anova.P.morph.lm$`Pr(>F)`[4], digits = 2)))
      , pos = 4)
 
 dev.off()
