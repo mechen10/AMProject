@@ -34,7 +34,7 @@ MFPWD = opt$mappingfile
 # WUFPWD <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt'
 # MFPWD <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt'
 # setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis")
-
+# 
 # BCPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/bray_curtis_dm.txt'
 # UWUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/unweighted_unifrac_dm.txt'
 # WUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/weighted_unifrac_dm.txt'
@@ -251,7 +251,9 @@ for (ROW in 1:nrow(MF.P)) {
 
 
 system("mkdir BETAPLOTS_H")
+system('mkdir ./BETAPLOTS_H/individualtests/')
 system("mkdir BETAPLOTS_P")
+system('mkdir ./BETAPLOTS_P/individualtests/')
 
 #*** NOTE: ONLY WORKING ON UWUF RIGHT NOW; DO OTHERS AFTER
 ####### *********UWUF********* ############# 
@@ -385,6 +387,7 @@ CR.BL.UWUF.ALL.sd <- aggregate(CR.BL.UWUF.ALL, by = list(CR.BL.UWUF.ALL[,2]), sd
 
 FB.CR.UWUF.ALL.mean <- aggregate(FB.CR.UWUF.ALL, by = list(FB.CR.UWUF.ALL[,2]), mean)
 FB.CR.UWUF.ALL.sd <- aggregate(FB.CR.UWUF.ALL, by = list(FB.CR.UWUF.ALL[,2]), sd)
+
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.UWUF.ALL[,1],FB.CR.UWUF.ALL[,1],CR.BL.UWUF.ALL[,1]), max(FB.BL.UWUF.ALL[,1],FB.CR.UWUF.ALL[,1],CR.BL.UWUF.ALL[,1]))
@@ -939,6 +942,21 @@ legend("center"
        , col= "black"
        , pt.bg = c(MorphColours[1],MorphColours[2],MorphColours[3]))
 dev.off()
+
+
+
+# Combine individual stats and print out
+
+allindividualTests <- c("ANOVA.UWUF.20.only"
+                        ,"ANOVA.UWUF.60.only"
+                        ,"ANOVA.UWUF.360.only"
+                        ,"ANOVA.UWUF.720.only"
+                        ,"ANOVA.UWUF.5760"
+)
+for (i in allindividualTests) {
+  # print(get(i))
+  capture.output(get(i), file = paste0("./BETAPLOTS_H/individualtests/",i,".txt"))
+}
 
  
 ######## --PM-- ###########
@@ -1731,7 +1749,23 @@ legend("center"
 )
 #STOP
 dev.off()
- 
+
+# Combine individual stats and print out
+
+allindividualTests <- c("ANOVA.UWUF.P.20.only"
+                        ,"ANOVA.UWUF.P.60.only"
+                        ,"ANOVA.UWUF.P.180.only"
+                        ,"ANOVA.UWUF.P.360.only"
+                        ,"ANOVA.UWUF.P.720.only"
+                        ,"ANOVA.UWUF.P.1440.only"
+                        
+)
+for (i in allindividualTests) {
+  # print(get(i))
+  capture.output(get(i), file = paste0("./BETAPLOTS_P/individualtests/",i,".txt"))
+}
+
+
 ####### *********WUF********* ############# 
 metric <- "WUF"
 
@@ -2416,6 +2450,20 @@ legend("center"
        , col= "black"
        , pt.bg = c(MorphColours[1],MorphColours[2],MorphColours[3]))
 dev.off()
+
+
+# Combine individual stats and print out
+
+allindividualTests <- c("ANOVA.WUF.20.only"
+                        ,"ANOVA.WUF.60.only"
+                        ,"ANOVA.WUF.360.only"
+                        ,"ANOVA.WUF.720.only"
+                        ,"ANOVA.WUF.5760"
+)
+for (i in allindividualTests) {
+  # print(get(i))
+  capture.output(get(i), file = paste0("./BETAPLOTS_H/individualtests/",i,".txt"))
+}
 
 
 ######## --PM-- ###########
@@ -3210,6 +3258,20 @@ legend("center"
 #STOP
 dev.off()
 
+# Combine individual stats and print out
+
+allindividualTests <- c("ANOVA.WUF.P.20.only"
+                        ,"ANOVA.WUF.P.60.only"
+                        ,"ANOVA.WUF.P.180.only"
+                        ,"ANOVA.WUF.P.360.only"
+                        ,"ANOVA.WUF.P.720.only"
+                        ,"ANOVA.WUF.P.1440.only"
+                        
+)
+for (i in allindividualTests) {
+  # print(get(i))
+  capture.output(get(i), file = paste0("./BETAPLOTS_P/individualtests/",i,".txt"))
+}
 
 ####### *********BC********* ############# 
 metric <- "BC"
@@ -3896,6 +3958,19 @@ legend("center"
        , pt.bg = c(MorphColours[1],MorphColours[2],MorphColours[3]))
 dev.off()
 
+
+# Combine individual stats and print out
+
+allindividualTests <- c("ANOVA.BC.20.only"
+                        ,"ANOVA.BC.60.only"
+                        ,"ANOVA.BC.360.only"
+                        ,"ANOVA.BC.720.only"
+                        ,"ANOVA.BC.5760"
+)
+for (i in allindividualTests) {
+  # print(get(i))
+  capture.output(get(i), file = paste0("./BETAPLOTS_H/individualtests/",i,".txt"))
+}
 
 ######## --PM-- ###########
 ### NMDS #####
@@ -4687,3 +4762,18 @@ legend("center"
 )
 #STOP
 dev.off()
+
+# Combine individual stats and print out
+
+allindividualTests <- c("ANOVA.BC.P.20.only"
+                        ,"ANOVA.BC.P.60.only"
+                        ,"ANOVA.BC.P.180.only"
+                        ,"ANOVA.BC.P.360.only"
+                        ,"ANOVA.BC.P.720.only"
+                        ,"ANOVA.BC.P.1440.only"
+                        
+)
+for (i in allindividualTests) {
+  # print(get(i))
+  capture.output(get(i), file = paste0("./BETAPLOTS_P/individualtests/",i,".txt"))
+}
