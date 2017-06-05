@@ -27,7 +27,7 @@ MFPWD = opt$mappingfile
 # condensedFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/OTU_L4.txt'
 # keepUnColFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/TOKEEP.txt'
 # MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/MF_nochlpmito_m1000.txt'
-# 
+
 
 ########################### LOADING #################################
 system("mkdir TAXASUMMARIES")
@@ -600,54 +600,188 @@ legend('center'
 dev.off()
 # 
 # ######### SHORT VERSION ##############
-# # Collapse by replicate
-# OTUTable.RelAbund.trans <- t(OTUTable.RelAbund)
-# 
-# colRepNames <- c()
-# for (i in 1:ncol(OTUTable.RelAbund)) {
-#   colRepNames <- c(colRepNames, MF.inclWater[colnames(OTUTable.RelAbund)[i],"ColRep"])
-# }
-# 
-# rownames(OTUTable.RelAbund.trans) <- colRepNames
-# OTUTable.RelAbund.trans.agg <- aggregate(OTUTable.RelAbund.trans, by = list(row.names(OTUTable.RelAbund.trans)), FUN = mean)
-# OTUTable.RelAbund.trans.agg.sd <- aggregate(OTUTable.RelAbund.trans, by = list(row.names(OTUTable.RelAbund.trans)), FUN = sd)
-# 
-# headersTemp <- OTUTable.RelAbund.trans.agg[,1]
-# OTUTable.RelAbund.trans.agg <- OTUTable.RelAbund.trans.agg[,-1]
-# OTUTable.RelAbund.trans.agg.sd <- OTUTable.RelAbund.trans.agg.sd[,-1]
-# rownames(OTUTable.RelAbund.trans.agg) <- headersTemp
-# rownames(OTUTable.RelAbund.trans.agg.sd) <- headersTemp
-# 
-# OTUTable.RelAbund.trans.agg <- t(OTUTable.RelAbund.trans.agg)
-# OTUTable.RelAbund.trans.agg.sd <- t(OTUTable.RelAbund.trans.agg.sd)
-# 
-# # colnames(OTUTable.RelAbund.trans.agg) <- OTUTable.RelAbund.trans.agg[1,]
-# # OTUTable.RelAbund.trans.agg <- OTUTable.RelAbund.trans.agg[-1,]
-# 
-# # Order
-# 
-# orderPosition <- c()
-# for (i in c("FB","BL","CR","W")) {
-#   typeList <- colnames(OTUTable.RelAbund.trans.agg)[grep(i, colnames(OTUTable.RelAbund.trans.agg))]
-#   for (j in c("20","60","360","720","5760")) {
-#     timeList <- typeList[grep(paste0(i,j), typeList, fixed = TRUE)]
-#     orderPosition <- c(orderPosition, which(colnames(OTUTable.RelAbund.trans.agg) %in% timeList))
-#         }
-# }
-# 
-# 
-# OTUTable.RelAbund.trans.agg <- OTUTable.RelAbund.trans.agg[,orderPosition]
-# OTUTable.RelAbund.trans.agg.sd <- OTUTable.RelAbund.trans.agg.sd[,orderPosition]
-# 
-# 
+######### HAKAI ##########
+# Collapse by replicate
+OTUTable.RelAbund.trans <- t(OTUTable.RelAbund)
+colnames(OTUTable.RelAbund)
+
+colRepNames <- c()
+for (i in 1:ncol(OTUTable.RelAbund)) {
+  colRepNames <- c(colRepNames, MF.inclWater[colnames(OTUTable.RelAbund)[i],"ColRep"])
+}
+
+rownames(OTUTable.RelAbund.trans) <- colRepNames
+OTUTable.RelAbund.trans.agg <- aggregate(OTUTable.RelAbund.trans, by = list(row.names(OTUTable.RelAbund.trans)), FUN = mean)
+OTUTable.RelAbund.trans.agg.sd <- aggregate(OTUTable.RelAbund.trans, by = list(row.names(OTUTable.RelAbund.trans)), FUN = sd)
+
+headersTemp <- OTUTable.RelAbund.trans.agg[,1]
+OTUTable.RelAbund.trans.agg <- OTUTable.RelAbund.trans.agg[,-1]
+OTUTable.RelAbund.trans.agg.sd <- OTUTable.RelAbund.trans.agg.sd[,-1]
+rownames(OTUTable.RelAbund.trans.agg) <- headersTemp
+rownames(OTUTable.RelAbund.trans.agg.sd) <- headersTemp
+
+OTUTable.RelAbund.trans.agg <- t(OTUTable.RelAbund.trans.agg)
+OTUTable.RelAbund.trans.agg.sd <- t(OTUTable.RelAbund.trans.agg.sd)
+
+# colnames(OTUTable.RelAbund.trans.agg) <- OTUTable.RelAbund.trans.agg[1,]
+# OTUTable.RelAbund.trans.agg <- OTUTable.RelAbund.trans.agg[-1,]
+
+# Order
+
+orderPosition <- c()
+for (i in c("FB","BL","CR","W")) {
+  typeList <- colnames(OTUTable.RelAbund.trans.agg)[grep(i, colnames(OTUTable.RelAbund.trans.agg))]
+  for (j in c("20","60","360","720","5760")) {
+    timeList <- typeList[grep(paste0(i,j), typeList, fixed = TRUE)]
+    orderPosition <- c(orderPosition, which(colnames(OTUTable.RelAbund.trans.agg) %in% timeList))
+        }
+}
+
+
+OTUTable.RelAbund.trans.agg <- OTUTable.RelAbund.trans.agg[,orderPosition]
+OTUTable.RelAbund.trans.agg.sd <- OTUTable.RelAbund.trans.agg.sd[,orderPosition]
+
+
+# Get legend names
+
+grThanFive <- c()
+for (i in 1:nrow(OTUTable.RelAbund.trans.agg)) {
+  grThanFive <- c(grThanFive, any(OTUTable.RelAbund.trans.agg[i,] >= 0.01))
+}
+
+namesKeep <- rownames(OTUTable.RelAbund.trans.agg)[grThanFive]
+
+positionKeep <- unlist(sapply(namesKeep, function(x) {grep(paste0("^",x,"$"), rownames(taxonomyNames))}))
+
+taxonomyNamesForPlot <- taxonomyNames[positionKeep,]
+taxonomyNamesForPlotSplit <-sapply(taxonomyNamesForPlot, function(x) {
+  tempString <- gsub("; __", "SPLIT", x)
+  strsplit(tempString, split = "SPLIT")
+  })
+
+taxonomyNamesSplit <- c()
+for (i in taxonomyNamesForPlotSplit) {
+  if (is.na(i[3])) {
+    Class <- "Unassigned"
+  } else {
+    Class <- i[3]
+  }
+
+  if (is.na(i[6])) {
+    Genus <- "Unassigned"
+  } else {
+    Genus <- i[6]
+  }
+
+  if (is.na(i[7])) {
+    Species <- "Unassigned"
+  } else {
+    Species <- i[7]
+  }
+
+  taxonomyNamesSplit <- c(taxonomyNamesSplit, paste0(Class, "--",Genus,"_",Species))
+}
+
+
+
+legendColors <- randomColors[positionKeep]
+
+pdf("./TAXASUMMARIES/TaxaSummaries_Hakai_OTU.pdf", pointsize = 14, width = 5, height = 7)
+par(fig = c(0,1,0.4,1), mar = c(2,2,2,2))
+barplot(as.matrix(OTUTable.RelAbund.trans.agg)
+        , col = randomColors
+        , border = NA
+        , las = 2
+        , space = c(0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,2,0)
+        , xaxt = "n"
+        , yaxt = "n"
+
+        )
+title(ylab="Relative Abundance", line=0, cex.lab=1.2)
+axis(1
+     , las = 2
+     , labels = c("20","60","360","720","5760","",""
+                  , "20", "60","360","720","5760","",""
+                  , "20","60","360","720","5760","",""
+                  , "360","5760", "")
+     , at = seq(0.5,23.5, by = 1)
+     , tick = FALSE
+     , line = -1
+    )
+axis(1
+     , labels = c("Finely Br.","Bladed", "Crustose", "Water")
+     , at = c(2,9,16.5,21.5)
+     , tick = FALSE
+     , line = 1
+     , cex = 0.5
+)
+par(fig = c(0,1,0,0.4), mar = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , xlab = ""
+     , ylab = ""
+     , bty = "n"
+     )
+# legend("center"
+#        , legend = rev(taxonomyNamesSplit)
+#        , col = rev(legendColors)
+#        , pch = 15
+#        , cex = 0.8
+#        , bty = 'n')
+dev.off()
+
+
+########### PM #############
+# Collapse by replicate
+OTUTable.P.RelAbund.trans <- t(OTUTable.P.RelAbund)
+
+colRepNames <- c()
+for (i in 1:ncol(OTUTable.P.RelAbund)) {
+  colRepNames <- c(colRepNames, MF.P.inclWater[colnames(OTUTable.P.RelAbund)[i],"ColRep"])
+}
+
+rownames(OTUTable.P.RelAbund.trans) <- colRepNames
+OTUTable.P.RelAbund.trans.agg <- aggregate(OTUTable.P.RelAbund.trans, by = list(row.names(OTUTable.P.RelAbund.trans)), FUN = mean)
+OTUTable.P.RelAbund.trans.agg.sd <- aggregate(OTUTable.P.RelAbund.trans, by = list(row.names(OTUTable.P.RelAbund.trans)), FUN = sd)
+
+headersTemp <- OTUTable.P.RelAbund.trans.agg[,1]
+OTUTable.P.RelAbund.trans.agg <- OTUTable.P.RelAbund.trans.agg[,-1]
+OTUTable.P.RelAbund.trans.agg.sd <- OTUTable.P.RelAbund.trans.agg.sd[,-1]
+rownames(OTUTable.P.RelAbund.trans.agg) <- headersTemp
+rownames(OTUTable.P.RelAbund.trans.agg.sd) <- headersTemp
+
+OTUTable.P.RelAbund.trans.agg <- t(OTUTable.P.RelAbund.trans.agg)
+OTUTable.P.RelAbund.trans.agg.sd <- t(OTUTable.P.RelAbund.trans.agg.sd)
+
+# colnames(OTUTable.P.RelAbund.trans.agg) <- OTUTable.P.RelAbund.trans.agg[1,]
+# OTUTable.P.RelAbund.trans.agg <- OTUTable.P.RelAbund.trans.agg[-1,]
+
+# Order
+
+orderPosition <- c()
+for (i in c("FB","BL","CR","H2O")) {
+  typeList <- colnames(OTUTable.P.RelAbund.trans.agg)[grep(i, colnames(OTUTable.P.RelAbund.trans.agg))]
+  for (j in c("20","60","180","360","720","1440")) {
+    timeList <- typeList[grep(paste0(i,j), typeList, fixed = TRUE)]
+    orderPosition <- c(orderPosition, which(colnames(OTUTable.P.RelAbund.trans.agg) %in% timeList))
+  }
+}
+
+
+OTUTable.P.RelAbund.trans.agg <- OTUTable.P.RelAbund.trans.agg[,orderPosition]
+OTUTable.P.RelAbund.trans.agg.sd <- OTUTable.P.RelAbund.trans.agg.sd[,orderPosition]
+
+## KEEP LEGEND NAMES FROM ABOVE
 # # Get legend names
 # 
 # grThanFive <- c()
-# for (i in 1:nrow(OTUTable.RelAbund.trans.agg)) {
-#   grThanFive <- c(grThanFive, any(OTUTable.RelAbund.trans.agg[i,] >= 0.01))
+# for (i in 1:nrow(OTUTable.P.RelAbund.trans.agg)) {
+#   grThanFive <- c(grThanFive, any(OTUTable.P.RelAbund.trans.agg[i,] >= 0.01))
 # }
 # 
-# namesKeep <- rownames(OTUTable.RelAbund.trans.agg)[grThanFive]
+# namesKeep <- rownames(OTUTable.P.RelAbund.trans.agg)[grThanFive]
 # 
 # positionKeep <- unlist(sapply(namesKeep, function(x) {grep(paste0("^",x,"$"), rownames(taxonomyNames))}))
 # 
@@ -655,7 +789,7 @@ dev.off()
 # taxonomyNamesForPlotSplit <-sapply(taxonomyNamesForPlot, function(x) {
 #   tempString <- gsub("; __", "SPLIT", x)
 #   strsplit(tempString, split = "SPLIT")
-#   })
+# })
 # 
 # taxonomyNamesSplit <- c()
 # for (i in taxonomyNamesForPlotSplit) {
@@ -683,9 +817,65 @@ dev.off()
 # 
 # 
 # legendColors <- randomColors[positionKeep]
-# 
-# jpeg("TaxaSummaries.jpeg", pointsize = 32, width = 1000, height = 1500)
-# par(fig = c(0,1,0.4,1), mar = c(2,2,2,2))
+
+pdf("./TAXASUMMARIES/TaxaSummaries_PM_OTU.pdf", pointsize = 14, width = 5, height = 7)
+par(fig = c(0,1,0.4,1), mar = c(2,2,2,2))
+barplot(as.matrix(OTUTable.P.RelAbund.trans.agg)
+        , col = randomColors
+        , border = NA
+        , las = 2
+        , space = c(0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,2,0)
+        , xaxt = "n"
+        , yaxt = "n"
+        
+)
+title(ylab="Relative Abundance", line=0, cex.lab=1.2)
+axis(1
+     , las = 2
+     , labels = c("20","60","180","360","720","1440","",""
+                  , "20", "60","180","360","720","1440","",""
+                  , "20","60","180","360","720","1440","",""
+                  , "20","1440", "")
+     , at = seq(0.5,26.5, by = 1)
+     , tick = FALSE
+     , line = -1
+)
+axis(1
+     , labels = c("Finely Br.","Bladed", "Crustose", "Water")
+     , at = c(3,11,19.5,25.5)
+     , tick = FALSE
+     , line = 1
+     , cex = 0.5
+)
+par(fig = c(0,1,0,0.4), mar = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , xlab = ""
+     , ylab = ""
+     , bty = "n"
+)
+# legend("center"
+#        , legend = rev(taxonomyNamesSplit)
+#        , col = rev(legendColors)
+#        , pch = 15
+#        , cex = 0.8
+#        , bty = 'n')
+dev.off()
+
+
+######## EXTRA-- for figuring out taxa
+#
+# taxonomyNamesSplitwOTUID <- taxonomyNamesSplit
+# for (i in 1:length(taxonomyNamesSplitwOTUID)) {
+#   taxonomyNamesSplitwOTUID[i] <- paste0(taxonomyNamesSplitwOTUID[i], "_", as.character(names(positionKeep)[i]))
+# }
+#
+#
+#
+# jpeg("TaxaSummaries_morelegend.jpeg", pointsize = 32, width = 1500, height = 1500)
+# par(fig = c(0,0.6,0,1), mar = c(2,2,2,2))
 # barplot(as.matrix(OTUTable.RelAbund.trans.agg)
 #         , col = randomColors
 #         , border = NA
@@ -693,8 +883,8 @@ dev.off()
 #         , space = c(0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,2,0)
 #         , xaxt = "n"
 #         , yaxt = "n"
-# 
-#         )
+#
+# )
 # title(ylab="Relative Abundance", line=0, cex.lab=1.2)
 # axis(1
 #      , las = 2
@@ -705,15 +895,15 @@ dev.off()
 #      , at = seq(0.5,23.5, by = 1)
 #      , tick = FALSE
 #      , line = -1
-#     )
+# )
 # axis(1
-#      , labels = c("Finely Br.","Bladed", "Crustose", "Water")
+#      , labels = c("Crust","Bladed", "Finely Br.", "Water")
 #      , at = c(2,9,16.5,21.5)
 #      , tick = FALSE
 #      , line = 1
 #      , cex = 0.5
 # )
-# par(fig = c(0,1,0,0.4), mar = c(0,0,0,0), new = TRUE)
+# par(fig = c(0.5,1,0,1), mar = c(0,0,0,0), new = TRUE)
 # plot(0,0
 #      , pch = ""
 #      , xaxt = "n"
@@ -721,76 +911,16 @@ dev.off()
 #      , xlab = ""
 #      , ylab = ""
 #      , bty = "n"
-#      )
+# )
 # legend("center"
-#        , legend = rev(taxonomyNamesSplit)
+#        , legend = rev(taxonomyNamesSplitwOTUID)
 #        , col = rev(legendColors)
 #        , pch = 15
-#        , cex = 0.8
+#        , cex = 0.5
 #        , bty = 'n')
 # dev.off()
-# 
-# OTUTable.RelAbund.trans.agg["82837",]
-# 
-# 
-# 
-# 
-# ######## EXTRA-- for figuring out taxa
-# # 
-# # taxonomyNamesSplitwOTUID <- taxonomyNamesSplit
-# # for (i in 1:length(taxonomyNamesSplitwOTUID)) {
-# #   taxonomyNamesSplitwOTUID[i] <- paste0(taxonomyNamesSplitwOTUID[i], "_", as.character(names(positionKeep)[i]))
-# # }
-# # 
-# # 
-# # 
-# # jpeg("TaxaSummaries_morelegend.jpeg", pointsize = 32, width = 1500, height = 1500)
-# # par(fig = c(0,0.6,0,1), mar = c(2,2,2,2))
-# # barplot(as.matrix(OTUTable.RelAbund.trans.agg)
-# #         , col = randomColors
-# #         , border = NA
-# #         , las = 2
-# #         , space = c(0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,2,0)
-# #         , xaxt = "n"
-# #         , yaxt = "n"
-# #         
-# # )
-# # title(ylab="Relative Abundance", line=0, cex.lab=1.2)
-# # axis(1
-# #      , las = 2
-# #      , labels = c("20","60","360","720","5760","",""
-# #                   , "20", "60","360","720","5760","",""
-# #                   , "20","60","360","720","5760","",""
-# #                   , "360","5760", "")
-# #      , at = seq(0.5,23.5, by = 1)
-# #      , tick = FALSE
-# #      , line = -1
-# # )
-# # axis(1
-# #      , labels = c("Crust","Bladed", "Finely Br.", "Water")
-# #      , at = c(2,9,16.5,21.5)
-# #      , tick = FALSE
-# #      , line = 1
-# #      , cex = 0.5
-# # )
-# # par(fig = c(0.5,1,0,1), mar = c(0,0,0,0), new = TRUE)
-# # plot(0,0
-# #      , pch = ""
-# #      , xaxt = "n"
-# #      , yaxt = "n"
-# #      , xlab = ""
-# #      , ylab = ""
-# #      , bty = "n"
-# # )
-# # legend("center"
-# #        , legend = rev(taxonomyNamesSplitwOTUID)
-# #        , col = rev(legendColors)
-# #        , pch = 15
-# #        , cex = 0.5
-# #        , bty = 'n')
-# # dev.off()
-# 
-# 
+
+
 # 
 # # Isolating individual taxa to see abundances
 # # xlab

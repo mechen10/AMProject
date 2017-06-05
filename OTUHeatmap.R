@@ -290,7 +290,6 @@ heatmap(as.matrix(OTUTable.filt.col)
 dev.off()
 
 
-
 ################ PORTMOODY ######################
 # Get all OTUs for PM
 allOTUs.P <- c()
