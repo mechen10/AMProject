@@ -1,5 +1,7 @@
 #!/bin/Rscript
 
+# FOR AM PROJECT
+
 library("optparse")
 ########################### OPT PARSE #################################
 option_list = list(
@@ -7,8 +9,6 @@ option_list = list(
               help="Full OTU Table"),
   make_option(c("-c", "--condensedOTUTable"),
               help="OTU Table at desired taxa level to collapse", type="character"),
-  make_option(c("-k", "--keepUnCol"), 
-              help="File with list of OTUs to keep un collapsed", type="character"),
   make_option(c("-m", "--mappingfile"),
               help="Mappingfile", type="character")
   
@@ -19,7 +19,6 @@ opt = parse_args(opt_parser);
 
 OTUFP = opt$otutable
 condensedFP = opt$condensedOTUTable
-keepUnColFP = opt$keepUnCol
 MFPWD = opt$mappingfile
 ########################### FOR TESTING #################################
 
@@ -580,7 +579,7 @@ over5colors <- randomColorsEdited[-grep('white', randomColorsEdited)]
 
 
 
-pdf("./TAXASUMMARIES/LEGEND_taxasummaries.pdf", pointsize = 14, height = 5, width = 7.5)
+pdf("./TAXASUMMARIES/LEGEND_taxasummaries.pdf", pointsize = 14, height = 6, width = 7.5)
 par(mar = c(0,0,0,0))
 plot(0,0
      , pch = ''

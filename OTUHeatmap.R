@@ -1,5 +1,7 @@
 #!/bin/Rscript
 
+# FOR AM PROJECT
+
 library("optparse")
 ########################### OPT PARSE #################################
 option_list = list(
