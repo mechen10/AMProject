@@ -21,13 +21,13 @@ OTUFP = opt$otutable
 condensedFP = opt$condensedOTUTable
 MFPWD = opt$mappingfile
 ########################### FOR TESTING #################################
-
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/")
-OTUFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/OTU_Table_text.txt'
-condensedFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/OTU_L4.txt'
-keepUnColFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/TOKEEP.txt'
-MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/MF_nochlpmito_m1000.txt'
-
+# 
+# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/")
+# OTUFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/OTU_Table_text.txt'
+# condensedFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/OTU_L4.txt'
+# keepUnColFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/TOKEEP.txt'
+# MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/MF_nochlpmito_m1000.txt'
+# 
 
 ########################### LOADING #################################
 system("mkdir TAXASUMMARIES")
