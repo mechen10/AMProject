@@ -47,7 +47,7 @@ for (i in 1:nrow(MF.Alpha.all)) {
   if (MF.Alpha.all[i,'Morph'] %in% c("CR","BL","FB")) {
     storeOnlySeaweed <- c(storeOnlySeaweed, i)
   } 
-  if (MF.Alpha.all[i,'Morph'] %in% c("CR","BL","FB","W")) {
+  if (MF.Alpha.all[i,'Morph'] %in% c("CR","BL","FB","W","H2O")) {
     storeAllTypes <- c(storeAllTypes, i)
   }
 }
@@ -1078,4 +1078,21 @@ text(0.15,-0.95
      , pos = 4)
 
 dev.off()
+
+############# ******WATER COMPARISONS****** ##############
+allwaters <- MF.Alpha.morphwater[grep("(H_W)|(P_H2)", MF.Alpha.morphwater$TypeMorphTime),]
+system("mkdir ALPHA_watercompare")
+for (i in alphaList) {
+  temp.lm <- lm(as.numeric(allwaters[,i]) ~ allwaters$Type*allwaters$Time)
+  capture.output(anova(temp.lm), file = paste0("./ALPHA_watercompare/wateronly_",i,".txt"))
+  
+  # assign(paste0(i), aggregate(as.numeric(MF.Alpha.morphwater[,paste0(i)])
+  #            ~ MF.Alpha.morphwater$TypeMorphTime
+  #           , FUN = function(x) c(u = mean(x), sd = sd(x) )
+  #           ))
+  # HakaiWater <- get(i)[,2][grep("H_W", get(i)[,1]),]
+  # PMWater <- get(i)[,2][grep("P_H2O", get(i)[,1]),]
+  # 
+}
+
 
