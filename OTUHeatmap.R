@@ -3,6 +3,7 @@
 # FOR AM PROJECT
 
 library("optparse")
+library("gplots")
 ########################### OPT PARSE #################################
 option_list = list(
   make_option(c("-i", "--inputFolder"), type="character",
@@ -26,6 +27,12 @@ metadataFP = opt$metadata
 # inputFolder <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/ALLMORPH_cores'
 # otuTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/OTU_Table_text.txt'
 # metadataFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/MF_nochlpmito_m1000.txt'
+
+setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
+inputFolder <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/CORE/ALLMORPH_cores'
+otuTableFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_Table_text.txt'
+metadataFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt'
+
 
 ########################### LOAD DATA #################################
 system("mkdir OTUHEATMAP")
@@ -259,25 +266,56 @@ OTUTable.filt.col <- OTUTable.filt.col[ORDERED.otus,]
 
 ################################# PLOT ####
 colortemp <- colorRampPalette(c("white","darkgreen"))
-xlabels <- c("Finely Branched: 20 m"
-  , "Finely Branched: 1 h"
-  , "Finely Branched: 6 h"
-  , "Finely Branched: 12 h"
-  , "Finely Branched: 4 d"
-  , "Bladed: 20 m"
-  , "Bladed: 1 h"
-  , "Bladed: 6 h"
-  , "Bladed: 12 h"
-  , "Bladed: 4 d"
-  , "Crustose: 20 m"
-  , "Crustose: 1 h"
-  , "Crustose: 6 h"
-  , "Crustose: 12 h"
-  , "Crustose: 4 d"
-  , "Water: 6 h"
-  , "Water: 4 d")
+xlabels <- c("20 m"
+  , "1 h"
+  , "6 h"
+  , "12 h"
+  , "4 d"
+  , "20 m"
+  , "1 h"
+  , "6 h"
+  , "12 h"
+  , "4 d"
+  , "20 m"
+  , "1 h"
+  , "6 h"
+  , "12 h"
+  , "4 d"
+  , "6 h"
+  , "4 d")
+
+hc <- hclust(as.dist(1-cor(t(OTUTable.filt.col))))
+hc.v <- hclust(as.dist(1-cor(OTUTable.filt.col)))
+
+jpeg("./OTUHEATMAP/OTUHeatmap_Hakai_new.jpeg")
+par(fig = c(0,1,0,1))
+heatmap.2(as.matrix(OTUTable.filt.col)
+          , Colv = NA
+          , Rowv = as.dendrogram(hc)
+          , cexCol = 1
+          , labRow = NA
+          , labCol = xlabels
+          , col = colortemp(10)
+          , margins = c(10,0.5)
+          , density.info= "none"
+          , trace = "none"
+          # , breaks = c(0,0.00001,0.0001,0.001,0.01,0.1)
+          , dendrogram = 'none'
+          , ColSideColors = c(rep("salmon",5),rep("dodgerblue",5),rep("darkorchid",5), rep("darkblue",2))
+          , scale = "row"
+)
+par(fig = c(0,1,0,1))
+legend("topright"
+       , legend = c("Finely branched","Bladed","Crustose","Water")
+       , col = c("salmon","dodgerblue","darkorchid","darkblue")
+       , pch = 19
+       , cex = 0.7
+       )
+dev.off()
+
 
 pdf(paste0("./OTUHEATMAP/OTUHeatmap_","Hakai",".pdf"), pointsize = 14)
+quartz()
 heatmap(as.matrix(OTUTable.filt.col)
         , Colv = NA
         , Rowv = NA

@@ -29,6 +29,12 @@ MFPWD = opt$mappingfile
 # MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis/MF_nochlpmito_m1000.txt'
 
 
+# setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis")
+# OTUFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_Table_text.txt'
+# condensedFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/summarize_taxa/OTU_Table_nochlpmito_m1000_L4.txt'
+# MFPWD <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt'
+# 
+
 ########################### LOADING #################################
 system("mkdir TAXASUMMARIES")
 # Make Taxa summaries
@@ -46,7 +52,7 @@ OTUTable.3 <- read.delim(paste0(condensedFP)
                        , row.names = 1)
 
 OTUTable <- OTUTable[,-ncol(OTUTable)]
-OTUTable.3 <- OTUTable.3[,-ncol(OTUTable.3)]
+# OTUTable.3 <- OTUTable.3[,-ncol(OTUTable.3)]
 
 colnames(OTUTable) <- gsub('X', '',colnames(OTUTable))
 colnames(OTUTable.3) <- gsub('X','',colnames(OTUTable.3))
@@ -95,39 +101,7 @@ for (ROW in 1:nrow(MF)) {
   }  
 }
 
-# 
-# # Get rid of zeros-- NOT WORKING
-# toDelete <- c()
-# for (i in 1:nrow(OTUTable.inclWater)) {
-#   if (sum(OTUTable.inclWater[i,]) <= 5) {
-#     toDelete <- c(toDelete, i)
-#   }
-# }
-# OTUTable.inclWater <- OTUTable.inclWater[-toDelete,]
-# 
-# toDelete <- c()
-# for (i in 1:nrow(OTUTable.3.inclWater)) {
-#   if (sum(OTUTable.3.inclWater[i,]) <= 5) {
-#     toDelete <- c(toDelete, i)
-#   }
-# }
-# OTUTable.3.inclWater <- OTUTable.3.inclWater[-toDelete,]
-# 
-# toDelete <- c()
-# for (i in 1:nrow(OTUTable.P.inclWater)) {
-#   if (sum(OTUTable.P.inclWater[i,]) <= 5) {
-#     toDelete <- c(toDelete, i)
-#   }
-# }
-# OTUTable.P.inclWater <- OTUTable.P.inclWater[-toDelete,]
-# 
-# toDelete <- c()
-# for (i in 1:nrow(OTUTable.3.P.inclWater)) {
-#   if (sum(OTUTable.3.P.inclWater[i,]) <= 5) {
-#     toDelete <- c(toDelete, i)
-#   }
-# }
-# OTUTable.3.P.inclWater <- OTUTable.3.P.inclWater[-toDelete,]
+
 
 # Now make relative abundance
 
@@ -603,7 +577,6 @@ dev.off()
 ######### HAKAI ##########
 # Collapse by replicate
 OTUTable.RelAbund.trans <- t(OTUTable.RelAbund)
-colnames(OTUTable.RelAbund)
 
 colRepNames <- c()
 for (i in 1:ncol(OTUTable.RelAbund)) {
@@ -683,13 +656,23 @@ for (i in taxonomyNamesForPlotSplit) {
 }
 
 
+coloursMatched <- cbind(names(positionKeep), randomColors[1:length(positionKeep)])
+colorsPlot <- cbind(rownames(OTUTable.RelAbund.trans.agg), rep("grey", nrow(OTUTable.RelAbund.trans.agg)))
+count <- 1
+for (i in 1:nrow(colorsPlot)) {
+  if (colorsPlot[i,1] %in% coloursMatched[,1]) {
+    colorsPlot[i,2] <- coloursMatched[count,2]
+    count <- count + 1
+  }
+}
 
-legendColors <- randomColors[positionKeep]
+legendColors <- coloursMatched[,2]
 
-pdf("./TAXASUMMARIES/TaxaSummaries_Hakai_OTU.pdf", pointsize = 14, width = 5, height = 7)
-par(fig = c(0,1,0.4,1), mar = c(2,2,2,2))
+
+pdf("./TAXASUMMARIES/TaxaSummaries_Hakai_OTU.pdf", pointsize = 14, width = 7, height = 5)
+par(fig = c(0,1,0,1), mar = c(2,2,2,2))
 barplot(as.matrix(OTUTable.RelAbund.trans.agg)
-        , col = randomColors
+        , col = colorsPlot[,2]
         , border = NA
         , las = 2
         , space = c(0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,2,0)
@@ -715,21 +698,7 @@ axis(1
      , line = 1
      , cex = 0.5
 )
-par(fig = c(0,1,0,0.4), mar = c(0,0,0,0), new = TRUE)
-plot(0,0
-     , pch = ""
-     , xaxt = "n"
-     , yaxt = "n"
-     , xlab = ""
-     , ylab = ""
-     , bty = "n"
-     )
-# legend("center"
-#        , legend = rev(taxonomyNamesSplit)
-#        , col = rev(legendColors)
-#        , pch = 15
-#        , cex = 0.8
-#        , bty = 'n')
+
 dev.off()
 
 
@@ -773,55 +742,12 @@ for (i in c("FB","BL","CR","H2O")) {
 OTUTable.P.RelAbund.trans.agg <- OTUTable.P.RelAbund.trans.agg[,orderPosition]
 OTUTable.P.RelAbund.trans.agg.sd <- OTUTable.P.RelAbund.trans.agg.sd[,orderPosition]
 
-## KEEP LEGEND NAMES FROM ABOVE
-# # Get legend names
-# 
-# grThanFive <- c()
-# for (i in 1:nrow(OTUTable.P.RelAbund.trans.agg)) {
-#   grThanFive <- c(grThanFive, any(OTUTable.P.RelAbund.trans.agg[i,] >= 0.01))
-# }
-# 
-# namesKeep <- rownames(OTUTable.P.RelAbund.trans.agg)[grThanFive]
-# 
-# positionKeep <- unlist(sapply(namesKeep, function(x) {grep(paste0("^",x,"$"), rownames(taxonomyNames))}))
-# 
-# taxonomyNamesForPlot <- taxonomyNames[positionKeep,]
-# taxonomyNamesForPlotSplit <-sapply(taxonomyNamesForPlot, function(x) {
-#   tempString <- gsub("; __", "SPLIT", x)
-#   strsplit(tempString, split = "SPLIT")
-# })
-# 
-# taxonomyNamesSplit <- c()
-# for (i in taxonomyNamesForPlotSplit) {
-#   if (is.na(i[3])) {
-#     Class <- "Unassigned"
-#   } else {
-#     Class <- i[3]
-#   }
-#   
-#   if (is.na(i[6])) {
-#     Genus <- "Unassigned"
-#   } else {
-#     Genus <- i[6]
-#   }
-#   
-#   if (is.na(i[7])) {
-#     Species <- "Unassigned"
-#   } else {
-#     Species <- i[7]
-#   }
-#   
-#   taxonomyNamesSplit <- c(taxonomyNamesSplit, paste0(Class, "--",Genus,"_",Species))
-# }
-# 
-# 
-# 
-# legendColors <- randomColors[positionKeep]
 
-pdf("./TAXASUMMARIES/TaxaSummaries_PM_OTU.pdf", pointsize = 14, width = 5, height = 7)
-par(fig = c(0,1,0.4,1), mar = c(2,2,2,2))
+
+pdf("./TAXASUMMARIES/TaxaSummaries_PM_OTU.pdf", pointsize = 14, width = 7, height = 5)
+par(fig = c(0,1,0,1), mar = c(2,2,2,2))
 barplot(as.matrix(OTUTable.P.RelAbund.trans.agg)
-        , col = randomColors
+        , col = colorsPlot[,2]
         , border = NA
         , las = 2
         , space = c(0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,2,0)
@@ -847,21 +773,28 @@ axis(1
      , line = 1
      , cex = 0.5
 )
-par(fig = c(0,1,0,0.4), mar = c(0,0,0,0), new = TRUE)
+
+dev.off()
+
+########## Make Legend for OTUs ############
+
+pdf("./TAXASUMMARIES/LEGEND_taxasummaries_OTUs.pdf", pointsize = 14, height = 10, width = 7)
+par(mar = c(0,0,0,0))
 plot(0,0
-     , pch = ""
-     , xaxt = "n"
-     , yaxt = "n"
-     , xlab = ""
-     , ylab = ""
-     , bty = "n"
-)
-# legend("center"
-#        , legend = rev(taxonomyNamesSplit)
-#        , col = rev(legendColors)
-#        , pch = 15
-#        , cex = 0.8
-#        , bty = 'n')
+     , pch = ''
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = ''
+     , ylab = ''
+     , bty = 'n')
+legend("center"
+       , legend = rev(taxonomyNamesSplit)
+       , col = rev(legendColors)
+       , pch = 15
+       , cex = 0.65
+       , pt.cex = 1.5
+       , bty = 'n')
+
 dev.off()
 
 

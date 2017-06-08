@@ -4,7 +4,7 @@
 library("car")
 library("nlme")
 library("optparse")
-library("gridExtra")
+# library("gridExtra")
 ########################### OPT PARSE #################################
 
 option_list = list(
@@ -25,6 +25,11 @@ alphaList <- unlist(strsplit(alphaNames, ","))
 # setwd('/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis')
 # MPFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/MF_withalpha.txt'
 # alphaNames = 'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
+# alphaList <- unlist(strsplit(alphaNames, ","))
+# 
+# setwd('/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis')
+# MPFP <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt'
+# alphaNames <-  'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
 # alphaList <- unlist(strsplit(alphaNames, ","))
 
 ########################### LOAD AND FILTER #################################
@@ -94,7 +99,15 @@ MF.Alpha.morphonly.P[,'chao1'] <- as.numeric(MF.Alpha.morphonly.P[,'chao1'])
 MF.Alpha.morphonly.P[,'PD_whole_tree'] <- as.numeric(MF.Alpha.morphonly.P[,'PD_whole_tree'])
 MF.Alpha.morphonly.P[,'observed_otus'] <- as.numeric(MF.Alpha.morphonly.P[,'observed_otus'])
 
-########################### STATS #################################
+# Count replicates of each treatment
+
+H.Replicates <- table(MF.Alpha.morphonly.H$ColRep)
+P.Replicates <- table(MF.Alpha.morphonly.P$ColRep)
+
+capture.output(H.Replicates, file = "HakaiReplicates.txt")
+capture.output(P.Replicates, file = "PMReplicates.txt")
+
+########################### MKDIR #################################
 system('mkdir ALPHAPLOTS_H')
 system('mkdir ALPHAPLOTS_P')
 
@@ -273,7 +286,7 @@ text(-1,0
      , labels = c("ANOVA p-Values:")
      , pos= 4)
 text(-1,-0.15
-     , labels = c(paste0("20 min: "))
+     , labels = c(paste0("20 min : "))
      , pos= 4)
 text(-1,-0.3
      , labels = c(paste0("1 h: "))
