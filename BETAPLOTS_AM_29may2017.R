@@ -35,11 +35,11 @@ MFPWD = opt$mappingfile
 # MFPWD <- '/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt'
 # setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_AM/1_analysis")
 # 
-# BCPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/bray_curtis_dm.txt'
-# UWUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/unweighted_unifrac_dm.txt'
-# WUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/weighted_unifrac_dm.txt'
-# MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/MF_nochlpmito_m1000.txt'
-# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis")
+BCPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/bray_curtis_dm.txt'
+UWUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/unweighted_unifrac_dm.txt'
+WUFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/dm/weighted_unifrac_dm.txt'
+MFPWD <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/TEMP_frombotclust/MF_nochlpmito_m1000.txt'
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_ArtificialMacroalgae/1_analysis")
 
 ########################### LOADING #################################
  
@@ -1208,6 +1208,9 @@ dev.off()
 ####### PLOT MORPH ############
 # NOCHLP UWUF.P
 
+# SWITCH AROUND AXIS
+NMDS.UWUF.P.morphonly$points[,1] <- -(NMDS.UWUF.P.morphonly$points[,1])
+
 
 # MAKE POLYGONS for plotting
 NMDS.UWUF.P.CR <- NMDS.UWUF.P.morphonly$points[grep("CR", rownames(NMDS.UWUF.P.morphonly$points)),]
@@ -1266,7 +1269,7 @@ TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
 pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
-plot(-(NMDS.UWUF.P.morphonly$points[,1]), NMDS.UWUF.P.morphonly$points[,2]
+plot(NMDS.UWUF.P.morphonly$points[,1]
      , main = "NMDS of Artificial Seaweed Shapes"
      , pch = 21
      , col = "black"
@@ -2715,6 +2718,8 @@ dev.off()
 ####### PLOT MORPH ############
 # NOCHLP WUF.P
 
+# SWITCH AROUND AXIS
+NMDS.WUF.P.morphonly$points[,1] <- -(NMDS.WUF.P.morphonly$points[,1])
 
 # MAKE POLYGONS for plotting
 NMDS.WUF.P.CR <- NMDS.WUF.P.morphonly$points[grep("CR", rownames(NMDS.WUF.P.morphonly$points)),]
@@ -2774,7 +2779,7 @@ TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
 pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
-plot(-(NMDS.WUF.P.morphonly$points[,1]),NMDS.WUF.P.morphonly$points[,2]
+plot(NMDS.WUF.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
      , pch = 21
      , col = "black"
@@ -4221,6 +4226,7 @@ dev.off()
 ####### PLOT MORPH ############
 # NOCHLP BC.P
 
+NMDS.BC.P.morphonly$points <- NMDS.BC.P.morphonly$points[, c(2,1)]
 
 # MAKE POLYGONS for plotting
 NMDS.BC.P.CR <- NMDS.BC.P.morphonly$points[grep("CR", rownames(NMDS.BC.P.morphonly$points)),]
@@ -4279,7 +4285,7 @@ TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
 pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
-plot(NMDS.BC.P.morphonly$points[,2],NMDS.BC.P.morphonly$points[,1]
+plot(NMDS.BC.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
      , pch = 21
      , col = "black"

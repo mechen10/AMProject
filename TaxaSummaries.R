@@ -314,7 +314,7 @@ barplot(as.matrix(W.only.OTU)
         , border = FALSE
 )
 axis(1
-     , labels = c("3h","4d")
+     , labels = c("6h","4d")
      , at = c(1,5)
      , tick = FALSE
      , cex = 0.1
@@ -683,10 +683,10 @@ barplot(as.matrix(OTUTable.RelAbund.trans.agg)
 title(ylab="Relative Abundance", line=0, cex.lab=1.2)
 axis(1
      , las = 2
-     , labels = c("20","60","360","720","5760","",""
-                  , "20", "60","360","720","5760","",""
-                  , "20","60","360","720","5760","",""
-                  , "360","5760", "")
+     , labels = c("20 m","1 h","6 h","12 h","4 d","",""
+                  , "20 m","1 h","6 h","12 h","4 d","",""
+                  , "20 m","1 h","6 h","12 h","4 d","",""
+                  , "6 h","4 d", "")
      , at = seq(0.5,23.5, by = 1)
      , tick = FALSE
      , line = -1
@@ -758,10 +758,10 @@ barplot(as.matrix(OTUTable.P.RelAbund.trans.agg)
 title(ylab="Relative Abundance", line=0, cex.lab=1.2)
 axis(1
      , las = 2
-     , labels = c("20","60","180","360","720","1440","",""
-                  , "20", "60","180","360","720","1440","",""
-                  , "20","60","180","360","720","1440","",""
-                  , "20","1440", "")
+     , labels = c("20 m","1 h","3 h","6 h","12 h","1 d","",""
+                  , "20 m","1 h","3 h","6 h","12 h","1 d","",""
+                  , "20 m","1 h","3 h","6 h","12 h","1 d","",""
+                  , "20 m","1 d", "")
      , at = seq(0.5,26.5, by = 1)
      , tick = FALSE
      , line = -1
