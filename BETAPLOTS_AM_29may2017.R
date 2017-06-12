@@ -254,6 +254,8 @@ system("mkdir BETAPLOTS_H")
 system('mkdir ./BETAPLOTS_H/individualtests/')
 system("mkdir BETAPLOTS_P")
 system('mkdir ./BETAPLOTS_P/individualtests/')
+system("mkdir ./BETAPLOTS_LATEX")
+
 
 #*** NOTE: ONLY WORKING ON UWUF RIGHT NOW; DO OTHERS AFTER
 ####### *********UWUF********* ############# 
@@ -277,7 +279,7 @@ MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
 
 ANOVA.UWUF.morphtime <- adonis(dm.UWUF.morphonly ~ Time*Morph, data = MF.morphkeep, by = "margin")
 capture.output(ANOVA.UWUF.morphtime, file = paste0("BETAPLOTS_H/adonis_", metric,"_Hakai.txt"))
-ANOSIM.UWUF.morphtime <- anosim(dm.UWUF.morphonly, grouping = MF.morphkeep$Morph)
+# ANOSIM.UWUF.morphtime <- anosim(dm.UWUF.morphonly, grouping = MF.morphkeep$Morph)
 
 # Dispersion across time and between morphs
 dist.UWUF.morphonly <- as.dist(dm.UWUF.morphonly)
@@ -391,7 +393,7 @@ FB.CR.UWUF.ALL.sd <- aggregate(FB.CR.UWUF.ALL, by = list(FB.CR.UWUF.ALL[,2]), sd
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.UWUF.ALL[,1],FB.CR.UWUF.ALL[,1],CR.BL.UWUF.ALL[,1]), max(FB.BL.UWUF.ALL[,1],FB.CR.UWUF.ALL[,1],CR.BL.UWUF.ALL[,1]))
-ylimits <- c(0.45,0.65)
+ylimits <- c(0.4,0.7)
 
 # xvalues <- log(FB.BL.UWUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.ALL.mean[,1])
@@ -707,7 +709,6 @@ dev.off()
 
 ############ COMBO DISP BETA ################
 # Disp and beta through time combined
-ylimits <- c(0.45,0.65)
 # xvalues <- log(FB.BL.UWUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.ALL.mean[,1])
 
@@ -730,8 +731,8 @@ points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*0.99
        , x1 = c(1,2,3,4)*0.99
-       , y0 = c(FB.BL.UWUF.ALL.mean[,2] - FB.BL.UWUF.ALL.sd[,2]/2)
-       , y1 = c(FB.BL.UWUF.ALL.mean[,2] + FB.BL.UWUF.ALL.sd[,2]/2)
+       , y0 = c(FB.BL.UWUF.ALL.mean[,2] - FB.BL.UWUF.ALL.sd[,2])
+       , y1 = c(FB.BL.UWUF.ALL.mean[,2] + FB.BL.UWUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -742,8 +743,8 @@ points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1
        , x1 = c(1,2,3,4)*1
-       , y0 = c(FB.CR.UWUF.ALL.mean[,2] - FB.CR.UWUF.ALL.sd[,2]/2)
-       , y1 = c(FB.CR.UWUF.ALL.mean[,2] + FB.CR.UWUF.ALL.sd[,2]/2)
+       , y0 = c(FB.CR.UWUF.ALL.mean[,2] - FB.CR.UWUF.ALL.sd[,2])
+       , y1 = c(FB.CR.UWUF.ALL.mean[,2] + FB.CR.UWUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -754,8 +755,8 @@ points(CR.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1.01
        , x1 = c(1,2,3,4)*1.01
-       , y0 = c(CR.BL.UWUF.ALL.mean[,2] - CR.BL.UWUF.ALL.sd[,2]/2)
-       , y1 = c(CR.BL.UWUF.ALL.mean[,2] + CR.BL.UWUF.ALL.sd[,2]/2)
+       , y0 = c(CR.BL.UWUF.ALL.mean[,2] - CR.BL.UWUF.ALL.sd[,2])
+       , y1 = c(CR.BL.UWUF.ALL.mean[,2] + CR.BL.UWUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -883,6 +884,92 @@ legend("center"
 #STOP
 dev.off()
 
+########### BETADISP#############
+
+betadisp.H.UWUF.FB <- betadisp.UWUF.time$distances[grep("FB", names(betadisp.UWUF.time$distances))]
+betadisp.H.UWUF.BL <- betadisp.UWUF.time$distances[grep("BL", names(betadisp.UWUF.time$distances))]
+betadisp.H.UWUF.CR <- betadisp.UWUF.time$distances[grep("CR", names(betadisp.UWUF.time$distances))]
+
+MF.H.FB <- MF.morphkeep[grep("FB", rownames(MF.morphkeep)),]
+MF.H.BL <- MF.morphkeep[grep("BL", rownames(MF.morphkeep)),]
+MF.H.CR <- MF.morphkeep[grep("CR", rownames(MF.morphkeep)),]
+
+betadisp.FB.H.agg <- aggregate(betadisp.H.UWUF.FB, by = list(MF.H.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.BL.H.agg <- aggregate(betadisp.H.UWUF.BL, by = list(MF.H.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.CR.H.agg <- aggregate(betadisp.H.UWUF.CR, by = list(MF.H.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+
+betadisp.UWUF.time.forstat <- cbind(betadisp.UWUF.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.UWUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+colnames(betadisp.UWUF.time.forstat)[1] <- c("Distance")
+ANOVA.betadisp.UWUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.UWUF.time.forstat))
+capture.output(ANOVA.betadisp.UWUF, file = "./BETAPLOTS_H/ANOVA.betadisp.UWUF.txt")
+
+xvalues <- c("20","60","360","720")
+ylimits <- c(0.3,0.5)
+pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = 'Time'
+     , ylab = "Distance (Unweighted Unifrac)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4)
+     , labels = c("20 min","1 h","6 h","12 h")
+     , las = 2)
+points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "salmon"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*0.99
+       , x1 = c(1,2,3,4)*0.99
+       , y0 = c(betadisp.FB.H.agg[,2][,1] - betadisp.FB.H.agg[,2][,2])
+       , y1 = c(betadisp.FB.H.agg[,2][,1] + betadisp.FB.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "dodgerblue"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1
+       , x1 = c(1,2,3,4)*1
+       , y0 = c(betadisp.BL.H.agg[,2][,1] - betadisp.BL.H.agg[,2][,2])
+       , y1 = c(betadisp.BL.H.agg[,2][,1] + betadisp.BL.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "darkorchid4"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1.01
+       , x1 = c(1,2,3,4)*1.01
+       , y0 = c(betadisp.CR.H.agg[,2][,1] - betadisp.CR.H.agg[,2][,2])
+       , y1 = c(betadisp.CR.H.agg[,2][,1] + betadisp.CR.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0.5,1), mar = c(2,0,0,0),oma = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB", "BL", "CR")
+       , lty = 1
+       , col = c("salmon","dodgerblue","darkorchid4")
+       , lwd = 2 
+)
+dev.off()
+
+
+
 ############ PLOT 5760 ################
 dm.UWUF.5760<- dm.UWUF.inclWater[grep("(CR|FB|BL)-5760", rownames(dm.UWUF.inclWater)),grep("(CR|FB|BL)-5760", colnames(dm.UWUF.inclWater))]
 
@@ -907,7 +994,7 @@ NMDS.UWUF.5760.FB.chull <- chull(NMDS.UWUF.5760.FB)
 NMDS.UWUF.5760.FB.chull <- c(NMDS.UWUF.5760.FB.chull, NMDS.UWUF.5760.FB.chull[1])
 
 ANOVA.UWUF.5760 <- adonis(dm.UWUF.5760 ~ Morph, data = MF.5760)
-ANOSIM.UWUF.5760 <- anosim(dat = dm.UWUF.5760, grouping = MF.5760$Morph)
+# ANOSIM.UWUF.5760 <- anosim(dat = dm.UWUF.5760, grouping = MF.5760$Morph)
 capture.output(ANOVA.UWUF.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
 
 pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_5760Only.pdf"), pointsize = 14)
@@ -984,7 +1071,7 @@ MF.P.morphkeep$Type <- factor(MF.P.morphkeep$Type, levels = c('P','H'))
 
 ANOVA.UWUF.P.morphtime <- adonis(dm.UWUF.P.morphonly ~ Time*Morph, data = MF.P.morphkeep, by = "margin")
 capture.output(ANOVA.UWUF.P.morphtime, file = paste0("BETAPLOTS_P/adonis_", metric,"_PM.txt"))
-ANOSIM.UWUF.P.morphtime <- anosim(dm.UWUF.P.morphonly, grouping = MF.P.morphkeep$Morph)
+# ANOSIM.UWUF.P.morphtime <- anosim(dm.UWUF.P.morphonly, grouping = MF.P.morphkeep$Morph)
 
 # Dispersion across time and between morphs
 dist.UWUF.P.morphonly <- as.dist(dm.UWUF.P.morphonly)
@@ -1141,7 +1228,7 @@ FB.CR.UWUF.P.ALL.sd <- aggregate(FB.CR.UWUF.P.ALL, by = list(FB.CR.UWUF.P.ALL[,2
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.UWUF.P.ALL[,1],FB.CR.UWUF.P.ALL[,1],CR.BL.UWUF.P.ALL[,1]), max(FB.BL.UWUF.P.ALL[,1],FB.CR.UWUF.P.ALL[,1],CR.BL.UWUF.P.ALL[,1]))
-ylimits <- c(0.35,0.65)
+ylimits <- c(0.3,0.7)
 
 # xvalues <- log(FB.BL.UWUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.P.ALL.mean[,1])
@@ -1529,9 +1616,9 @@ lines(NMDS.UWUF.P.1440.only.FB[NMDS.UWUF.P.1440.only.FB.chull,]
 #STOP
 dev.off()
 
+
 ############ COMBO DISP BETA ################
 # Disp and beta through time combined
-ylimits <- c(0.35,0.65)
 # xvalues <- log(FB.BL.UWUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.P.ALL.mean[,1])
 
@@ -1554,8 +1641,8 @@ points(FB.BL.UWUF.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4,5,6)*0.99
        , x1 = c(1,2,3,4,5,6)*0.99
-       , y0 = c(FB.BL.UWUF.P.ALL.mean[,2] - FB.BL.UWUF.P.ALL.sd[,2]/2)
-       , y1 = c(FB.BL.UWUF.P.ALL.mean[,2] + FB.BL.UWUF.P.ALL.sd[,2]/2)
+       , y0 = c(FB.BL.UWUF.P.ALL.mean[,2] - FB.BL.UWUF.P.ALL.sd[,2])
+       , y1 = c(FB.BL.UWUF.P.ALL.mean[,2] + FB.BL.UWUF.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -1566,8 +1653,8 @@ points(FB.CR.UWUF.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4,5,6)*1
        , x1 = c(1,2,3,4,5,6)*1
-       , y0 = c(FB.CR.UWUF.P.ALL.mean[,2] - FB.CR.UWUF.P.ALL.sd[,2]/2)
-       , y1 = c(FB.CR.UWUF.P.ALL.mean[,2] + FB.CR.UWUF.P.ALL.sd[,2]/2)
+       , y0 = c(FB.CR.UWUF.P.ALL.mean[,2] - FB.CR.UWUF.P.ALL.sd[,2])
+       , y1 = c(FB.CR.UWUF.P.ALL.mean[,2] + FB.CR.UWUF.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -1578,8 +1665,8 @@ points(CR.BL.UWUF.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1.01
        , x1 = c(1,2,3,4)*1.01
-       , y0 = c(CR.BL.UWUF.P.ALL.mean[,2] - CR.BL.UWUF.P.ALL.sd[,2]/2)
-       , y1 = c(CR.BL.UWUF.P.ALL.mean[,2] + CR.BL.UWUF.P.ALL.sd[,2]/2)
+       , y0 = c(CR.BL.UWUF.P.ALL.mean[,2] - CR.BL.UWUF.P.ALL.sd[,2])
+       , y1 = c(CR.BL.UWUF.P.ALL.mean[,2] + CR.BL.UWUF.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -1769,6 +1856,92 @@ for (i in allindividualTests) {
 }
 
 
+
+
+########### BETADISP#############
+betadisp.UWUF
+betadisp.P.UWUF.FB <- betadisp.UWUF.P.time$distances[grep("FB", names(betadisp.UWUF.P.time$distances))]
+betadisp.P.UWUF.BL <- betadisp.UWUF.P.time$distances[grep("BL", names(betadisp.UWUF.P.time$distances))]
+betadisp.P.UWUF.CR <- betadisp.UWUF.P.time$distances[grep("CR", names(betadisp.UWUF.P.time$distances))]
+
+MF.P.FB <- MF.P.morphkeep[grep("FB", rownames(MF.P.morphkeep)),]
+MF.P.BL <- MF.P.morphkeep[grep("BL", rownames(MF.P.morphkeep)),]
+MF.P.CR <- MF.P.morphkeep[grep("CR", rownames(MF.P.morphkeep)),]
+
+betadisp.FB.P.agg <- aggregate(betadisp.P.UWUF.FB, by = list(MF.P.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.BL.P.agg <- aggregate(betadisp.P.UWUF.BL, by = list(MF.P.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.CR.P.agg <- aggregate(betadisp.P.UWUF.CR, by = list(MF.P.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+
+betadisp.UWUF.time.forstat <- cbind(betadisp.UWUF.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.UWUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+colnames(betadisp.UWUF.time.forstat)[1] <- c("Distance")
+ANOVA.betadisp.UWUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.UWUF.time.forstat))
+capture.output(ANOVA.betadisp.UWUF, file = "./BETAPLOTS_P/ANOVA.betadisp.UWUF.txt")
+
+ylimits <- c(0.25,0.45)
+pdf(paste0("./BETAPLOTS_P/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = 'Time'
+     , ylab = "Distance (Unweighted Unifrac)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4,5,6)
+     , labels = c("20 min","1 h","3 h","6 h","12 h", "1 d")
+     , las = 2)
+points(betadisp.FB.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "salmon"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*0.99
+       , x1 = c(1,2,3,4,5,6)*0.99
+       , y0 = c(betadisp.FB.P.agg[,2][,1] - betadisp.FB.P.agg[,2][,2])
+       , y1 = c(betadisp.FB.P.agg[,2][,1] + betadisp.FB.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.BL.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "dodgerblue"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*1
+       , x1 = c(1,2,3,4,5,6)*1
+       , y0 = c(betadisp.BL.P.agg[,2][,1] - betadisp.BL.P.agg[,2][,2])
+       , y1 = c(betadisp.BL.P.agg[,2][,1] + betadisp.BL.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.CR.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "darkorchid4"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*1.01
+       , x1 = c(1,2,3,4,5,6)*1.01
+       , y0 = c(betadisp.CR.P.agg[,2][,1] - betadisp.CR.P.agg[,2][,2])
+       , y1 = c(betadisp.CR.P.agg[,2][,1] + betadisp.CR.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0.5,1), mar = c(2,0,0,0),oma = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB", "BL", "CR")
+       , lty = 1
+       , col = c("salmon","dodgerblue","darkorchid4")
+       , lwd = 2 
+)
+dev.off()
+
+
 ####### *********WUF********* ############# 
 metric <- "WUF"
 
@@ -1790,7 +1963,7 @@ MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
 
 ANOVA.WUF.morphtime <- adonis(dm.WUF.morphonly ~ Time*Morph, data = MF.morphkeep, by = "margin")
 capture.output(ANOVA.WUF.morphtime, file = paste0("BETAPLOTS_H/adonis_", metric,"_Hakai.txt"))
-ANOSIM.WUF.morphtime <- anosim(dm.WUF.morphonly, grouping = MF.morphkeep$Morph)
+# ANOSIM.WUF.morphtime <- anosim(dm.WUF.morphonly, grouping = MF.morphkeep$Morph)
 
 # Dispersion across time and between morphs
 dist.WUF.morphonly <- as.dist(dm.WUF.morphonly)
@@ -1903,7 +2076,7 @@ FB.CR.WUF.ALL.sd <- aggregate(FB.CR.WUF.ALL, by = list(FB.CR.WUF.ALL[,2]), sd)
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.WUF.ALL[,1],FB.CR.WUF.ALL[,1],CR.BL.WUF.ALL[,1]), max(FB.BL.WUF.ALL[,1],FB.CR.WUF.ALL[,1],CR.BL.WUF.ALL[,1]))
-ylimits <- c(0.1,0.35)
+ylimits <- c(0,0.4)
 
 # xvalues <- log(FB.BL.WUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.WUF.ALL.mean[,1])
@@ -1912,7 +2085,7 @@ par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = "Time"
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Weighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1, at = c(1,2,3,4), labels = c('20 min','1 h', '6 h', '12 h'))
@@ -2227,7 +2400,7 @@ par(fig = c(0,0.8,0.3,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = ''
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Weighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
@@ -2241,8 +2414,8 @@ points(FB.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*0.99
        , x1 = c(1,2,3,4)*0.99
-       , y0 = c(FB.BL.WUF.ALL.mean[,2] - FB.BL.WUF.ALL.sd[,2]/2)
-       , y1 = c(FB.BL.WUF.ALL.mean[,2] + FB.BL.WUF.ALL.sd[,2]/2)
+       , y0 = c(FB.BL.WUF.ALL.mean[,2] - FB.BL.WUF.ALL.sd[,2])
+       , y1 = c(FB.BL.WUF.ALL.mean[,2] + FB.BL.WUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -2253,8 +2426,8 @@ points(FB.CR.WUF.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1
        , x1 = c(1,2,3,4)*1
-       , y0 = c(FB.CR.WUF.ALL.mean[,2] - FB.CR.WUF.ALL.sd[,2]/2)
-       , y1 = c(FB.CR.WUF.ALL.mean[,2] + FB.CR.WUF.ALL.sd[,2]/2)
+       , y0 = c(FB.CR.WUF.ALL.mean[,2] - FB.CR.WUF.ALL.sd[,2])
+       , y1 = c(FB.CR.WUF.ALL.mean[,2] + FB.CR.WUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -2265,8 +2438,8 @@ points(CR.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1.01
        , x1 = c(1,2,3,4)*1.01
-       , y0 = c(CR.BL.WUF.ALL.mean[,2] - CR.BL.WUF.ALL.sd[,2]/2)
-       , y1 = c(CR.BL.WUF.ALL.mean[,2] + CR.BL.WUF.ALL.sd[,2]/2)
+       , y0 = c(CR.BL.WUF.ALL.mean[,2] - CR.BL.WUF.ALL.sd[,2])
+       , y1 = c(CR.BL.WUF.ALL.mean[,2] + CR.BL.WUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -2394,6 +2567,90 @@ legend("center"
 #STOP
 dev.off()
 
+########### BETADISP#############
+
+betadisp.H.WUF.FB <- betadisp.WUF.time$distances[grep("FB", names(betadisp.WUF.time$distances))]
+betadisp.H.WUF.BL <- betadisp.WUF.time$distances[grep("BL", names(betadisp.WUF.time$distances))]
+betadisp.H.WUF.CR <- betadisp.WUF.time$distances[grep("CR", names(betadisp.WUF.time$distances))]
+
+MF.H.FB <- MF.morphkeep[grep("FB", rownames(MF.morphkeep)),]
+MF.H.BL <- MF.morphkeep[grep("BL", rownames(MF.morphkeep)),]
+MF.H.CR <- MF.morphkeep[grep("CR", rownames(MF.morphkeep)),]
+
+betadisp.FB.H.agg <- aggregate(betadisp.H.WUF.FB, by = list(MF.H.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.BL.H.agg <- aggregate(betadisp.H.WUF.BL, by = list(MF.H.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.CR.H.agg <- aggregate(betadisp.H.WUF.CR, by = list(MF.H.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+
+betadisp.WUF.time.forstat <- cbind(betadisp.WUF.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.WUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+colnames(betadisp.WUF.time.forstat)[1] <- c("Distance")
+ANOVA.betadisp.WUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.WUF.time.forstat))
+capture.output(ANOVA.betadisp.WUF, file = "./BETAPLOTS_H/ANOVA.betadisp.WUF.txt")
+
+ylimits <- c(0,0.35)
+pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = 'Time'
+     , ylab = "Distance (Weighted_Unifrac)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4)
+     , labels = c("20 min","1 h","6 h","12 h")
+     , las = 2)
+points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "salmon"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*0.99
+       , x1 = c(1,2,3,4)*0.99
+       , y0 = c(betadisp.FB.H.agg[,2][,1] - betadisp.FB.H.agg[,2][,2])
+       , y1 = c(betadisp.FB.H.agg[,2][,1] + betadisp.FB.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "dodgerblue"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1
+       , x1 = c(1,2,3,4)*1
+       , y0 = c(betadisp.BL.H.agg[,2][,1] - betadisp.BL.H.agg[,2][,2])
+       , y1 = c(betadisp.BL.H.agg[,2][,1] + betadisp.BL.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "darkorchid4"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1.01
+       , x1 = c(1,2,3,4)*1.01
+       , y0 = c(betadisp.CR.H.agg[,2][,1] - betadisp.CR.H.agg[,2][,2])
+       , y1 = c(betadisp.CR.H.agg[,2][,1] + betadisp.CR.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0.5,1), mar = c(2,0,0,0),oma = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB", "BL", "CR")
+       , lty = 1
+       , col = c("salmon","dodgerblue","darkorchid4")
+       , lwd = 2 
+)
+dev.off()
+
+
 ############ PLOT 5760 ################
 dm.WUF.5760<- dm.WUF.inclWater[grep("(CR|FB|BL)-5760", rownames(dm.WUF.inclWater)),grep("(CR|FB|BL)-5760", colnames(dm.WUF.inclWater))]
 
@@ -2418,7 +2675,7 @@ NMDS.WUF.5760.FB.chull <- chull(NMDS.WUF.5760.FB)
 NMDS.WUF.5760.FB.chull <- c(NMDS.WUF.5760.FB.chull, NMDS.WUF.5760.FB.chull[1])
 
 ANOVA.WUF.5760 <- adonis(dm.WUF.5760 ~ Morph, data = MF.5760)
-ANOSIM.WUF.5760 <- anosim(dat = dm.WUF.5760, grouping = MF.5760$Morph)
+# ANOSIM.WUF.5760 <- anosim(dat = dm.WUF.5760, grouping = MF.5760$Morph)
 capture.output(ANOVA.WUF.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
 
 pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_5760Only.pdf"), pointsize = 14)
@@ -2494,7 +2751,7 @@ MF.P.morphkeep$Type <- factor(MF.P.morphkeep$Type, levels = c('P','H'))
 
 ANOVA.WUF.P.morphtime <- adonis(dm.WUF.P.morphonly ~ Time*Morph, data = MF.P.morphkeep, by = "margin")
 capture.output(ANOVA.WUF.P.morphtime, file = paste0("BETAPLOTS_P/adonis_", metric,"_PM.txt"))
-ANOSIM.WUF.P.morphtime <- anosim(dm.WUF.P.morphonly, grouping = MF.P.morphkeep$Morph)
+# ANOSIM.WUF.P.morphtime <- anosim(dm.WUF.P.morphonly, grouping = MF.P.morphkeep$Morph)
 
 # Dispersion across time and between morphs
 dist.WUF.P.morphonly <- as.dist(dm.WUF.P.morphonly)
@@ -2651,7 +2908,7 @@ FB.CR.WUF.P.ALL.sd <- aggregate(FB.CR.WUF.P.ALL, by = list(FB.CR.WUF.P.ALL[,2]),
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.WUF.P.ALL[,1],FB.CR.WUF.P.ALL[,1],CR.BL.WUF.P.ALL[,1]), max(FB.BL.WUF.P.ALL[,1],FB.CR.WUF.P.ALL[,1],CR.BL.WUF.P.ALL[,1]))
-ylimits <- c(0.15,0.6)
+ylimits <- c(0,0.65)
 
 # xvalues <- log(FB.BL.WUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.WUF.P.ALL.mean[,1])
@@ -2660,7 +2917,7 @@ par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = "Time"
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Weighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1, at = c(1,2,3,4,5,6), labels = c('20 min','1 h','3 h','6 h', '12 h', '24 h'))
@@ -3050,7 +3307,7 @@ par(fig = c(0,0.8,0.23,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = ''
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Weighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
@@ -3064,8 +3321,8 @@ points(FB.BL.WUF.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4,5,6)*0.99
        , x1 = c(1,2,3,4,5,6)*0.99
-       , y0 = c(FB.BL.WUF.P.ALL.mean[,2] - FB.BL.WUF.P.ALL.sd[,2]/2)
-       , y1 = c(FB.BL.WUF.P.ALL.mean[,2] + FB.BL.WUF.P.ALL.sd[,2]/2)
+       , y0 = c(FB.BL.WUF.P.ALL.mean[,2] - FB.BL.WUF.P.ALL.sd[,2])
+       , y1 = c(FB.BL.WUF.P.ALL.mean[,2] + FB.BL.WUF.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -3076,8 +3333,8 @@ points(FB.CR.WUF.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4,5,6)*1
        , x1 = c(1,2,3,4,5,6)*1
-       , y0 = c(FB.CR.WUF.P.ALL.mean[,2] - FB.CR.WUF.P.ALL.sd[,2]/2)
-       , y1 = c(FB.CR.WUF.P.ALL.mean[,2] + FB.CR.WUF.P.ALL.sd[,2]/2)
+       , y0 = c(FB.CR.WUF.P.ALL.mean[,2] - FB.CR.WUF.P.ALL.sd[,2])
+       , y1 = c(FB.CR.WUF.P.ALL.mean[,2] + FB.CR.WUF.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -3088,8 +3345,8 @@ points(CR.BL.WUF.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1.01
        , x1 = c(1,2,3,4)*1.01
-       , y0 = c(CR.BL.WUF.P.ALL.mean[,2] - CR.BL.WUF.P.ALL.sd[,2]/2)
-       , y1 = c(CR.BL.WUF.P.ALL.mean[,2] + CR.BL.WUF.P.ALL.sd[,2]/2)
+       , y0 = c(CR.BL.WUF.P.ALL.mean[,2] - CR.BL.WUF.P.ALL.sd[,2])
+       , y1 = c(CR.BL.WUF.P.ALL.mean[,2] + CR.BL.WUF.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -3278,6 +3535,89 @@ for (i in allindividualTests) {
   capture.output(get(i), file = paste0("./BETAPLOTS_P/individualtests/",i,".txt"))
 }
 
+########### BETADISP#############
+betadisp.P.WUF.FB <- betadisp.WUF.P.time$distances[grep("FB", names(betadisp.WUF.P.time$distances))]
+betadisp.P.WUF.BL <- betadisp.WUF.P.time$distances[grep("BL", names(betadisp.WUF.P.time$distances))]
+betadisp.P.WUF.CR <- betadisp.WUF.P.time$distances[grep("CR", names(betadisp.WUF.P.time$distances))]
+
+MF.P.FB <- MF.P.morphkeep[grep("FB", rownames(MF.P.morphkeep)),]
+MF.P.BL <- MF.P.morphkeep[grep("BL", rownames(MF.P.morphkeep)),]
+MF.P.CR <- MF.P.morphkeep[grep("CR", rownames(MF.P.morphkeep)),]
+
+betadisp.FB.P.agg <- aggregate(betadisp.P.WUF.FB, by = list(MF.P.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.BL.P.agg <- aggregate(betadisp.P.WUF.BL, by = list(MF.P.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.CR.P.agg <- aggregate(betadisp.P.WUF.CR, by = list(MF.P.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+
+betadisp.WUF.time.forstat <- cbind(betadisp.WUF.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.WUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+colnames(betadisp.WUF.time.forstat)[1] <- c("Distance")
+ANOVA.betadisp.WUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.WUF.time.forstat))
+capture.output(ANOVA.betadisp.WUF, file = "./BETAPLOTS_P/ANOVA.betadisp.WUF.txt")
+
+ylimits <- c(0,0.45)
+pdf(paste0("./BETAPLOTS_P/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = 'Time'
+     , ylab = "Distance (Weighted Unifrac)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4,5,6)
+     , labels = c("20 min","1 h","3 h","6 h","12 h", "1 d")
+     , las = 2)
+points(betadisp.FB.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "salmon"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*0.99
+       , x1 = c(1,2,3,4,5,6)*0.99
+       , y0 = c(betadisp.FB.P.agg[,2][,1] - betadisp.FB.P.agg[,2][,2])
+       , y1 = c(betadisp.FB.P.agg[,2][,1] + betadisp.FB.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.BL.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "dodgerblue"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*1
+       , x1 = c(1,2,3,4,5,6)*1
+       , y0 = c(betadisp.BL.P.agg[,2][,1] - betadisp.BL.P.agg[,2][,2])
+       , y1 = c(betadisp.BL.P.agg[,2][,1] + betadisp.BL.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.CR.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "darkorchid4"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*1.01
+       , x1 = c(1,2,3,4,5,6)*1.01
+       , y0 = c(betadisp.CR.P.agg[,2][,1] - betadisp.CR.P.agg[,2][,2])
+       , y1 = c(betadisp.CR.P.agg[,2][,1] + betadisp.CR.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0.5,1), mar = c(2,0,0,0),oma = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB", "BL", "CR")
+       , lty = 1
+       , col = c("salmon","dodgerblue","darkorchid4")
+       , lwd = 2 
+)
+dev.off()
+
+
 ####### *********BC********* ############# 
 metric <- "BC"
 
@@ -3299,7 +3639,7 @@ MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
 
 ANOVA.BC.morphtime <- adonis(dm.BC.morphonly ~ Time*Morph, data = MF.morphkeep, by = "margin")
 capture.output(ANOVA.BC.morphtime, file = paste0("BETAPLOTS_H/adonis_", metric,"_Hakai.txt"))
-ANOSIM.BC.morphtime <- anosim(dm.BC.morphonly, grouping = MF.morphkeep$Morph)
+# ANOSIM.BC.morphtime <- anosim(dm.BC.morphonly, grouping = MF.morphkeep$Morph)
 
 # Dispersion across time and between morphs
 dist.BC.morphonly <- as.dist(dm.BC.morphonly)
@@ -3412,7 +3752,7 @@ FB.CR.BC.ALL.sd <- aggregate(FB.CR.BC.ALL, by = list(FB.CR.BC.ALL[,2]), sd)
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.BC.ALL[,1],FB.CR.BC.ALL[,1],CR.BL.BC.ALL[,1]), max(FB.BL.BC.ALL[,1],FB.CR.BC.ALL[,1],CR.BL.BC.ALL[,1]))
-ylimits <- c(0.45,0.85)
+ylimits <- c(0.4,0.9)
 
 # xvalues <- log(FB.BL.BC.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.ALL.mean[,1])
@@ -3421,7 +3761,7 @@ par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = "Time"
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Bray-Curtis)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1, at = c(1,2,3,4), labels = c('20 min','1 h', '6 h', '12 h'))
@@ -3736,7 +4076,7 @@ par(fig = c(0,0.8,0.3,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = ''
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Bray-Curtis)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
@@ -3750,8 +4090,8 @@ points(FB.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*0.99
        , x1 = c(1,2,3,4)*0.99
-       , y0 = c(FB.BL.BC.ALL.mean[,2] - FB.BL.BC.ALL.sd[,2]/2)
-       , y1 = c(FB.BL.BC.ALL.mean[,2] + FB.BL.BC.ALL.sd[,2]/2)
+       , y0 = c(FB.BL.BC.ALL.mean[,2] - FB.BL.BC.ALL.sd[,2])
+       , y1 = c(FB.BL.BC.ALL.mean[,2] + FB.BL.BC.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -3762,8 +4102,8 @@ points(FB.CR.BC.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1
        , x1 = c(1,2,3,4)*1
-       , y0 = c(FB.CR.BC.ALL.mean[,2] - FB.CR.BC.ALL.sd[,2]/2)
-       , y1 = c(FB.CR.BC.ALL.mean[,2] + FB.CR.BC.ALL.sd[,2]/2)
+       , y0 = c(FB.CR.BC.ALL.mean[,2] - FB.CR.BC.ALL.sd[,2])
+       , y1 = c(FB.CR.BC.ALL.mean[,2] + FB.CR.BC.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -3774,8 +4114,8 @@ points(CR.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1.01
        , x1 = c(1,2,3,4)*1.01
-       , y0 = c(CR.BL.BC.ALL.mean[,2] - CR.BL.BC.ALL.sd[,2]/2)
-       , y1 = c(CR.BL.BC.ALL.mean[,2] + CR.BL.BC.ALL.sd[,2]/2)
+       , y0 = c(CR.BL.BC.ALL.mean[,2] - CR.BL.BC.ALL.sd[,2])
+       , y1 = c(CR.BL.BC.ALL.mean[,2] + CR.BL.BC.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -3903,6 +4243,90 @@ legend("center"
 #STOP
 dev.off()
 
+########### BETADISP#############
+
+betadisp.H.BC.FB <- betadisp.BC.time$distances[grep("FB", names(betadisp.BC.time$distances))]
+betadisp.H.BC.BL <- betadisp.BC.time$distances[grep("BL", names(betadisp.BC.time$distances))]
+betadisp.H.BC.CR <- betadisp.BC.time$distances[grep("CR", names(betadisp.BC.time$distances))]
+
+MF.H.FB <- MF.morphkeep[grep("FB", rownames(MF.morphkeep)),]
+MF.H.BL <- MF.morphkeep[grep("BL", rownames(MF.morphkeep)),]
+MF.H.CR <- MF.morphkeep[grep("CR", rownames(MF.morphkeep)),]
+
+betadisp.FB.H.agg <- aggregate(betadisp.H.BC.FB, by = list(MF.H.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.BL.H.agg <- aggregate(betadisp.H.BC.BL, by = list(MF.H.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.CR.H.agg <- aggregate(betadisp.H.BC.CR, by = list(MF.H.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+
+betadisp.BC.time.forstat <- cbind(betadisp.BC.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.BC.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+colnames(betadisp.BC.time.forstat)[1] <- c("Distance")
+ANOVA.betadisp.BC <- anova(lm(Distance ~ Time*Morph, data = betadisp.BC.time.forstat))
+capture.output(ANOVA.betadisp.BC, file = "./BETAPLOTS_H/ANOVA.betadisp.BC.txt")
+
+xvalues <- c("20","60","360","720")
+ylimits <- c(0.3,0.65)
+pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = 'Time'
+     , ylab = "Distance (Bray-Curtis)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4)
+     , labels = c("20 min","1 h","6 h","12 h")
+     , las = 2)
+points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "salmon"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*0.99
+       , x1 = c(1,2,3,4)*0.99
+       , y0 = c(betadisp.FB.H.agg[,2][,1] - betadisp.FB.H.agg[,2][,2])
+       , y1 = c(betadisp.FB.H.agg[,2][,1] + betadisp.FB.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "dodgerblue"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1
+       , x1 = c(1,2,3,4)*1
+       , y0 = c(betadisp.BL.H.agg[,2][,1] - betadisp.BL.H.agg[,2][,2])
+       , y1 = c(betadisp.BL.H.agg[,2][,1] + betadisp.BL.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4)
+       , type = 'l'
+       , col = "darkorchid4"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4)*1.01
+       , x1 = c(1,2,3,4)*1.01
+       , y0 = c(betadisp.CR.H.agg[,2][,1] - betadisp.CR.H.agg[,2][,2])
+       , y1 = c(betadisp.CR.H.agg[,2][,1] + betadisp.CR.H.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0.5,1), mar = c(2,0,0,0),oma = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB", "BL", "CR")
+       , lty = 1
+       , col = c("salmon","dodgerblue","darkorchid4")
+       , lwd = 2 
+)
+dev.off()
+
 ############ PLOT 5760 ################
 dm.BC.5760<- dm.BC.inclWater[grep("(CR|FB|BL)-5760", rownames(dm.BC.inclWater)),grep("(CR|FB|BL)-5760", colnames(dm.BC.inclWater))]
 
@@ -3927,7 +4351,7 @@ NMDS.BC.5760.FB.chull <- chull(NMDS.BC.5760.FB)
 NMDS.BC.5760.FB.chull <- c(NMDS.BC.5760.FB.chull, NMDS.BC.5760.FB.chull[1])
 
 ANOVA.BC.5760 <- adonis(dm.BC.5760 ~ Morph, data = MF.5760)
-ANOSIM.BC.5760 <- anosim(dat = dm.BC.5760, grouping = MF.5760$Morph)
+# ANOSIM.BC.5760 <- anosim(dat = dm.BC.5760, grouping = MF.5760$Morph)
 capture.output(ANOVA.BC.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
 
 pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_5760Only.pdf"), pointsize = 14)
@@ -4002,7 +4426,7 @@ MF.P.morphkeep$Type <- factor(MF.P.morphkeep$Type, levels = c('P','H'))
 
 ANOVA.BC.P.morphtime <- adonis(dm.BC.P.morphonly ~ Time*Morph, data = MF.P.morphkeep, by = "margin")
 capture.output(ANOVA.BC.P.morphtime, file = paste0("BETAPLOTS_P/adonis_", metric,"_PM.txt"))
-ANOSIM.BC.P.morphtime <- anosim(dm.BC.P.morphonly, grouping = MF.P.morphkeep$Morph)
+# ANOSIM.BC.P.morphtime <- anosim(dm.BC.P.morphonly, grouping = MF.P.morphkeep$Morph)
 
 # Dispersion across time and between morphs
 dist.BC.P.morphonly <- as.dist(dm.BC.P.morphonly)
@@ -4159,7 +4583,7 @@ FB.CR.BC.P.ALL.sd <- aggregate(FB.CR.BC.P.ALL, by = list(FB.CR.BC.P.ALL[,2]), sd
 
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.BC.P.ALL[,1],FB.CR.BC.P.ALL[,1],CR.BL.BC.P.ALL[,1]), max(FB.BL.BC.P.ALL[,1],FB.CR.BC.P.ALL[,1],CR.BL.BC.P.ALL[,1]))
-ylimits <- c(0.35,0.95)
+ylimits <- c(0.3,1)
 
 # xvalues <- log(FB.BL.BC.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.P.ALL.mean[,1])
@@ -4168,7 +4592,7 @@ par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = "Time"
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Bray-Curtis)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1, at = c(1,2,3,4,5,6), labels = c('20 min','1 h','3 h','6 h', '12 h', '24 h'))
@@ -4556,7 +4980,7 @@ par(fig = c(0,0.8,0.23,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = ''
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Bray-Curtis)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
@@ -4570,8 +4994,8 @@ points(FB.BL.BC.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4,5,6)*0.99
        , x1 = c(1,2,3,4,5,6)*0.99
-       , y0 = c(FB.BL.BC.P.ALL.mean[,2] - FB.BL.BC.P.ALL.sd[,2]/2)
-       , y1 = c(FB.BL.BC.P.ALL.mean[,2] + FB.BL.BC.P.ALL.sd[,2]/2)
+       , y0 = c(FB.BL.BC.P.ALL.mean[,2] - FB.BL.BC.P.ALL.sd[,2])
+       , y1 = c(FB.BL.BC.P.ALL.mean[,2] + FB.BL.BC.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -4582,8 +5006,8 @@ points(FB.CR.BC.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4,5,6)*1
        , x1 = c(1,2,3,4,5,6)*1
-       , y0 = c(FB.CR.BC.P.ALL.mean[,2] - FB.CR.BC.P.ALL.sd[,2]/2)
-       , y1 = c(FB.CR.BC.P.ALL.mean[,2] + FB.CR.BC.P.ALL.sd[,2]/2)
+       , y0 = c(FB.CR.BC.P.ALL.mean[,2] - FB.CR.BC.P.ALL.sd[,2])
+       , y1 = c(FB.CR.BC.P.ALL.mean[,2] + FB.CR.BC.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -4594,8 +5018,8 @@ points(CR.BL.BC.P.ALL.mean[,2] ~ c(1,2,3,4,5,6)
        , lty = 1)
 arrows(x0 = c(1,2,3,4)*1.01
        , x1 = c(1,2,3,4)*1.01
-       , y0 = c(CR.BL.BC.P.ALL.mean[,2] - CR.BL.BC.P.ALL.sd[,2]/2)
-       , y1 = c(CR.BL.BC.P.ALL.mean[,2] + CR.BL.BC.P.ALL.sd[,2]/2)
+       , y0 = c(CR.BL.BC.P.ALL.mean[,2] - CR.BL.BC.P.ALL.sd[,2])
+       , y1 = c(CR.BL.BC.P.ALL.mean[,2] + CR.BL.BC.P.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
@@ -4783,3 +5207,181 @@ for (i in allindividualTests) {
   # print(get(i))
   capture.output(get(i), file = paste0("./BETAPLOTS_P/individualtests/",i,".txt"))
 }
+
+########### BETADISP#############
+betadisp.P.BC.FB <- betadisp.BC.P.time$distances[grep("FB", names(betadisp.BC.P.time$distances))]
+betadisp.P.BC.BL <- betadisp.BC.P.time$distances[grep("BL", names(betadisp.BC.P.time$distances))]
+betadisp.P.BC.CR <- betadisp.BC.P.time$distances[grep("CR", names(betadisp.BC.P.time$distances))]
+
+MF.P.FB <- MF.P.morphkeep[grep("FB", rownames(MF.P.morphkeep)),]
+MF.P.BL <- MF.P.morphkeep[grep("BL", rownames(MF.P.morphkeep)),]
+MF.P.CR <- MF.P.morphkeep[grep("CR", rownames(MF.P.morphkeep)),]
+
+betadisp.FB.P.agg <- aggregate(betadisp.P.BC.FB, by = list(MF.P.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.BL.P.agg <- aggregate(betadisp.P.BC.BL, by = list(MF.P.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+betadisp.CR.P.agg <- aggregate(betadisp.P.BC.CR, by = list(MF.P.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
+
+betadisp.BC.time.forstat <- cbind(betadisp.BC.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.BC.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+colnames(betadisp.BC.time.forstat)[1] <- c("Distance")
+ANOVA.betadisp.BC <- anova(lm(Distance ~ Time*Morph, data = betadisp.BC.time.forstat))
+capture.output(ANOVA.betadisp.BC, file = "./BETAPLOTS_P/ANOVA.betadisp.BC.txt")
+
+ylimits <- c(0.15,0.7)
+pdf(paste0("./BETAPLOTS_P/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+plot(xvalues, NULL
+     , main = "Dispersion of morphologies across time"
+     , xlab = 'Time'
+     , ylab = "Distance (Bray-Curtis)"
+     , ylim = ylimits
+     , xaxt = 'n')
+axis(side = 1
+     , at = c(1,2,3,4,5,6)
+     , labels = c("20 min","1 h","3 h","6 h","12 h", "1 d")
+     , las = 2)
+points(betadisp.FB.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "salmon"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*0.99
+       , x1 = c(1,2,3,4,5,6)*0.99
+       , y0 = c(betadisp.FB.P.agg[,2][,1] - betadisp.FB.P.agg[,2][,2])
+       , y1 = c(betadisp.FB.P.agg[,2][,1] + betadisp.FB.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.BL.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "dodgerblue"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*1
+       , x1 = c(1,2,3,4,5,6)*1
+       , y0 = c(betadisp.BL.P.agg[,2][,1] - betadisp.BL.P.agg[,2][,2])
+       , y1 = c(betadisp.BL.P.agg[,2][,1] + betadisp.BL.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+points(betadisp.CR.P.agg[,2][,1] ~ c(1,2,3,4,5,6)
+       , type = 'l'
+       , col = "darkorchid4"
+       , lwd = 2
+       , lty = 1)
+arrows(x0 = c(1,2,3,4,5,6)*1.01
+       , x1 = c(1,2,3,4,5,6)*1.01
+       , y0 = c(betadisp.CR.P.agg[,2][,1] - betadisp.CR.P.agg[,2][,2])
+       , y1 = c(betadisp.CR.P.agg[,2][,1] + betadisp.CR.P.agg[,2][,2])
+       , angle = 90
+       , code = 3
+       , length = 0.03)
+par(fig = c(0.7,1,0.5,1), mar = c(2,0,0,0),oma = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xlab = ""
+     , ylab = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n")
+legend("center"
+       , legend = c("FB", "BL", "CR")
+       , lty = 1
+       , col = c("salmon","dodgerblue","darkorchid4")
+       , lwd = 2 
+)
+dev.off()
+
+
+
+
+############ PRINTING LATEX-DEP STATS ############
+# "\newcommand{\newCommandName}{text to insert}"
+# BETA ANOVA RESULTS
+
+BetaDivResultsToPrint <- matrix(ncol = 1)
+for (i in c("UWUF","WUF","BC")) {
+  # Assign all names
+  assign(paste0("aov.",i,".H.Time.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[1], digits= 2))
+  assign(paste0("aov.",i,".H.Time.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[1], digits = 2))
+  assign(paste0("aov.",i,".H.Morph.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[2], digits = 2))
+  assign(paste0("aov.",i,".H.Morph.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[2], digits = 2))
+  assign(paste0("aov.",i,".H.TimeMorph.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[3], digits = 2))
+  assign(paste0("aov.",i,".H.TimeMorph.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[3], digits = 2))
+  
+  assign(paste0("aov.",i,".P.Time.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[1], digits= 2))
+  assign(paste0("aov.",i,".P.Time.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[1], digits = 2))
+  assign(paste0("aov.",i,".P.Morph.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[2], digits = 2))
+  assign(paste0("aov.",i,".P.Morph.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[2], digits = 2))
+  assign(paste0("aov.",i,".P.TimeMorph.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[3], digits = 2))
+  assign(paste0("aov.",i,".P.TimeMorph.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[3], digits = 2))
+  
+  tempFile <- c(  paste0("aov.",i,".H.Time.p")
+                , paste0("aov.",i,".H.Time.r")
+                , paste0("aov.",i,".H.Morph.p")
+                , paste0("aov.",i,".H.Morph.r")
+                , paste0("aov.",i,".H.TimeMorph.p")
+                , paste0("aov.",i,".H.TimeMorph.r")
+
+                , paste0("aov.",i,".P.Time.p")
+                , paste0("aov.",i,".P.Time.r")
+                , paste0("aov.",i,".P.Morph.p")
+                , paste0("aov.",i,".P.Morph.r")
+                , paste0("aov.",i,".P.TimeMorph.p")
+                , paste0("aov.",i,".P.TimeMorph.r")
+  )
+  
+
+  for (i in tempFile) {
+    tempName <- gsub("[.]","", i)
+    #"\newcommand{\newCommandName}{text to insert}"
+    tempInsert <- paste0("\\","newcommand{","\\",tempName,"}{",get(i),"}")
+     BetaDivResultsToPrint <- rbind(BetaDivResultsToPrint, paste0("\\newcommand{\\",tempName,"}{",get(i),"}"))
+  }
+}
+write.matrix(BetaDivResultsToPrint,file = "./BETAPLOTS_LATEX/BetaDivStats.txt")
+
+
+
+
+# BETA INDIVIDUAL RESULTS
+
+ANOVA.BC.5760.only <- ANOVA.BC.5760
+ANOVA.UWUF.5760.only <- ANOVA.UWUF.5760
+ANOVA.WUF.5760.only <- ANOVA.WUF.5760
+
+BetaDivSepToPrint <- matrix(ncol = 1)
+translated <- cbind(c("20","60","180","360","720","1440","5760"), c("A","B","C","D","E","F","G"))
+for (i in c("UWUF","WUF","BC")) {
+  tempFile <- c()
+  for (j in c("20","60","360","720","5760")) {
+    TRANS <- translated[grep(paste0("^",j,"$"), translated[,1]),2]
+    # Assign all names
+    assign(paste0("aov.",i,".H.",TRANS,".p"), format(get(paste0("ANOVA.",i,".",j,".only"))$aov.tab$`Pr(>F)`[1], digits= 2))
+    assign(paste0("aov.",i,".H.",TRANS,".r"), format(get(paste0("ANOVA.",i,".",j,".only"))$aov.tab$R2[1], digits = 2))
+    tempFile <- c(  tempFile
+                    , paste0("aov.",i,".H.",TRANS,".p")
+                    , paste0("aov.",i,".H.",TRANS,".r")
+    )
+    
+  }
+  for (l in c("20","60","180","360","720","1440")) {
+    TRANS <- translated[grep(paste0("^",l,"$"), translated[,1]),2]
+    # Assign all names
+    assign(paste0("aov.",i,".P.",TRANS,".p"), format(get(paste0("ANOVA.",i,".P.",l,".only"))$aov.tab$`Pr(>F)`[1], digits= 2))
+    assign(paste0("aov.",i,".P.",TRANS,".r"), format(get(paste0("ANOVA.",i,".P.",l,".only"))$aov.tab$R2[1], digits = 2))
+    tempFile <- c(  tempFile
+                    , paste0("aov.",i,".P.",TRANS,".p")
+                    , paste0("aov.",i,".P.",TRANS,".r"))
+  }
+  
+
+  for (k in tempFile) {
+    tempName <- gsub("[.]","", k)
+    #"\newcommand{\newCommandName}{text to insert}"
+    BetaDivSepToPrint <- rbind(BetaDivSepToPrint, paste0("\\newcommand{\\",tempName,"}{",get(k),"}"))
+  }
+  
+}
+write.matrix(BetaDivSepToPrint,file = "./BETAPLOTS_LATEX/BetaSepStats.txt")
+
+
+
