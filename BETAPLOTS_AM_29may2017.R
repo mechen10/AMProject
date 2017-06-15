@@ -175,7 +175,7 @@ MF <- MF[unlist(lapply(rownames(dm.UWUF), function(x) {
 
 
 
-# Get morph out-- also, 5760
+# Get morph out
 MF.morphkeep <- MF
 dm.UWUF.morphonly <- dm.UWUF
 dm.WUF.morphonly <- dm.WUF
@@ -193,6 +193,9 @@ for (ROW in 1:nrow(MF)) {
     dm.BC.morphonly <- dm.BC.morphonly[-grep(paste0("^",rownames(MF)[ROW],"$"), rownames(dm.BC.morphonly)),-grep(paste0("^",rownames(MF)[ROW],"$"), colnames(dm.BC.morphonly))]
     }
 }
+
+# Get at 5760
+MF.morphkeep.5760 <- MF.morphkeep[-grep("5760", rownames(MF.morphkeep)),]
 
 MF.P.morphkeep <- MF.P
 dm.UWUF.P.morphonly <- dm.UWUF.P
@@ -270,7 +273,7 @@ NMDS.UWUF.all <- isoMDS(as.matrix(dm.UWUF.inclWater), y = cmdscale(as.matrix(dm.
 ###### STATS ##########
 MF.morphkeep <- MF.morphkeep[,c('Morph','Time','Type','TypeMorphTime')]
 MF.morphkeep$Morph <- factor(MF.morphkeep$Morph, levels = c('CR','BL','FB'))
-MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440'))
+MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440','5760'))
 MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
 
 
@@ -282,65 +285,98 @@ capture.output(ANOVA.UWUF.morphtime, file = paste0("BETAPLOTS_H/adonis_", metric
 # ANOSIM.UWUF.morphtime <- anosim(dm.UWUF.morphonly, grouping = MF.morphkeep$Morph)
 
 # Dispersion across time and between morphs
-dist.UWUF.morphonly <- as.dist(dm.UWUF.morphonly)
-betadisp.UWUF.time <- betadisper(d = dist.UWUF.morphonly, group = MF.morphkeep$Time)
-betadisp.UWUF.morph <- betadisper(d = dist.UWUF.morphonly, group = MF.morphkeep$Morph)
+dist.UWUF.morphonly <- as.dist(dm.UWUF.inclWater[-grep("W", rownames(dm.UWUF.inclWater)), -grep("W", colnames(dm.UWUF.inclWater))])
+MF.incl5760 <- MF.inclWater[-grep("W", rownames(MF.inclWater)),]
+betadisp.UWUF.time <- betadisper(d = dist.UWUF.morphonly, group = MF.incl5760$Time)
+betadisp.UWUF.morph <- betadisper(d = dist.UWUF.morphonly, group = MF.incl5760$Morph)
 
 capture.output(betadisp.UWUF.time, file = paste0("BETAPLOTS_H/betadispTime_", metric, "_Hakai.txt"))
 capture.output(betadisp.UWUF.morph, file = paste0("BETAPLOTS_H/betadispMorph_", metric, "_Hakai.txt"))
 
 
 # Grep values for each timepoint and morph, and then plot dispersion within each
-TP <- levels(factor(MF.morphkeep$Time))
+TP <- levels(factor(MF.inclWater$Time))
 MorphTypes <- levels(factor(MF.morphkeep$Morph))
 # First Timepoint
-FirstTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[1],"$"), MF.morphkeep$Time)]
+FirstTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[1],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FirstTPNames)
+if (length(toremove) > 0) {
+  FirstTPNames <- FirstTPNames[-toremove]
+}
 # Between morphs
-dm.UWUF.FirstTP <- dm.UWUF.morphonly[FirstTPNames,FirstTPNames]
+dm.UWUF.FirstTP <- dm.UWUF.inclWater[FirstTPNames,FirstTPNames]
 FB.BL.Firstvalues <- as.vector(as.dist(dm.UWUF.FirstTP[grep("FB", rownames(dm.UWUF.FirstTP)), grep("BL", colnames(dm.UWUF.FirstTP))]))
 FB.CR.Firstvalues <- as.vector(as.dist(dm.UWUF.FirstTP[grep("FB", rownames(dm.UWUF.FirstTP)), grep("CR", colnames(dm.UWUF.FirstTP))]))
 CR.BL.Firstvalues <- as.vector(as.dist(dm.UWUF.FirstTP[grep("CR", rownames(dm.UWUF.FirstTP)), grep("BL", colnames(dm.UWUF.FirstTP))]))
 # ANOVA
-dm.UWUF.20 <- dm.UWUF.morphonly[grep("-20-", rownames(dm.UWUF.morphonly)), grep("-20-", colnames(dm.UWUF.morphonly))]
-MF.UWUF.20.only <- MF.morphkeep[grep("-20-", rownames(MF.morphkeep)),]
+dm.UWUF.20 <- dm.UWUF.inclWater[grep("(CR|BL|FB)-20-", rownames(dm.UWUF.inclWater)), grep("-20-", colnames(dm.UWUF.inclWater))]
+MF.UWUF.20.only <- MF.inclWater[grep("(CR|BL|FB)-20-", rownames(MF.inclWater)),]
 ANOVA.UWUF.20.only <- adonis(dm.UWUF.20 ~ Morph, data = MF.UWUF.20.only, by = "margin")
 
 # Second Timepoine
-SecondTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[2],"$"), MF.morphkeep$Time)]
+SecondTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[2],"$"), MF.inclWater$Time)]
+toremove <- grep("W", SecondTPNames)
+if (length(toremove) > 0) {
+  SecondTPNames <- SecondTPNames[-toremove]
+}
 # Between morphs
-dm.UWUF.SecondTP <- dm.UWUF.morphonly[SecondTPNames,SecondTPNames]
+dm.UWUF.SecondTP <- dm.UWUF.inclWater[SecondTPNames,SecondTPNames]
 FB.BL.Secondvalues <- as.vector(as.dist(dm.UWUF.SecondTP[grep("FB", rownames(dm.UWUF.SecondTP)), grep("BL", colnames(dm.UWUF.SecondTP))]))
 FB.CR.Secondvalues <- as.vector(as.dist(dm.UWUF.SecondTP[grep("FB", rownames(dm.UWUF.SecondTP)), grep("CR", colnames(dm.UWUF.SecondTP))]))
 CR.BL.Secondvalues <- as.vector(as.dist(dm.UWUF.SecondTP[grep("CR", rownames(dm.UWUF.SecondTP)), grep("BL", colnames(dm.UWUF.SecondTP))]))
 # ANOVA
-dm.UWUF.60 <- dm.UWUF.morphonly[grep("-60-", rownames(dm.UWUF.morphonly)), grep("-60-", colnames(dm.UWUF.morphonly))]
-MF.UWUF.60.only <- MF.morphkeep[grep("-60-", rownames(MF.morphkeep)),]
+dm.UWUF.60 <- dm.UWUF.inclWater[grep("(BL|CR|FB)-60-", rownames(dm.UWUF.inclWater)), grep("-60-", colnames(dm.UWUF.morphonly))]
+MF.UWUF.60.only <- MF.inclWater[grep("(BL|CR|FB)-60-", rownames(MF.inclWater)),]
 ANOVA.UWUF.60.only <- adonis(dm.UWUF.60 ~ Morph, data = MF.UWUF.60.only, by = "margin")
 
 # Third Timepoint
-ThirdTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[3],"$"), MF.morphkeep$Time)]
+ThirdTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[3],"$"), MF.inclWater$Time)]
+toremove <- grep("W", ThirdTPNames)
+if (length(toremove) > 0) {
+  ThirdTPNames <- ThirdTPNames[-toremove]
+}
 # Between morphs
-dm.UWUF.ThirdTP <- dm.UWUF.morphonly[ThirdTPNames,ThirdTPNames]
+dm.UWUF.ThirdTP <- dm.UWUF.inclWater[ThirdTPNames,ThirdTPNames]
 FB.BL.Thirdvalues <- as.vector(as.dist(dm.UWUF.ThirdTP[grep("FB", rownames(dm.UWUF.ThirdTP)), grep("BL", colnames(dm.UWUF.ThirdTP))]))
 FB.CR.Thirdvalues <- as.vector(as.dist(dm.UWUF.ThirdTP[grep("FB", rownames(dm.UWUF.ThirdTP)), grep("CR", colnames(dm.UWUF.ThirdTP))]))
 CR.BL.Thirdvalues <- as.vector(as.dist(dm.UWUF.ThirdTP[grep("CR", rownames(dm.UWUF.ThirdTP)), grep("BL", colnames(dm.UWUF.ThirdTP))]))
 # ANOVA
-dm.UWUF.360 <- dm.UWUF.morphonly[grep("-360-", rownames(dm.UWUF.morphonly)), grep("-360-", colnames(dm.UWUF.morphonly))]
-MF.UWUF.360.only <- MF.morphkeep[grep("-360-", rownames(MF.morphkeep)),]
+dm.UWUF.360 <- dm.UWUF.inclWater[grep("(BL|CR|FB)-360-", rownames(dm.UWUF.inclWater)), grep("-360-", colnames(dm.UWUF.morphonly))]
+MF.UWUF.360.only <- MF.inclWater[grep("(BL|CR|FB)-360-", rownames(MF.inclWater)),]
 ANOVA.UWUF.360.only <- adonis(dm.UWUF.360 ~ Morph, data = MF.UWUF.360.only, by = "margin")
 
 
 # Fourth Timepoint
-FourthTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[4],"$"), MF.morphkeep$Time)]
+FourthTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[4],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FourthTPNames)
+if (length(toremove) > 0) {
+  FourthTPNames <- FourthTPNames[-toremove]
+}
 # Between morphs
-dm.UWUF.FourthTP <- dm.UWUF.morphonly[FourthTPNames,FourthTPNames]
+dm.UWUF.FourthTP <- dm.UWUF.inclWater[FourthTPNames,FourthTPNames]
 FB.BL.Fourthvalues <- as.vector(as.dist(dm.UWUF.FourthTP[grep("FB", rownames(dm.UWUF.FourthTP)), grep("BL", colnames(dm.UWUF.FourthTP))]))
 FB.CR.Fourthvalues <- as.vector(as.dist(dm.UWUF.FourthTP[grep("FB", rownames(dm.UWUF.FourthTP)), grep("CR", colnames(dm.UWUF.FourthTP))]))
 CR.BL.Fourthvalues <- as.vector(as.dist(dm.UWUF.FourthTP[grep("CR", rownames(dm.UWUF.FourthTP)), grep("BL", colnames(dm.UWUF.FourthTP))]))
 # ANOVA
-dm.UWUF.720 <- dm.UWUF.morphonly[grep("-720-", rownames(dm.UWUF.morphonly)), grep("-720-", colnames(dm.UWUF.morphonly))]
-MF.UWUF.720.only <- MF.morphkeep[grep("-720-", rownames(MF.morphkeep)),]
+dm.UWUF.720 <- dm.UWUF.inclWater[grep("(BL|CR|FB)-720-", rownames(dm.UWUF.inclWater)), grep("-720-", colnames(dm.UWUF.morphonly))]
+MF.UWUF.720.only <- MF.inclWater[grep("(BL|CR|FB)-720-", rownames(MF.inclWater)),]
 ANOVA.UWUF.720.only <- adonis(dm.UWUF.720 ~ Morph, data = MF.UWUF.720.only, by = "margin")
+
+# Fifth Timepoint
+FifthTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[5],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FifthTPNames)
+if (length(toremove) > 0) {
+  FifthTPNames <- FifthTPNames[-toremove]
+}
+# Between morphs
+dm.UWUF.FifthTP <- dm.UWUF.inclWater[FifthTPNames,FifthTPNames]
+FB.BL.Fifthvalues <- as.vector(as.dist(dm.UWUF.FifthTP[grep("FB", rownames(dm.UWUF.FifthTP)), grep("BL", colnames(dm.UWUF.FifthTP))]))
+FB.CR.Fifthvalues <- as.vector(as.dist(dm.UWUF.FifthTP[grep("FB", rownames(dm.UWUF.FifthTP)), grep("CR", colnames(dm.UWUF.FifthTP))]))
+CR.BL.Fifthvalues <- as.vector(as.dist(dm.UWUF.FifthTP[grep("CR", rownames(dm.UWUF.FifthTP)), grep("BL", colnames(dm.UWUF.FifthTP))]))
+# ANOVA
+dm.UWUF.5760 <- dm.UWUF.inclWater[grep("(BL|CR|FB)-5760-", rownames(dm.UWUF.inclWater)), grep("-5760-", colnames(dm.UWUF.inclWater))]
+MF.UWUF.5760.only <- MF.inclWater[grep("(BL|CR|FB)-5760-", rownames(MF.inclWater)),]
+ANOVA.UWUF.5760.only <- adonis(dm.UWUF.5760 ~ Morph, data = MF.UWUF.5760.only, by = "margin")
 
 
 # Combine into single tables
@@ -348,27 +384,33 @@ ANOVA.UWUF.720.only <- adonis(dm.UWUF.720 ~ Morph, data = MF.UWUF.720.only, by =
 FB.BL.UWUF.ALL <- cbind(as.numeric(c(FB.BL.Firstvalues
                                      , FB.BL.Secondvalues
                                      , FB.BL.Thirdvalues
-                                     , FB.BL.Fourthvalues))
+                                     , FB.BL.Fourthvalues
+                                     , FB.BL.Fifthvalues))
                         , as.numeric(c(rep(TP[1], length(FB.BL.Firstvalues))
                                        , rep(TP[2], length(FB.BL.Secondvalues))
                                        , rep(TP[3], length(FB.BL.Thirdvalues))
-                                       , rep(TP[4], length(FB.BL.Fourthvalues)))))
+                                       , rep(TP[4], length(FB.BL.Fourthvalues))
+                                       , rep(TP[5], length(FB.BL.Fifthvalues)))))
 FB.CR.UWUF.ALL <- cbind(as.numeric(c(FB.CR.Firstvalues
                                      , FB.CR.Secondvalues
                                      , FB.CR.Thirdvalues
-                                     , FB.CR.Fourthvalues))
+                                     , FB.CR.Fourthvalues
+                                     , FB.CR.Fifthvalues))
                         , as.numeric(c(rep(TP[1], length(FB.CR.Firstvalues))
                                        , rep(TP[2], length(FB.CR.Secondvalues))
                                        , rep(TP[3], length(FB.CR.Thirdvalues))
-                                       , rep(TP[4], length(FB.CR.Fourthvalues)))))
+                                       , rep(TP[4], length(FB.CR.Fourthvalues))
+                                       , rep(TP[5], length(FB.CR.Fifthvalues)))))
 CR.BL.UWUF.ALL <- cbind(as.numeric(c(CR.BL.Firstvalues
                                      , CR.BL.Secondvalues
                                      , CR.BL.Thirdvalues
-                                     , CR.BL.Fourthvalues))
+                                     , CR.BL.Fourthvalues
+                                     , CR.BL.Fifthvalues))
                         , as.numeric(c(rep(TP[1], length(CR.BL.Firstvalues))
                                        , rep(TP[2], length(CR.BL.Secondvalues))
                                        , rep(TP[3], length(CR.BL.Thirdvalues))
-                                       , rep(TP[4], length(CR.BL.Fourthvalues)))))
+                                       , rep(TP[4], length(CR.BL.Fourthvalues))
+                                       , rep(TP[5], length(CR.BL.Fifthvalues)))))
 
 # FB.BL.UWUF.lm <- lm(FB.BL.UWUF.ALL[,1] ~ log(FB.BL.UWUF.ALL[,2]))
 # summary(FB.BL.UWUF.lm)
@@ -405,38 +447,38 @@ plot(xvalues, NULL
      , ylab = "Distance (Unweighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
-axis(side = 1, at = c(1,2,3,4), labels = c('20 min','1 h', '6 h', '12 h'))
-points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+axis(side = 1, at = c(1,2,3,4,5), labels = c('20 min','1 h', '6 h', '12 h','4 d'))
+points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "purple"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(FB.BL.UWUF.ALL.mean[,2] - FB.BL.UWUF.ALL.sd[,2]/2)
        , y1 = c(FB.BL.UWUF.ALL.mean[,2] + FB.BL.UWUF.ALL.sd[,2]/2)
        , angle = 90
        , code = 3
        , length = 0.03)
-points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkgreen"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(FB.CR.UWUF.ALL.mean[,2] - FB.CR.UWUF.ALL.sd[,2]/2)
        , y1 = c(FB.CR.UWUF.ALL.mean[,2] + FB.CR.UWUF.ALL.sd[,2]/2)
        , angle = 90
        , code = 3
        , length = 0.03)
-points(CR.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(CR.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "grey"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(CR.BL.UWUF.ALL.mean[,2] - CR.BL.UWUF.ALL.sd[,2]/2)
        , y1 = c(CR.BL.UWUF.ALL.mean[,2] + CR.BL.UWUF.ALL.sd[,2]/2)
        , angle = 90
@@ -458,8 +500,7 @@ legend("center"
 dev.off()
 
 ####### PLOT MORPH ############
-# NOCHLP UWUF
-
+# NO 5760 UWUF
 
 # MAKE POLYGONS for plotting
 NMDS.UWUF.CR <- NMDS.UWUF.morphonly$points[grep("CR", rownames(NMDS.UWUF.morphonly$points)),]
@@ -621,96 +662,119 @@ NMDS.UWUF.720.only.FB <- NMDS.UWUF.720.only[grep("FB", rownames(NMDS.UWUF.720.on
 NMDS.UWUF.720.only.FB.chull <- chull(NMDS.UWUF.720.only.FB)
 NMDS.UWUF.720.only.FB.chull <- c(NMDS.UWUF.720.only.FB.chull, NMDS.UWUF.720.only.FB.chull[1])
 
+# 5760 minutes
+NMDS.UWUF.5760.only <- NMDS.UWUF.all$points[grep("(BL|CR|FB)-5760-", rownames(NMDS.UWUF.all$points)),]
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_TimebyMorph.pdf"),pointsize = 14, width = 7, height = 4)
-par(mfrow= c(1,4), oma = c(4,4,4,6))
-par(mar = c(4,0,4,0))
-plot(NMDS.UWUF.20.only
-     , main = "20 Minutes"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.UWUF.20.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.UWUF.20.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.UWUF.20.only.CR[NMDS.UWUF.20.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.UWUF.20.only.BL[NMDS.UWUF.20.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.UWUF.20.only.FB[NMDS.UWUF.20.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.UWUF.60.only
-     , main = "1 Hour"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.UWUF.60.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p =  ",ANOVA.UWUF.60.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.UWUF.60.only.CR[NMDS.UWUF.60.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.UWUF.60.only.BL[NMDS.UWUF.60.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.UWUF.60.only.FB[NMDS.UWUF.60.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.UWUF.360.only
-     , main = "6 Hours"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.UWUF.360.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.UWUF.360.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.UWUF.360.only.CR[NMDS.UWUF.360.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.UWUF.360.only.BL[NMDS.UWUF.360.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.UWUF.360.only.FB[NMDS.UWUF.360.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.UWUF.720.only
-     , main = "12 Hours"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.UWUF.720.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.UWUF.720.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.UWUF.720.only.CR[NMDS.UWUF.720.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.UWUF.720.only.BL[NMDS.UWUF.720.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.UWUF.720.only.FB[NMDS.UWUF.720.only.FB.chull,]
-      , col = MorphColours[3])
-#STOP
-dev.off()
+NMDS.UWUF.5760.only.CR <- NMDS.UWUF.5760.only[grep("CR", rownames(NMDS.UWUF.5760.only)),]
+NMDS.UWUF.5760.only.CR.chull <- chull(NMDS.UWUF.5760.only.CR)
+NMDS.UWUF.5760.only.CR.chull <- c(NMDS.UWUF.5760.only.CR.chull, NMDS.UWUF.5760.only.CR.chull[1])
+
+NMDS.UWUF.5760.only.BL <- NMDS.UWUF.5760.only[grep("BL", rownames(NMDS.UWUF.5760.only)),]
+NMDS.UWUF.5760.only.BL.chull <- chull(NMDS.UWUF.5760.only.BL)
+NMDS.UWUF.5760.only.BL.chull <- c(NMDS.UWUF.5760.only.BL.chull, NMDS.UWUF.5760.only.BL.chull[1])
+
+NMDS.UWUF.5760.only.FB <- NMDS.UWUF.5760.only[grep("FB", rownames(NMDS.UWUF.5760.only)),]
+NMDS.UWUF.5760.only.FB.chull <- chull(NMDS.UWUF.5760.only.FB)
+NMDS.UWUF.5760.only.FB.chull <- c(NMDS.UWUF.5760.only.FB.chull, NMDS.UWUF.5760.only.FB.chull[1])
+
+
+# pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_TimebyMorph.pdf"),pointsize = 14, width = 7, height = 4)
+# par(mfrow= c(1,4), oma = c(4,4,4,6))
+# par(mar = c(4,0,4,0))
+# plot(NMDS.UWUF.20.only
+#      , main = "20 Minutes"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.UWUF.20.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.UWUF.20.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.UWUF.20.only.CR[NMDS.UWUF.20.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.UWUF.20.only.BL[NMDS.UWUF.20.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.UWUF.20.only.FB[NMDS.UWUF.20.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.UWUF.60.only
+#      , main = "1 Hour"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.UWUF.60.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p =  ",ANOVA.UWUF.60.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.UWUF.60.only.CR[NMDS.UWUF.60.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.UWUF.60.only.BL[NMDS.UWUF.60.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.UWUF.60.only.FB[NMDS.UWUF.60.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.UWUF.360.only
+#      , main = "6 Hours"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.UWUF.360.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.UWUF.360.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.UWUF.360.only.CR[NMDS.UWUF.360.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.UWUF.360.only.BL[NMDS.UWUF.360.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.UWUF.360.only.FB[NMDS.UWUF.360.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.UWUF.720.only
+#      , main = "12 Hours"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.UWUF.720.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.UWUF.720.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.UWUF.720.only.CR[NMDS.UWUF.720.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.UWUF.720.only.BL[NMDS.UWUF.720.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.UWUF.720.only.FB[NMDS.UWUF.720.only.FB.chull,]
+#       , col = MorphColours[3])
+# #STOP
+# dev.off()
 
 ############ COMBO DISP BETA ################
 # Disp and beta through time combined
 # xvalues <- log(FB.BL.UWUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.ALL.mean[,1])
+
+# Change factor of individual plots
+MF.UWUF.20.only$Morph <- factor(MF.UWUF.20.only$Morph, levels = c("CR","BL","FB"))
+MF.UWUF.60.only$Morph <- factor(MF.UWUF.60.only$Morph, levels = c("CR","BL","FB"))
+MF.UWUF.360.only$Morph <- factor(MF.UWUF.360.only$Morph, levels = c("CR","BL","FB"))
+MF.UWUF.720.only$Morph <- factor(MF.UWUF.720.only$Morph, levels = c("CR","BL","FB"))
+MF.UWUF.5760.only$Morph <- factor(MF.UWUF.5760.only$Morph, levels = c("CR","BL","FB"))
+
 
 pdf(paste0("BETAPLOTS_H/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.8,0.3,1))
@@ -721,40 +785,40 @@ plot(xvalues, NULL
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
-     , at = c(1,2,3,4)
-     , labels = c("20 min","1 h","6 h","12 h")
+     , at = c(1,2,3,4,5)
+     , labels = c("20 min","1 h","6 h","12 h","4 d")
      , las = 2)
-points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "purple"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(FB.BL.UWUF.ALL.mean[,2] - FB.BL.UWUF.ALL.sd[,2])
        , y1 = c(FB.BL.UWUF.ALL.mean[,2] + FB.BL.UWUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.CR.UWUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkgreen"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(FB.CR.UWUF.ALL.mean[,2] - FB.CR.UWUF.ALL.sd[,2])
        , y1 = c(FB.CR.UWUF.ALL.mean[,2] + FB.CR.UWUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(CR.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(CR.BL.UWUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "grey"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(CR.BL.UWUF.ALL.mean[,2] - CR.BL.UWUF.ALL.sd[,2])
        , y1 = c(CR.BL.UWUF.ALL.mean[,2] + CR.BL.UWUF.ALL.sd[,2])
        , angle = 90
@@ -774,7 +838,8 @@ legend("center"
        , col = c("darkgreen","purple","grey")
        , lwd = 2 
        )
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.21,0,0.4), new = TRUE)
+# EACH GETS 0.15 SPACE TOTAL;
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
 plot(NMDS.UWUF.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -797,7 +862,7 @@ lines(NMDS.UWUF.20.only.BL[NMDS.UWUF.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.20.only.FB[NMDS.UWUF.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.24,0.41,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
 plot(NMDS.UWUF.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -820,7 +885,7 @@ lines(NMDS.UWUF.60.only.BL[NMDS.UWUF.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.60.only.FB[NMDS.UWUF.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.44,0.61,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
 plot(NMDS.UWUF.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -843,7 +908,7 @@ lines(NMDS.UWUF.360.only.BL[NMDS.UWUF.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.360.only.FB[NMDS.UWUF.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.64,0.81,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
 plot(NMDS.UWUF.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -865,6 +930,29 @@ lines(NMDS.UWUF.720.only.CR[NMDS.UWUF.720.only.CR.chull,]
 lines(NMDS.UWUF.720.only.BL[NMDS.UWUF.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.720.only.FB[NMDS.UWUF.720.only.FB.chull,]
+      , col = MorphColours[3])
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
+plot(NMDS.UWUF.5760.only
+     # , main = "12 Hours"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.UWUF.5760.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p = ", ANOVA.UWUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+)
+title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.5760.only$aov.tab[5]$R2[1], digits = 2))) 
+      , line= 0.25
+      , cex.axis = 0.5)
+title(xlab = paste0("p = ", ANOVA.UWUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
+      , line = 1
+      , cex.axis = 0.5)
+lines(NMDS.UWUF.5760.only.CR[NMDS.UWUF.5760.only.CR.chull,]
+      , col = MorphColours[1])
+lines(NMDS.UWUF.5760.only.BL[NMDS.UWUF.5760.only.BL.chull,]
+      , col = MorphColours[2])
+lines(NMDS.UWUF.5760.only.FB[NMDS.UWUF.5760.only.FB.chull,]
       , col = MorphColours[3])
 par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.775,1,0,0.4), new = TRUE)
 plot(0,0
@@ -890,20 +978,20 @@ betadisp.H.UWUF.FB <- betadisp.UWUF.time$distances[grep("FB", names(betadisp.UWU
 betadisp.H.UWUF.BL <- betadisp.UWUF.time$distances[grep("BL", names(betadisp.UWUF.time$distances))]
 betadisp.H.UWUF.CR <- betadisp.UWUF.time$distances[grep("CR", names(betadisp.UWUF.time$distances))]
 
-MF.H.FB <- MF.morphkeep[grep("FB", rownames(MF.morphkeep)),]
-MF.H.BL <- MF.morphkeep[grep("BL", rownames(MF.morphkeep)),]
-MF.H.CR <- MF.morphkeep[grep("CR", rownames(MF.morphkeep)),]
+MF.H.FB <- MF.incl5760[grep("FB", rownames(MF.incl5760)),]
+MF.H.BL <- MF.incl5760[grep("BL", rownames(MF.incl5760)),]
+MF.H.CR <- MF.incl5760[grep("CR", rownames(MF.incl5760)),]
 
 betadisp.FB.H.agg <- aggregate(betadisp.H.UWUF.FB, by = list(MF.H.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 betadisp.BL.H.agg <- aggregate(betadisp.H.UWUF.BL, by = list(MF.H.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 betadisp.CR.H.agg <- aggregate(betadisp.H.UWUF.CR, by = list(MF.H.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 
-betadisp.UWUF.time.forstat <- cbind(betadisp.UWUF.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.UWUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+betadisp.UWUF.time.forstat <- cbind(betadisp.UWUF.time$distances, MF.incl5760[unlist(lapply(names(betadisp.UWUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.incl5760))})),])
 colnames(betadisp.UWUF.time.forstat)[1] <- c("Distance")
 ANOVA.betadisp.UWUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.UWUF.time.forstat))
 capture.output(ANOVA.betadisp.UWUF, file = "./BETAPLOTS_H/ANOVA.betadisp.UWUF.txt")
 
-xvalues <- c("20","60","360","720")
+xvalues <- c("20","60","360","720","5760")
 ylimits <- c(0.3,0.5)
 pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
@@ -913,40 +1001,40 @@ plot(xvalues, NULL
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
-     , at = c(1,2,3,4)
-     , labels = c("20 min","1 h","6 h","12 h")
+     , at = c(1,2,3,4,5)
+     , labels = c("20 min","1 h","6 h","12 h","4 d")
      , las = 2)
-points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "salmon"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(betadisp.FB.H.agg[,2][,1] - betadisp.FB.H.agg[,2][,2])
        , y1 = c(betadisp.FB.H.agg[,2][,1] + betadisp.FB.H.agg[,2][,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "dodgerblue"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(betadisp.BL.H.agg[,2][,1] - betadisp.BL.H.agg[,2][,2])
        , y1 = c(betadisp.BL.H.agg[,2][,1] + betadisp.BL.H.agg[,2][,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkorchid4"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(betadisp.CR.H.agg[,2][,1] - betadisp.CR.H.agg[,2][,2])
        , y1 = c(betadisp.CR.H.agg[,2][,1] + betadisp.CR.H.agg[,2][,2])
        , angle = 90
@@ -993,9 +1081,9 @@ NMDS.UWUF.5760.FB <- NMDS.UWUF.5760$points[grep("FB", rownames(NMDS.UWUF.5760$po
 NMDS.UWUF.5760.FB.chull <- chull(NMDS.UWUF.5760.FB)
 NMDS.UWUF.5760.FB.chull <- c(NMDS.UWUF.5760.FB.chull, NMDS.UWUF.5760.FB.chull[1])
 
-ANOVA.UWUF.5760 <- adonis(dm.UWUF.5760 ~ Morph, data = MF.5760)
-# ANOSIM.UWUF.5760 <- anosim(dat = dm.UWUF.5760, grouping = MF.5760$Morph)
-capture.output(ANOVA.UWUF.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
+# ANOVA.UWUF.5760 <- adonis(dm.UWUF.5760 ~ Morph, data = MF.5760)
+# # ANOSIM.UWUF.5760 <- anosim(dat = dm.UWUF.5760, grouping = MF.5760$Morph)
+# capture.output(ANOVA.UWUF.5760, file = paste0("BETAPLOTS_H/individualtests/anova_",metric,"_5760only.txt"))
 
 pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_5760Only.pdf"), pointsize = 14)
 par(fig = c(0,0.75,0,1))
@@ -1038,7 +1126,7 @@ allindividualTests <- c("ANOVA.UWUF.20.only"
                         ,"ANOVA.UWUF.60.only"
                         ,"ANOVA.UWUF.360.only"
                         ,"ANOVA.UWUF.720.only"
-                        ,"ANOVA.UWUF.5760"
+                        ,"ANOVA.UWUF.5760.only"
 )
 for (i in allindividualTests) {
   # print(get(i))
@@ -1954,7 +2042,7 @@ NMDS.WUF.all <- isoMDS(as.matrix(dm.WUF.inclWater), y = cmdscale(as.matrix(dm.WU
 ###### STATS ##########
 MF.morphkeep <- MF.morphkeep[,c('Morph','Time','Type','TypeMorphTime')]
 MF.morphkeep$Morph <- factor(MF.morphkeep$Morph, levels = c('CR','BL','FB'))
-MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440'))
+MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440','5760'))
 MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
 
 
@@ -1966,65 +2054,98 @@ capture.output(ANOVA.WUF.morphtime, file = paste0("BETAPLOTS_H/adonis_", metric,
 # ANOSIM.WUF.morphtime <- anosim(dm.WUF.morphonly, grouping = MF.morphkeep$Morph)
 
 # Dispersion across time and between morphs
-dist.WUF.morphonly <- as.dist(dm.WUF.morphonly)
-betadisp.WUF.time <- betadisper(d = dist.WUF.morphonly, group = MF.morphkeep$Time)
-betadisp.WUF.morph <- betadisper(d = dist.WUF.morphonly, group = MF.morphkeep$Morph)
+dist.WUF.morphonly <- as.dist(dm.WUF.inclWater[-grep("W", rownames(dm.WUF.inclWater)), -grep("W", colnames(dm.WUF.inclWater))])
+MF.incl5760 <- MF.inclWater[-grep("W", rownames(MF.inclWater)),]
+betadisp.WUF.time <- betadisper(d = dist.WUF.morphonly, group = MF.incl5760$Time)
+betadisp.WUF.morph <- betadisper(d = dist.WUF.morphonly, group = MF.incl5760$Morph)
 
 capture.output(betadisp.WUF.time, file = paste0("BETAPLOTS_H/betadispTime_", metric, "_Hakai.txt"))
 capture.output(betadisp.WUF.morph, file = paste0("BETAPLOTS_H/betadispMorph_", metric, "_Hakai.txt"))
 
 
 # Grep values for each timepoint and morph, and then plot dispersion within each
-TP <- levels(factor(MF.morphkeep$Time))
+TP <- levels(factor(MF.inclWater$Time))
 MorphTypes <- levels(factor(MF.morphkeep$Morph))
 # First Timepoint
-FirstTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[1],"$"), MF.morphkeep$Time)]
+FirstTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[1],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FirstTPNames)
+if (length(toremove) > 0) {
+  FirstTPNames <- FirstTPNames[-toremove]
+}
 # Between morphs
-dm.WUF.FirstTP <- dm.WUF.morphonly[FirstTPNames,FirstTPNames]
+dm.WUF.FirstTP <- dm.WUF.inclWater[FirstTPNames,FirstTPNames]
 FB.BL.Firstvalues <- as.vector(as.dist(dm.WUF.FirstTP[grep("FB", rownames(dm.WUF.FirstTP)), grep("BL", colnames(dm.WUF.FirstTP))]))
 FB.CR.Firstvalues <- as.vector(as.dist(dm.WUF.FirstTP[grep("FB", rownames(dm.WUF.FirstTP)), grep("CR", colnames(dm.WUF.FirstTP))]))
 CR.BL.Firstvalues <- as.vector(as.dist(dm.WUF.FirstTP[grep("CR", rownames(dm.WUF.FirstTP)), grep("BL", colnames(dm.WUF.FirstTP))]))
 # ANOVA
-dm.WUF.20 <- dm.WUF.morphonly[grep("-20-", rownames(dm.WUF.morphonly)), grep("-20-", colnames(dm.WUF.morphonly))]
-MF.WUF.20.only <- MF.morphkeep[grep("-20-", rownames(MF.morphkeep)),]
+dm.WUF.20 <- dm.WUF.inclWater[grep("(CR|BL|FB)-20-", rownames(dm.WUF.inclWater)), grep("-20-", colnames(dm.WUF.inclWater))]
+MF.WUF.20.only <- MF.inclWater[grep("(CR|BL|FB)-20-", rownames(MF.inclWater)),]
 ANOVA.WUF.20.only <- adonis(dm.WUF.20 ~ Morph, data = MF.WUF.20.only, by = "margin")
 
 # Second Timepoine
-SecondTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[2],"$"), MF.morphkeep$Time)]
+SecondTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[2],"$"), MF.inclWater$Time)]
+toremove <- grep("W", SecondTPNames)
+if (length(toremove) > 0) {
+  SecondTPNames <- SecondTPNames[-toremove]
+}
 # Between morphs
-dm.WUF.SecondTP <- dm.WUF.morphonly[SecondTPNames,SecondTPNames]
+dm.WUF.SecondTP <- dm.WUF.inclWater[SecondTPNames,SecondTPNames]
 FB.BL.Secondvalues <- as.vector(as.dist(dm.WUF.SecondTP[grep("FB", rownames(dm.WUF.SecondTP)), grep("BL", colnames(dm.WUF.SecondTP))]))
 FB.CR.Secondvalues <- as.vector(as.dist(dm.WUF.SecondTP[grep("FB", rownames(dm.WUF.SecondTP)), grep("CR", colnames(dm.WUF.SecondTP))]))
 CR.BL.Secondvalues <- as.vector(as.dist(dm.WUF.SecondTP[grep("CR", rownames(dm.WUF.SecondTP)), grep("BL", colnames(dm.WUF.SecondTP))]))
 # ANOVA
-dm.WUF.60 <- dm.WUF.morphonly[grep("-60-", rownames(dm.WUF.morphonly)), grep("-60-", colnames(dm.WUF.morphonly))]
-MF.WUF.60.only <- MF.morphkeep[grep("-60-", rownames(MF.morphkeep)),]
+dm.WUF.60 <- dm.WUF.inclWater[grep("(BL|CR|FB)-60-", rownames(dm.WUF.inclWater)), grep("-60-", colnames(dm.WUF.morphonly))]
+MF.WUF.60.only <- MF.inclWater[grep("(BL|CR|FB)-60-", rownames(MF.inclWater)),]
 ANOVA.WUF.60.only <- adonis(dm.WUF.60 ~ Morph, data = MF.WUF.60.only, by = "margin")
 
 # Third Timepoint
-ThirdTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[3],"$"), MF.morphkeep$Time)]
+ThirdTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[3],"$"), MF.inclWater$Time)]
+toremove <- grep("W", ThirdTPNames)
+if (length(toremove) > 0) {
+  ThirdTPNames <- ThirdTPNames[-toremove]
+}
 # Between morphs
-dm.WUF.ThirdTP <- dm.WUF.morphonly[ThirdTPNames,ThirdTPNames]
+dm.WUF.ThirdTP <- dm.WUF.inclWater[ThirdTPNames,ThirdTPNames]
 FB.BL.Thirdvalues <- as.vector(as.dist(dm.WUF.ThirdTP[grep("FB", rownames(dm.WUF.ThirdTP)), grep("BL", colnames(dm.WUF.ThirdTP))]))
 FB.CR.Thirdvalues <- as.vector(as.dist(dm.WUF.ThirdTP[grep("FB", rownames(dm.WUF.ThirdTP)), grep("CR", colnames(dm.WUF.ThirdTP))]))
 CR.BL.Thirdvalues <- as.vector(as.dist(dm.WUF.ThirdTP[grep("CR", rownames(dm.WUF.ThirdTP)), grep("BL", colnames(dm.WUF.ThirdTP))]))
 # ANOVA
-dm.WUF.360 <- dm.WUF.morphonly[grep("-360-", rownames(dm.WUF.morphonly)), grep("-360-", colnames(dm.WUF.morphonly))]
-MF.WUF.360.only <- MF.morphkeep[grep("-360-", rownames(MF.morphkeep)),]
+dm.WUF.360 <- dm.WUF.inclWater[grep("(BL|CR|FB)-360-", rownames(dm.WUF.inclWater)), grep("-360-", colnames(dm.WUF.morphonly))]
+MF.WUF.360.only <- MF.inclWater[grep("(BL|CR|FB)-360-", rownames(MF.inclWater)),]
 ANOVA.WUF.360.only <- adonis(dm.WUF.360 ~ Morph, data = MF.WUF.360.only, by = "margin")
 
 
 # Fourth Timepoint
-FourthTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[4],"$"), MF.morphkeep$Time)]
+FourthTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[4],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FourthTPNames)
+if (length(toremove) > 0) {
+  FourthTPNames <- FourthTPNames[-toremove]
+}
 # Between morphs
-dm.WUF.FourthTP <- dm.WUF.morphonly[FourthTPNames,FourthTPNames]
+dm.WUF.FourthTP <- dm.WUF.inclWater[FourthTPNames,FourthTPNames]
 FB.BL.Fourthvalues <- as.vector(as.dist(dm.WUF.FourthTP[grep("FB", rownames(dm.WUF.FourthTP)), grep("BL", colnames(dm.WUF.FourthTP))]))
 FB.CR.Fourthvalues <- as.vector(as.dist(dm.WUF.FourthTP[grep("FB", rownames(dm.WUF.FourthTP)), grep("CR", colnames(dm.WUF.FourthTP))]))
 CR.BL.Fourthvalues <- as.vector(as.dist(dm.WUF.FourthTP[grep("CR", rownames(dm.WUF.FourthTP)), grep("BL", colnames(dm.WUF.FourthTP))]))
 # ANOVA
-dm.WUF.720 <- dm.WUF.morphonly[grep("-720-", rownames(dm.WUF.morphonly)), grep("-720-", colnames(dm.WUF.morphonly))]
-MF.WUF.720.only <- MF.morphkeep[grep("-720-", rownames(MF.morphkeep)),]
+dm.WUF.720 <- dm.WUF.inclWater[grep("(BL|CR|FB)-720-", rownames(dm.WUF.inclWater)), grep("-720-", colnames(dm.WUF.morphonly))]
+MF.WUF.720.only <- MF.inclWater[grep("(BL|CR|FB)-720-", rownames(MF.inclWater)),]
 ANOVA.WUF.720.only <- adonis(dm.WUF.720 ~ Morph, data = MF.WUF.720.only, by = "margin")
+
+# Fifth Timepoint
+FifthTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[5],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FifthTPNames)
+if (length(toremove) > 0) {
+  FifthTPNames <- FifthTPNames[-toremove]
+}
+# Between morphs
+dm.WUF.FifthTP <- dm.WUF.inclWater[FifthTPNames,FifthTPNames]
+FB.BL.Fifthvalues <- as.vector(as.dist(dm.WUF.FifthTP[grep("FB", rownames(dm.WUF.FifthTP)), grep("BL", colnames(dm.WUF.FifthTP))]))
+FB.CR.Fifthvalues <- as.vector(as.dist(dm.WUF.FifthTP[grep("FB", rownames(dm.WUF.FifthTP)), grep("CR", colnames(dm.WUF.FifthTP))]))
+CR.BL.Fifthvalues <- as.vector(as.dist(dm.WUF.FifthTP[grep("CR", rownames(dm.WUF.FifthTP)), grep("BL", colnames(dm.WUF.FifthTP))]))
+# ANOVA
+dm.WUF.5760 <- dm.WUF.inclWater[grep("(BL|CR|FB)-5760-", rownames(dm.WUF.inclWater)), grep("-5760-", colnames(dm.WUF.inclWater))]
+MF.WUF.5760.only <- MF.inclWater[grep("(BL|CR|FB)-5760-", rownames(MF.inclWater)),]
+ANOVA.WUF.5760.only <- adonis(dm.WUF.5760 ~ Morph, data = MF.WUF.5760.only, by = "margin")
 
 
 # Combine into single tables
@@ -2032,27 +2153,33 @@ ANOVA.WUF.720.only <- adonis(dm.WUF.720 ~ Morph, data = MF.WUF.720.only, by = "m
 FB.BL.WUF.ALL <- cbind(as.numeric(c(FB.BL.Firstvalues
                                      , FB.BL.Secondvalues
                                      , FB.BL.Thirdvalues
-                                     , FB.BL.Fourthvalues))
+                                     , FB.BL.Fourthvalues
+                                     , FB.BL.Fifthvalues))
                         , as.numeric(c(rep(TP[1], length(FB.BL.Firstvalues))
                                        , rep(TP[2], length(FB.BL.Secondvalues))
                                        , rep(TP[3], length(FB.BL.Thirdvalues))
-                                       , rep(TP[4], length(FB.BL.Fourthvalues)))))
+                                       , rep(TP[4], length(FB.BL.Fourthvalues))
+                                       , rep(TP[5], length(FB.BL.Fifthvalues)))))
 FB.CR.WUF.ALL <- cbind(as.numeric(c(FB.CR.Firstvalues
                                      , FB.CR.Secondvalues
                                      , FB.CR.Thirdvalues
-                                     , FB.CR.Fourthvalues))
+                                     , FB.CR.Fourthvalues
+                                     , FB.CR.Fifthvalues))
                         , as.numeric(c(rep(TP[1], length(FB.CR.Firstvalues))
                                        , rep(TP[2], length(FB.CR.Secondvalues))
                                        , rep(TP[3], length(FB.CR.Thirdvalues))
-                                       , rep(TP[4], length(FB.CR.Fourthvalues)))))
+                                       , rep(TP[4], length(FB.CR.Fourthvalues))
+                                       , rep(TP[5], length(FB.CR.Fifthvalues)))))
 CR.BL.WUF.ALL <- cbind(as.numeric(c(CR.BL.Firstvalues
                                      , CR.BL.Secondvalues
                                      , CR.BL.Thirdvalues
-                                     , CR.BL.Fourthvalues))
+                                     , CR.BL.Fourthvalues
+                                     , CR.BL.Fifthvalues))
                         , as.numeric(c(rep(TP[1], length(CR.BL.Firstvalues))
                                        , rep(TP[2], length(CR.BL.Secondvalues))
                                        , rep(TP[3], length(CR.BL.Thirdvalues))
-                                       , rep(TP[4], length(CR.BL.Fourthvalues)))))
+                                       , rep(TP[4], length(CR.BL.Fourthvalues))
+                                       , rep(TP[5], length(CR.BL.Fifthvalues)))))
 
 # FB.BL.WUF.lm <- lm(FB.BL.WUF.ALL[,1] ~ log(FB.BL.WUF.ALL[,2]))
 # summary(FB.BL.WUF.lm)
@@ -2074,6 +2201,7 @@ CR.BL.WUF.ALL.sd <- aggregate(CR.BL.WUF.ALL, by = list(CR.BL.WUF.ALL[,2]), sd)
 FB.CR.WUF.ALL.mean <- aggregate(FB.CR.WUF.ALL, by = list(FB.CR.WUF.ALL[,2]), mean)
 FB.CR.WUF.ALL.sd <- aggregate(FB.CR.WUF.ALL, by = list(FB.CR.WUF.ALL[,2]), sd)
 
+
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.WUF.ALL[,1],FB.CR.WUF.ALL[,1],CR.BL.WUF.ALL[,1]), max(FB.BL.WUF.ALL[,1],FB.CR.WUF.ALL[,1],CR.BL.WUF.ALL[,1]))
 ylimits <- c(0,0.4)
@@ -2085,41 +2213,41 @@ par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = "Time"
-     , ylab = "Distance (Weighted Unifrac)"
+     , ylab = "Distance (Unweighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
-axis(side = 1, at = c(1,2,3,4), labels = c('20 min','1 h', '6 h', '12 h'))
-points(FB.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
+axis(side = 1, at = c(1,2,3,4,5), labels = c('20 min','1 h', '6 h', '12 h','4 d'))
+points(FB.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "purple"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(FB.BL.WUF.ALL.mean[,2] - FB.BL.WUF.ALL.sd[,2]/2)
        , y1 = c(FB.BL.WUF.ALL.mean[,2] + FB.BL.WUF.ALL.sd[,2]/2)
        , angle = 90
        , code = 3
        , length = 0.03)
-points(FB.CR.WUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.CR.WUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkgreen"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(FB.CR.WUF.ALL.mean[,2] - FB.CR.WUF.ALL.sd[,2]/2)
        , y1 = c(FB.CR.WUF.ALL.mean[,2] + FB.CR.WUF.ALL.sd[,2]/2)
        , angle = 90
        , code = 3
        , length = 0.03)
-points(CR.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(CR.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "grey"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(CR.BL.WUF.ALL.mean[,2] - CR.BL.WUF.ALL.sd[,2]/2)
        , y1 = c(CR.BL.WUF.ALL.mean[,2] + CR.BL.WUF.ALL.sd[,2]/2)
        , angle = 90
@@ -2141,8 +2269,7 @@ legend("center"
 dev.off()
 
 ####### PLOT MORPH ############
-# NOCHLP WUF
-
+# NO 5760 WUF
 
 # MAKE POLYGONS for plotting
 NMDS.WUF.CR <- NMDS.WUF.morphonly$points[grep("CR", rownames(NMDS.WUF.morphonly$points)),]
@@ -2304,140 +2431,163 @@ NMDS.WUF.720.only.FB <- NMDS.WUF.720.only[grep("FB", rownames(NMDS.WUF.720.only)
 NMDS.WUF.720.only.FB.chull <- chull(NMDS.WUF.720.only.FB)
 NMDS.WUF.720.only.FB.chull <- c(NMDS.WUF.720.only.FB.chull, NMDS.WUF.720.only.FB.chull[1])
 
+# 5760 minutes
+NMDS.WUF.5760.only <- NMDS.WUF.all$points[grep("(BL|CR|FB)-5760-", rownames(NMDS.WUF.all$points)),]
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_TimebyMorph.pdf"),pointsize = 14, width = 7, height = 4)
-par(mfrow= c(1,4), oma = c(4,4,4,6))
-par(mar = c(4,0,4,0))
-plot(NMDS.WUF.20.only
-     , main = "20 Minutes"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.WUF.20.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.WUF.20.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.WUF.20.only.CR[NMDS.WUF.20.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.WUF.20.only.BL[NMDS.WUF.20.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.WUF.20.only.FB[NMDS.WUF.20.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.WUF.60.only
-     , main = "1 Hour"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.WUF.60.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p =  ",ANOVA.WUF.60.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.WUF.60.only.CR[NMDS.WUF.60.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.WUF.60.only.BL[NMDS.WUF.60.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.WUF.60.only.FB[NMDS.WUF.60.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.WUF.360.only
-     , main = "6 Hours"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.WUF.360.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.WUF.360.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.WUF.360.only.CR[NMDS.WUF.360.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.WUF.360.only.BL[NMDS.WUF.360.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.WUF.360.only.FB[NMDS.WUF.360.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.WUF.720.only
-     , main = "12 Hours"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.WUF.720.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.WUF.720.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.WUF.720.only.CR[NMDS.WUF.720.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.WUF.720.only.BL[NMDS.WUF.720.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.WUF.720.only.FB[NMDS.WUF.720.only.FB.chull,]
-      , col = MorphColours[3])
-#STOP
-dev.off()
+NMDS.WUF.5760.only.CR <- NMDS.WUF.5760.only[grep("CR", rownames(NMDS.WUF.5760.only)),]
+NMDS.WUF.5760.only.CR.chull <- chull(NMDS.WUF.5760.only.CR)
+NMDS.WUF.5760.only.CR.chull <- c(NMDS.WUF.5760.only.CR.chull, NMDS.WUF.5760.only.CR.chull[1])
+
+NMDS.WUF.5760.only.BL <- NMDS.WUF.5760.only[grep("BL", rownames(NMDS.WUF.5760.only)),]
+NMDS.WUF.5760.only.BL.chull <- chull(NMDS.WUF.5760.only.BL)
+NMDS.WUF.5760.only.BL.chull <- c(NMDS.WUF.5760.only.BL.chull, NMDS.WUF.5760.only.BL.chull[1])
+
+NMDS.WUF.5760.only.FB <- NMDS.WUF.5760.only[grep("FB", rownames(NMDS.WUF.5760.only)),]
+NMDS.WUF.5760.only.FB.chull <- chull(NMDS.WUF.5760.only.FB)
+NMDS.WUF.5760.only.FB.chull <- c(NMDS.WUF.5760.only.FB.chull, NMDS.WUF.5760.only.FB.chull[1])
+
+
+# pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_TimebyMorph.pdf"),pointsize = 14, width = 7, height = 4)
+# par(mfrow= c(1,4), oma = c(4,4,4,6))
+# par(mar = c(4,0,4,0))
+# plot(NMDS.WUF.20.only
+#      , main = "20 Minutes"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.WUF.20.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.WUF.20.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.WUF.20.only.CR[NMDS.WUF.20.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.WUF.20.only.BL[NMDS.WUF.20.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.WUF.20.only.FB[NMDS.WUF.20.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.WUF.60.only
+#      , main = "1 Hour"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.WUF.60.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p =  ",ANOVA.WUF.60.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.WUF.60.only.CR[NMDS.WUF.60.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.WUF.60.only.BL[NMDS.WUF.60.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.WUF.60.only.FB[NMDS.WUF.60.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.WUF.360.only
+#      , main = "6 Hours"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.WUF.360.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.WUF.360.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.WUF.360.only.CR[NMDS.WUF.360.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.WUF.360.only.BL[NMDS.WUF.360.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.WUF.360.only.FB[NMDS.WUF.360.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.WUF.720.only
+#      , main = "12 Hours"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.WUF.720.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.WUF.720.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.WUF.720.only.CR[NMDS.WUF.720.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.WUF.720.only.BL[NMDS.WUF.720.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.WUF.720.only.FB[NMDS.WUF.720.only.FB.chull,]
+#       , col = MorphColours[3])
+# #STOP
+# dev.off()
 
 ############ COMBO DISP BETA ################
 # Disp and beta through time combined
 # xvalues <- log(FB.BL.WUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.WUF.ALL.mean[,1])
 
+# Change factor of individual plots
+MF.WUF.20.only$Morph <- factor(MF.WUF.20.only$Morph, levels = c("CR","BL","FB"))
+MF.WUF.60.only$Morph <- factor(MF.WUF.60.only$Morph, levels = c("CR","BL","FB"))
+MF.WUF.360.only$Morph <- factor(MF.WUF.360.only$Morph, levels = c("CR","BL","FB"))
+MF.WUF.720.only$Morph <- factor(MF.WUF.720.only$Morph, levels = c("CR","BL","FB"))
+MF.WUF.5760.only$Morph <- factor(MF.WUF.5760.only$Morph, levels = c("CR","BL","FB"))
+
+
 pdf(paste0("BETAPLOTS_H/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.8,0.3,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = ''
-     , ylab = "Distance (Weighted Unifrac)"
+     , ylab = "Distance (Unweighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
-     , at = c(1,2,3,4)
-     , labels = c("20 min","1 h","6 h","12 h")
+     , at = c(1,2,3,4,5)
+     , labels = c("20 min","1 h","6 h","12 h","4 d")
      , las = 2)
-points(FB.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "purple"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(FB.BL.WUF.ALL.mean[,2] - FB.BL.WUF.ALL.sd[,2])
        , y1 = c(FB.BL.WUF.ALL.mean[,2] + FB.BL.WUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(FB.CR.WUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.CR.WUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkgreen"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(FB.CR.WUF.ALL.mean[,2] - FB.CR.WUF.ALL.sd[,2])
        , y1 = c(FB.CR.WUF.ALL.mean[,2] + FB.CR.WUF.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(CR.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4)
+points(CR.BL.WUF.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "grey"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(CR.BL.WUF.ALL.mean[,2] - CR.BL.WUF.ALL.sd[,2])
        , y1 = c(CR.BL.WUF.ALL.mean[,2] + CR.BL.WUF.ALL.sd[,2])
        , angle = 90
@@ -2457,7 +2607,8 @@ legend("center"
        , col = c("darkgreen","purple","grey")
        , lwd = 2 
 )
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.21,0,0.4), new = TRUE)
+# EACH GETS 0.15 SPACE TOTAL;
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
 plot(NMDS.WUF.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -2480,7 +2631,7 @@ lines(NMDS.WUF.20.only.BL[NMDS.WUF.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.20.only.FB[NMDS.WUF.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.24,0.41,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
 plot(NMDS.WUF.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -2503,7 +2654,7 @@ lines(NMDS.WUF.60.only.BL[NMDS.WUF.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.60.only.FB[NMDS.WUF.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.44,0.61,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
 plot(NMDS.WUF.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -2526,7 +2677,7 @@ lines(NMDS.WUF.360.only.BL[NMDS.WUF.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.360.only.FB[NMDS.WUF.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.64,0.81,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
 plot(NMDS.WUF.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -2548,6 +2699,29 @@ lines(NMDS.WUF.720.only.CR[NMDS.WUF.720.only.CR.chull,]
 lines(NMDS.WUF.720.only.BL[NMDS.WUF.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.720.only.FB[NMDS.WUF.720.only.FB.chull,]
+      , col = MorphColours[3])
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
+plot(NMDS.WUF.5760.only
+     # , main = "12 Hours"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.WUF.5760.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p = ", ANOVA.WUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+)
+title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.5760.only$aov.tab[5]$R2[1], digits = 2))) 
+      , line= 0.25
+      , cex.axis = 0.5)
+title(xlab = paste0("p = ", ANOVA.WUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
+      , line = 1
+      , cex.axis = 0.5)
+lines(NMDS.WUF.5760.only.CR[NMDS.WUF.5760.only.CR.chull,]
+      , col = MorphColours[1])
+lines(NMDS.WUF.5760.only.BL[NMDS.WUF.5760.only.BL.chull,]
+      , col = MorphColours[2])
+lines(NMDS.WUF.5760.only.FB[NMDS.WUF.5760.only.FB.chull,]
       , col = MorphColours[3])
 par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.775,1,0,0.4), new = TRUE)
 plot(0,0
@@ -2573,62 +2747,63 @@ betadisp.H.WUF.FB <- betadisp.WUF.time$distances[grep("FB", names(betadisp.WUF.t
 betadisp.H.WUF.BL <- betadisp.WUF.time$distances[grep("BL", names(betadisp.WUF.time$distances))]
 betadisp.H.WUF.CR <- betadisp.WUF.time$distances[grep("CR", names(betadisp.WUF.time$distances))]
 
-MF.H.FB <- MF.morphkeep[grep("FB", rownames(MF.morphkeep)),]
-MF.H.BL <- MF.morphkeep[grep("BL", rownames(MF.morphkeep)),]
-MF.H.CR <- MF.morphkeep[grep("CR", rownames(MF.morphkeep)),]
+MF.H.FB <- MF.incl5760[grep("FB", rownames(MF.incl5760)),]
+MF.H.BL <- MF.incl5760[grep("BL", rownames(MF.incl5760)),]
+MF.H.CR <- MF.incl5760[grep("CR", rownames(MF.incl5760)),]
 
 betadisp.FB.H.agg <- aggregate(betadisp.H.WUF.FB, by = list(MF.H.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 betadisp.BL.H.agg <- aggregate(betadisp.H.WUF.BL, by = list(MF.H.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 betadisp.CR.H.agg <- aggregate(betadisp.H.WUF.CR, by = list(MF.H.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 
-betadisp.WUF.time.forstat <- cbind(betadisp.WUF.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.WUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+betadisp.WUF.time.forstat <- cbind(betadisp.WUF.time$distances, MF.incl5760[unlist(lapply(names(betadisp.WUF.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.incl5760))})),])
 colnames(betadisp.WUF.time.forstat)[1] <- c("Distance")
 ANOVA.betadisp.WUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.WUF.time.forstat))
 capture.output(ANOVA.betadisp.WUF, file = "./BETAPLOTS_H/ANOVA.betadisp.WUF.txt")
 
+xvalues <- c("20","60","360","720","5760")
 ylimits <- c(0,0.35)
 pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
-     , ylab = "Distance (Weighted_Unifrac)"
+     , ylab = "Distance (Unweighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
-     , at = c(1,2,3,4)
-     , labels = c("20 min","1 h","6 h","12 h")
+     , at = c(1,2,3,4,5)
+     , labels = c("20 min","1 h","6 h","12 h","4 d")
      , las = 2)
-points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "salmon"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(betadisp.FB.H.agg[,2][,1] - betadisp.FB.H.agg[,2][,2])
        , y1 = c(betadisp.FB.H.agg[,2][,1] + betadisp.FB.H.agg[,2][,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "dodgerblue"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(betadisp.BL.H.agg[,2][,1] - betadisp.BL.H.agg[,2][,2])
        , y1 = c(betadisp.BL.H.agg[,2][,1] + betadisp.BL.H.agg[,2][,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkorchid4"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(betadisp.CR.H.agg[,2][,1] - betadisp.CR.H.agg[,2][,2])
        , y1 = c(betadisp.CR.H.agg[,2][,1] + betadisp.CR.H.agg[,2][,2])
        , angle = 90
@@ -2674,9 +2849,9 @@ NMDS.WUF.5760.FB <- NMDS.WUF.5760$points[grep("FB", rownames(NMDS.WUF.5760$point
 NMDS.WUF.5760.FB.chull <- chull(NMDS.WUF.5760.FB)
 NMDS.WUF.5760.FB.chull <- c(NMDS.WUF.5760.FB.chull, NMDS.WUF.5760.FB.chull[1])
 
-ANOVA.WUF.5760 <- adonis(dm.WUF.5760 ~ Morph, data = MF.5760)
-# ANOSIM.WUF.5760 <- anosim(dat = dm.WUF.5760, grouping = MF.5760$Morph)
-capture.output(ANOVA.WUF.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
+# ANOVA.WUF.5760 <- adonis(dm.WUF.5760 ~ Morph, data = MF.5760)
+# # ANOSIM.WUF.5760 <- anosim(dat = dm.WUF.5760, grouping = MF.5760$Morph)
+# capture.output(ANOVA.WUF.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
 
 pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_5760Only.pdf"), pointsize = 14)
 par(fig = c(0,0.75,0,1))
@@ -2718,7 +2893,7 @@ allindividualTests <- c("ANOVA.WUF.20.only"
                         ,"ANOVA.WUF.60.only"
                         ,"ANOVA.WUF.360.only"
                         ,"ANOVA.WUF.720.only"
-                        ,"ANOVA.WUF.5760"
+                        ,"ANOVA.WUF.5760.only"
 )
 for (i in allindividualTests) {
   # print(get(i))
@@ -3630,7 +3805,7 @@ NMDS.BC.all <- isoMDS(as.matrix(dm.BC.inclWater), y = cmdscale(as.matrix(dm.BC.i
 ###### STATS ##########
 MF.morphkeep <- MF.morphkeep[,c('Morph','Time','Type','TypeMorphTime')]
 MF.morphkeep$Morph <- factor(MF.morphkeep$Morph, levels = c('CR','BL','FB'))
-MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440'))
+MF.morphkeep$Time <- factor(MF.morphkeep$Time, levels = c('20','60','180','360','720','1440','5760'))
 MF.morphkeep$Type <- factor(MF.morphkeep$Type, levels = c('P','H'))
 
 
@@ -3642,93 +3817,132 @@ capture.output(ANOVA.BC.morphtime, file = paste0("BETAPLOTS_H/adonis_", metric,"
 # ANOSIM.BC.morphtime <- anosim(dm.BC.morphonly, grouping = MF.morphkeep$Morph)
 
 # Dispersion across time and between morphs
-dist.BC.morphonly <- as.dist(dm.BC.morphonly)
-betadisp.BC.time <- betadisper(d = dist.BC.morphonly, group = MF.morphkeep$Time)
-betadisp.BC.morph <- betadisper(d = dist.BC.morphonly, group = MF.morphkeep$Morph)
+dist.BC.morphonly <- as.dist(dm.BC.inclWater[-grep("W", rownames(dm.BC.inclWater)), -grep("W", colnames(dm.BC.inclWater))])
+MF.incl5760 <- MF.inclWater[-grep("W", rownames(MF.inclWater)),]
+betadisp.BC.time <- betadisper(d = dist.BC.morphonly, group = MF.incl5760$Time)
+betadisp.BC.morph <- betadisper(d = dist.BC.morphonly, group = MF.incl5760$Morph)
 
 capture.output(betadisp.BC.time, file = paste0("BETAPLOTS_H/betadispTime_", metric, "_Hakai.txt"))
 capture.output(betadisp.BC.morph, file = paste0("BETAPLOTS_H/betadispMorph_", metric, "_Hakai.txt"))
 
 
 # Grep values for each timepoint and morph, and then plot dispersion within each
-TP <- levels(factor(MF.morphkeep$Time))
+TP <- levels(factor(MF.inclWater$Time))
 MorphTypes <- levels(factor(MF.morphkeep$Morph))
 # First Timepoint
-FirstTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[1],"$"), MF.morphkeep$Time)]
+FirstTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[1],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FirstTPNames)
+if (length(toremove) > 0) {
+  FirstTPNames <- FirstTPNames[-toremove]
+}
 # Between morphs
-dm.BC.FirstTP <- dm.BC.morphonly[FirstTPNames,FirstTPNames]
+dm.BC.FirstTP <- dm.BC.inclWater[FirstTPNames,FirstTPNames]
 FB.BL.Firstvalues <- as.vector(as.dist(dm.BC.FirstTP[grep("FB", rownames(dm.BC.FirstTP)), grep("BL", colnames(dm.BC.FirstTP))]))
 FB.CR.Firstvalues <- as.vector(as.dist(dm.BC.FirstTP[grep("FB", rownames(dm.BC.FirstTP)), grep("CR", colnames(dm.BC.FirstTP))]))
 CR.BL.Firstvalues <- as.vector(as.dist(dm.BC.FirstTP[grep("CR", rownames(dm.BC.FirstTP)), grep("BL", colnames(dm.BC.FirstTP))]))
 # ANOVA
-dm.BC.20 <- dm.BC.morphonly[grep("-20-", rownames(dm.BC.morphonly)), grep("-20-", colnames(dm.BC.morphonly))]
-MF.BC.20.only <- MF.morphkeep[grep("-20-", rownames(MF.morphkeep)),]
+dm.BC.20 <- dm.BC.inclWater[grep("(CR|BL|FB)-20-", rownames(dm.BC.inclWater)), grep("-20-", colnames(dm.BC.inclWater))]
+MF.BC.20.only <- MF.inclWater[grep("(CR|BL|FB)-20-", rownames(MF.inclWater)),]
 ANOVA.BC.20.only <- adonis(dm.BC.20 ~ Morph, data = MF.BC.20.only, by = "margin")
 
 # Second Timepoine
-SecondTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[2],"$"), MF.morphkeep$Time)]
+SecondTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[2],"$"), MF.inclWater$Time)]
+toremove <- grep("W", SecondTPNames)
+if (length(toremove) > 0) {
+  SecondTPNames <- SecondTPNames[-toremove]
+}
 # Between morphs
-dm.BC.SecondTP <- dm.BC.morphonly[SecondTPNames,SecondTPNames]
+dm.BC.SecondTP <- dm.BC.inclWater[SecondTPNames,SecondTPNames]
 FB.BL.Secondvalues <- as.vector(as.dist(dm.BC.SecondTP[grep("FB", rownames(dm.BC.SecondTP)), grep("BL", colnames(dm.BC.SecondTP))]))
 FB.CR.Secondvalues <- as.vector(as.dist(dm.BC.SecondTP[grep("FB", rownames(dm.BC.SecondTP)), grep("CR", colnames(dm.BC.SecondTP))]))
 CR.BL.Secondvalues <- as.vector(as.dist(dm.BC.SecondTP[grep("CR", rownames(dm.BC.SecondTP)), grep("BL", colnames(dm.BC.SecondTP))]))
 # ANOVA
-dm.BC.60 <- dm.BC.morphonly[grep("-60-", rownames(dm.BC.morphonly)), grep("-60-", colnames(dm.BC.morphonly))]
-MF.BC.60.only <- MF.morphkeep[grep("-60-", rownames(MF.morphkeep)),]
+dm.BC.60 <- dm.BC.inclWater[grep("(BL|CR|FB)-60-", rownames(dm.BC.inclWater)), grep("-60-", colnames(dm.BC.morphonly))]
+MF.BC.60.only <- MF.inclWater[grep("(BL|CR|FB)-60-", rownames(MF.inclWater)),]
 ANOVA.BC.60.only <- adonis(dm.BC.60 ~ Morph, data = MF.BC.60.only, by = "margin")
 
 # Third Timepoint
-ThirdTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[3],"$"), MF.morphkeep$Time)]
+ThirdTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[3],"$"), MF.inclWater$Time)]
+toremove <- grep("W", ThirdTPNames)
+if (length(toremove) > 0) {
+  ThirdTPNames <- ThirdTPNames[-toremove]
+}
 # Between morphs
-dm.BC.ThirdTP <- dm.BC.morphonly[ThirdTPNames,ThirdTPNames]
+dm.BC.ThirdTP <- dm.BC.inclWater[ThirdTPNames,ThirdTPNames]
 FB.BL.Thirdvalues <- as.vector(as.dist(dm.BC.ThirdTP[grep("FB", rownames(dm.BC.ThirdTP)), grep("BL", colnames(dm.BC.ThirdTP))]))
 FB.CR.Thirdvalues <- as.vector(as.dist(dm.BC.ThirdTP[grep("FB", rownames(dm.BC.ThirdTP)), grep("CR", colnames(dm.BC.ThirdTP))]))
 CR.BL.Thirdvalues <- as.vector(as.dist(dm.BC.ThirdTP[grep("CR", rownames(dm.BC.ThirdTP)), grep("BL", colnames(dm.BC.ThirdTP))]))
 # ANOVA
-dm.BC.360 <- dm.BC.morphonly[grep("-360-", rownames(dm.BC.morphonly)), grep("-360-", colnames(dm.BC.morphonly))]
-MF.BC.360.only <- MF.morphkeep[grep("-360-", rownames(MF.morphkeep)),]
+dm.BC.360 <- dm.BC.inclWater[grep("(BL|CR|FB)-360-", rownames(dm.BC.inclWater)), grep("-360-", colnames(dm.BC.morphonly))]
+MF.BC.360.only <- MF.inclWater[grep("(BL|CR|FB)-360-", rownames(MF.inclWater)),]
 ANOVA.BC.360.only <- adonis(dm.BC.360 ~ Morph, data = MF.BC.360.only, by = "margin")
 
 
 # Fourth Timepoint
-FourthTPNames <- rownames(MF.morphkeep)[grep(paste0("^",TP[4],"$"), MF.morphkeep$Time)]
+FourthTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[4],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FourthTPNames)
+if (length(toremove) > 0) {
+  FourthTPNames <- FourthTPNames[-toremove]
+}
 # Between morphs
-dm.BC.FourthTP <- dm.BC.morphonly[FourthTPNames,FourthTPNames]
+dm.BC.FourthTP <- dm.BC.inclWater[FourthTPNames,FourthTPNames]
 FB.BL.Fourthvalues <- as.vector(as.dist(dm.BC.FourthTP[grep("FB", rownames(dm.BC.FourthTP)), grep("BL", colnames(dm.BC.FourthTP))]))
 FB.CR.Fourthvalues <- as.vector(as.dist(dm.BC.FourthTP[grep("FB", rownames(dm.BC.FourthTP)), grep("CR", colnames(dm.BC.FourthTP))]))
 CR.BL.Fourthvalues <- as.vector(as.dist(dm.BC.FourthTP[grep("CR", rownames(dm.BC.FourthTP)), grep("BL", colnames(dm.BC.FourthTP))]))
 # ANOVA
-dm.BC.720 <- dm.BC.morphonly[grep("-720-", rownames(dm.BC.morphonly)), grep("-720-", colnames(dm.BC.morphonly))]
-MF.BC.720.only <- MF.morphkeep[grep("-720-", rownames(MF.morphkeep)),]
+dm.BC.720 <- dm.BC.inclWater[grep("(BL|CR|FB)-720-", rownames(dm.BC.inclWater)), grep("-720-", colnames(dm.BC.morphonly))]
+MF.BC.720.only <- MF.inclWater[grep("(BL|CR|FB)-720-", rownames(MF.inclWater)),]
 ANOVA.BC.720.only <- adonis(dm.BC.720 ~ Morph, data = MF.BC.720.only, by = "margin")
+
+# Fifth Timepoint
+FifthTPNames <- rownames(MF.inclWater)[grep(paste0("^",TP[5],"$"), MF.inclWater$Time)]
+toremove <- grep("W", FifthTPNames)
+if (length(toremove) > 0) {
+  FifthTPNames <- FifthTPNames[-toremove]
+}
+# Between morphs
+dm.BC.FifthTP <- dm.BC.inclWater[FifthTPNames,FifthTPNames]
+FB.BL.Fifthvalues <- as.vector(as.dist(dm.BC.FifthTP[grep("FB", rownames(dm.BC.FifthTP)), grep("BL", colnames(dm.BC.FifthTP))]))
+FB.CR.Fifthvalues <- as.vector(as.dist(dm.BC.FifthTP[grep("FB", rownames(dm.BC.FifthTP)), grep("CR", colnames(dm.BC.FifthTP))]))
+CR.BL.Fifthvalues <- as.vector(as.dist(dm.BC.FifthTP[grep("CR", rownames(dm.BC.FifthTP)), grep("BL", colnames(dm.BC.FifthTP))]))
+# ANOVA
+dm.BC.5760 <- dm.BC.inclWater[grep("(BL|CR|FB)-5760-", rownames(dm.BC.inclWater)), grep("-5760-", colnames(dm.BC.inclWater))]
+MF.BC.5760.only <- MF.inclWater[grep("(BL|CR|FB)-5760-", rownames(MF.inclWater)),]
+ANOVA.BC.5760.only <- adonis(dm.BC.5760 ~ Morph, data = MF.BC.5760.only, by = "margin")
 
 
 # Combine into single tables
 
 FB.BL.BC.ALL <- cbind(as.numeric(c(FB.BL.Firstvalues
-                                    , FB.BL.Secondvalues
-                                    , FB.BL.Thirdvalues
-                                    , FB.BL.Fourthvalues))
-                       , as.numeric(c(rep(TP[1], length(FB.BL.Firstvalues))
-                                      , rep(TP[2], length(FB.BL.Secondvalues))
-                                      , rep(TP[3], length(FB.BL.Thirdvalues))
-                                      , rep(TP[4], length(FB.BL.Fourthvalues)))))
+                                     , FB.BL.Secondvalues
+                                     , FB.BL.Thirdvalues
+                                     , FB.BL.Fourthvalues
+                                     , FB.BL.Fifthvalues))
+                        , as.numeric(c(rep(TP[1], length(FB.BL.Firstvalues))
+                                       , rep(TP[2], length(FB.BL.Secondvalues))
+                                       , rep(TP[3], length(FB.BL.Thirdvalues))
+                                       , rep(TP[4], length(FB.BL.Fourthvalues))
+                                       , rep(TP[5], length(FB.BL.Fifthvalues)))))
 FB.CR.BC.ALL <- cbind(as.numeric(c(FB.CR.Firstvalues
-                                    , FB.CR.Secondvalues
-                                    , FB.CR.Thirdvalues
-                                    , FB.CR.Fourthvalues))
-                       , as.numeric(c(rep(TP[1], length(FB.CR.Firstvalues))
-                                      , rep(TP[2], length(FB.CR.Secondvalues))
-                                      , rep(TP[3], length(FB.CR.Thirdvalues))
-                                      , rep(TP[4], length(FB.CR.Fourthvalues)))))
+                                     , FB.CR.Secondvalues
+                                     , FB.CR.Thirdvalues
+                                     , FB.CR.Fourthvalues
+                                     , FB.CR.Fifthvalues))
+                        , as.numeric(c(rep(TP[1], length(FB.CR.Firstvalues))
+                                       , rep(TP[2], length(FB.CR.Secondvalues))
+                                       , rep(TP[3], length(FB.CR.Thirdvalues))
+                                       , rep(TP[4], length(FB.CR.Fourthvalues))
+                                       , rep(TP[5], length(FB.CR.Fifthvalues)))))
 CR.BL.BC.ALL <- cbind(as.numeric(c(CR.BL.Firstvalues
-                                    , CR.BL.Secondvalues
-                                    , CR.BL.Thirdvalues
-                                    , CR.BL.Fourthvalues))
-                       , as.numeric(c(rep(TP[1], length(CR.BL.Firstvalues))
-                                      , rep(TP[2], length(CR.BL.Secondvalues))
-                                      , rep(TP[3], length(CR.BL.Thirdvalues))
-                                      , rep(TP[4], length(CR.BL.Fourthvalues)))))
+                                     , CR.BL.Secondvalues
+                                     , CR.BL.Thirdvalues
+                                     , CR.BL.Fourthvalues
+                                     , CR.BL.Fifthvalues))
+                        , as.numeric(c(rep(TP[1], length(CR.BL.Firstvalues))
+                                       , rep(TP[2], length(CR.BL.Secondvalues))
+                                       , rep(TP[3], length(CR.BL.Thirdvalues))
+                                       , rep(TP[4], length(CR.BL.Fourthvalues))
+                                       , rep(TP[5], length(CR.BL.Fifthvalues)))))
 
 # FB.BL.BC.lm <- lm(FB.BL.BC.ALL[,1] ~ log(FB.BL.BC.ALL[,2]))
 # summary(FB.BL.BC.lm)
@@ -3750,9 +3964,10 @@ CR.BL.BC.ALL.sd <- aggregate(CR.BL.BC.ALL, by = list(CR.BL.BC.ALL[,2]), sd)
 FB.CR.BC.ALL.mean <- aggregate(FB.CR.BC.ALL, by = list(FB.CR.BC.ALL[,2]), mean)
 FB.CR.BC.ALL.sd <- aggregate(FB.CR.BC.ALL, by = list(FB.CR.BC.ALL[,2]), sd)
 
+
 ######## PLOT DISP ###############
 # ylimits <- c(min(FB.BL.BC.ALL[,1],FB.CR.BC.ALL[,1],CR.BL.BC.ALL[,1]), max(FB.BL.BC.ALL[,1],FB.CR.BC.ALL[,1],CR.BL.BC.ALL[,1]))
-ylimits <- c(0.4,0.9)
+ylimits <- c(0.1,0.9)
 
 # xvalues <- log(FB.BL.BC.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.ALL.mean[,1])
@@ -3764,38 +3979,38 @@ plot(xvalues, NULL
      , ylab = "Distance (Bray-Curtis)"
      , ylim = ylimits
      , xaxt = 'n')
-axis(side = 1, at = c(1,2,3,4), labels = c('20 min','1 h', '6 h', '12 h'))
-points(FB.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
+axis(side = 1, at = c(1,2,3,4,5), labels = c('20 min','1 h', '6 h', '12 h','4 d'))
+points(FB.BL.BC.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "purple"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(FB.BL.BC.ALL.mean[,2] - FB.BL.BC.ALL.sd[,2]/2)
        , y1 = c(FB.BL.BC.ALL.mean[,2] + FB.BL.BC.ALL.sd[,2]/2)
        , angle = 90
        , code = 3
        , length = 0.03)
-points(FB.CR.BC.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.CR.BC.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkgreen"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(FB.CR.BC.ALL.mean[,2] - FB.CR.BC.ALL.sd[,2]/2)
        , y1 = c(FB.CR.BC.ALL.mean[,2] + FB.CR.BC.ALL.sd[,2]/2)
        , angle = 90
        , code = 3
        , length = 0.03)
-points(CR.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
+points(CR.BL.BC.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "grey"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(CR.BL.BC.ALL.mean[,2] - CR.BL.BC.ALL.sd[,2]/2)
        , y1 = c(CR.BL.BC.ALL.mean[,2] + CR.BL.BC.ALL.sd[,2]/2)
        , angle = 90
@@ -3817,8 +4032,7 @@ legend("center"
 dev.off()
 
 ####### PLOT MORPH ############
-# NOCHLP BC
-
+# NO 5760 BC
 
 # MAKE POLYGONS for plotting
 NMDS.BC.CR <- NMDS.BC.morphonly$points[grep("CR", rownames(NMDS.BC.morphonly$points)),]
@@ -3980,96 +4194,119 @@ NMDS.BC.720.only.FB <- NMDS.BC.720.only[grep("FB", rownames(NMDS.BC.720.only)),]
 NMDS.BC.720.only.FB.chull <- chull(NMDS.BC.720.only.FB)
 NMDS.BC.720.only.FB.chull <- c(NMDS.BC.720.only.FB.chull, NMDS.BC.720.only.FB.chull[1])
 
+# 5760 minutes
+NMDS.BC.5760.only <- NMDS.BC.all$points[grep("(BL|CR|FB)-5760-", rownames(NMDS.BC.all$points)),]
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_TimebyMorph.pdf"),pointsize = 14, width = 7, height = 4)
-par(mfrow= c(1,4), oma = c(4,4,4,6))
-par(mar = c(4,0,4,0))
-plot(NMDS.BC.20.only
-     , main = "20 Minutes"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.BC.20.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.BC.20.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.BC.20.only.CR[NMDS.BC.20.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.BC.20.only.BL[NMDS.BC.20.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.BC.20.only.FB[NMDS.BC.20.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.BC.60.only
-     , main = "1 Hour"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.BC.60.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p =  ",ANOVA.BC.60.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.BC.60.only.CR[NMDS.BC.60.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.BC.60.only.BL[NMDS.BC.60.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.BC.60.only.FB[NMDS.BC.60.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.BC.360.only
-     , main = "6 Hours"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.BC.360.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.BC.360.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.BC.360.only.CR[NMDS.BC.360.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.BC.360.only.BL[NMDS.BC.360.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.BC.360.only.FB[NMDS.BC.360.only.FB.chull,]
-      , col = MorphColours[3])
-par(mar = c(4,0,4,0))
-plot(NMDS.BC.720.only
-     , main = "12 Hours"
-     , pch = 21
-     , col = "black"
-     , bg = MorphColours[factor(MF.BC.720.only$Morph)]
-     , xaxt = 'n'
-     , yaxt = 'n'
-     , xlab = paste0("p = ", ANOVA.BC.720.only$aov.tab[6]$`Pr(>F)`[1])
-     , ylab = ''
-     , cex = 2
-     , cex.lab = 2
-     , cex.main = 2
-)
-lines(NMDS.BC.720.only.CR[NMDS.BC.720.only.CR.chull,]
-      , col = MorphColours[1])
-lines(NMDS.BC.720.only.BL[NMDS.BC.720.only.BL.chull,]
-      , col = MorphColours[2])
-lines(NMDS.BC.720.only.FB[NMDS.BC.720.only.FB.chull,]
-      , col = MorphColours[3])
-#STOP
-dev.off()
+NMDS.BC.5760.only.CR <- NMDS.BC.5760.only[grep("CR", rownames(NMDS.BC.5760.only)),]
+NMDS.BC.5760.only.CR.chull <- chull(NMDS.BC.5760.only.CR)
+NMDS.BC.5760.only.CR.chull <- c(NMDS.BC.5760.only.CR.chull, NMDS.BC.5760.only.CR.chull[1])
+
+NMDS.BC.5760.only.BL <- NMDS.BC.5760.only[grep("BL", rownames(NMDS.BC.5760.only)),]
+NMDS.BC.5760.only.BL.chull <- chull(NMDS.BC.5760.only.BL)
+NMDS.BC.5760.only.BL.chull <- c(NMDS.BC.5760.only.BL.chull, NMDS.BC.5760.only.BL.chull[1])
+
+NMDS.BC.5760.only.FB <- NMDS.BC.5760.only[grep("FB", rownames(NMDS.BC.5760.only)),]
+NMDS.BC.5760.only.FB.chull <- chull(NMDS.BC.5760.only.FB)
+NMDS.BC.5760.only.FB.chull <- c(NMDS.BC.5760.only.FB.chull, NMDS.BC.5760.only.FB.chull[1])
+
+
+# pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_TimebyMorph.pdf"),pointsize = 14, width = 7, height = 4)
+# par(mfrow= c(1,4), oma = c(4,4,4,6))
+# par(mar = c(4,0,4,0))
+# plot(NMDS.BC.20.only
+#      , main = "20 Minutes"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.BC.20.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.BC.20.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.BC.20.only.CR[NMDS.BC.20.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.BC.20.only.BL[NMDS.BC.20.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.BC.20.only.FB[NMDS.BC.20.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.BC.60.only
+#      , main = "1 Hour"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.BC.60.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p =  ",ANOVA.BC.60.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.BC.60.only.CR[NMDS.BC.60.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.BC.60.only.BL[NMDS.BC.60.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.BC.60.only.FB[NMDS.BC.60.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.BC.360.only
+#      , main = "6 Hours"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.BC.360.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.BC.360.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.BC.360.only.CR[NMDS.BC.360.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.BC.360.only.BL[NMDS.BC.360.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.BC.360.only.FB[NMDS.BC.360.only.FB.chull,]
+#       , col = MorphColours[3])
+# par(mar = c(4,0,4,0))
+# plot(NMDS.BC.720.only
+#      , main = "12 Hours"
+#      , pch = 21
+#      , col = "black"
+#      , bg = MorphColours[factor(MF.BC.720.only$Morph)]
+#      , xaxt = 'n'
+#      , yaxt = 'n'
+#      , xlab = paste0("p = ", ANOVA.BC.720.only$aov.tab[6]$`Pr(>F)`[1])
+#      , ylab = ''
+#      , cex = 2
+#      , cex.lab = 2
+#      , cex.main = 2
+# )
+# lines(NMDS.BC.720.only.CR[NMDS.BC.720.only.CR.chull,]
+#       , col = MorphColours[1])
+# lines(NMDS.BC.720.only.BL[NMDS.BC.720.only.BL.chull,]
+#       , col = MorphColours[2])
+# lines(NMDS.BC.720.only.FB[NMDS.BC.720.only.FB.chull,]
+#       , col = MorphColours[3])
+# #STOP
+# dev.off()
 
 ############ COMBO DISP BETA ################
 # Disp and beta through time combined
 # xvalues <- log(FB.BL.BC.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.ALL.mean[,1])
+
+# Change factor of individual plots
+MF.BC.20.only$Morph <- factor(MF.BC.20.only$Morph, levels = c("CR","BL","FB"))
+MF.BC.60.only$Morph <- factor(MF.BC.60.only$Morph, levels = c("CR","BL","FB"))
+MF.BC.360.only$Morph <- factor(MF.BC.360.only$Morph, levels = c("CR","BL","FB"))
+MF.BC.720.only$Morph <- factor(MF.BC.720.only$Morph, levels = c("CR","BL","FB"))
+MF.BC.5760.only$Morph <- factor(MF.BC.5760.only$Morph, levels = c("CR","BL","FB"))
+
 
 pdf(paste0("BETAPLOTS_H/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.8,0.3,1))
@@ -4080,40 +4317,40 @@ plot(xvalues, NULL
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
-     , at = c(1,2,3,4)
-     , labels = c("20 min","1 h","6 h","12 h")
+     , at = c(1,2,3,4,5)
+     , labels = c("20 min","1 h","6 h","12 h","4 d")
      , las = 2)
-points(FB.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.BL.BC.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "purple"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(FB.BL.BC.ALL.mean[,2] - FB.BL.BC.ALL.sd[,2])
        , y1 = c(FB.BL.BC.ALL.mean[,2] + FB.BL.BC.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(FB.CR.BC.ALL.mean[,2] ~ c(1,2,3,4)
+points(FB.CR.BC.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkgreen"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(FB.CR.BC.ALL.mean[,2] - FB.CR.BC.ALL.sd[,2])
        , y1 = c(FB.CR.BC.ALL.mean[,2] + FB.CR.BC.ALL.sd[,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(CR.BL.BC.ALL.mean[,2] ~ c(1,2,3,4)
+points(CR.BL.BC.ALL.mean[,2] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "grey"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(CR.BL.BC.ALL.mean[,2] - CR.BL.BC.ALL.sd[,2])
        , y1 = c(CR.BL.BC.ALL.mean[,2] + CR.BL.BC.ALL.sd[,2])
        , angle = 90
@@ -4133,7 +4370,8 @@ legend("center"
        , col = c("darkgreen","purple","grey")
        , lwd = 2 
 )
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.21,0,0.4), new = TRUE)
+# EACH GETS 0.15 SPACE TOTAL;
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
 plot(NMDS.BC.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -4156,7 +4394,7 @@ lines(NMDS.BC.20.only.BL[NMDS.BC.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.20.only.FB[NMDS.BC.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.24,0.41,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
 plot(NMDS.BC.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -4179,7 +4417,7 @@ lines(NMDS.BC.60.only.BL[NMDS.BC.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.60.only.FB[NMDS.BC.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.44,0.61,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
 plot(NMDS.BC.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -4202,7 +4440,7 @@ lines(NMDS.BC.360.only.BL[NMDS.BC.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.360.only.FB[NMDS.BC.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.64,0.81,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
 plot(NMDS.BC.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -4224,6 +4462,29 @@ lines(NMDS.BC.720.only.CR[NMDS.BC.720.only.CR.chull,]
 lines(NMDS.BC.720.only.BL[NMDS.BC.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.720.only.FB[NMDS.BC.720.only.FB.chull,]
+      , col = MorphColours[3])
+par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
+plot(NMDS.BC.5760.only
+     # , main = "12 Hours"
+     , pch = 21
+     , col = "black"
+     , bg = MorphColours[factor(MF.BC.5760.only$Morph)]
+     , xaxt = 'n'
+     , yaxt = 'n'
+     , xlab = paste0("p = ", ANOVA.BC.5760.only$aov.tab[6]$`Pr(>F)`[1])
+     , ylab = ''
+)
+title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.5760.only$aov.tab[5]$R2[1], digits = 2))) 
+      , line= 0.25
+      , cex.axis = 0.5)
+title(xlab = paste0("p = ", ANOVA.BC.5760.only$aov.tab[6]$`Pr(>F)`[1])
+      , line = 1
+      , cex.axis = 0.5)
+lines(NMDS.BC.5760.only.CR[NMDS.BC.5760.only.CR.chull,]
+      , col = MorphColours[1])
+lines(NMDS.BC.5760.only.BL[NMDS.BC.5760.only.BL.chull,]
+      , col = MorphColours[2])
+lines(NMDS.BC.5760.only.FB[NMDS.BC.5760.only.FB.chull,]
       , col = MorphColours[3])
 par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.775,1,0,0.4), new = TRUE)
 plot(0,0
@@ -4249,21 +4510,21 @@ betadisp.H.BC.FB <- betadisp.BC.time$distances[grep("FB", names(betadisp.BC.time
 betadisp.H.BC.BL <- betadisp.BC.time$distances[grep("BL", names(betadisp.BC.time$distances))]
 betadisp.H.BC.CR <- betadisp.BC.time$distances[grep("CR", names(betadisp.BC.time$distances))]
 
-MF.H.FB <- MF.morphkeep[grep("FB", rownames(MF.morphkeep)),]
-MF.H.BL <- MF.morphkeep[grep("BL", rownames(MF.morphkeep)),]
-MF.H.CR <- MF.morphkeep[grep("CR", rownames(MF.morphkeep)),]
+MF.H.FB <- MF.incl5760[grep("FB", rownames(MF.incl5760)),]
+MF.H.BL <- MF.incl5760[grep("BL", rownames(MF.incl5760)),]
+MF.H.CR <- MF.incl5760[grep("CR", rownames(MF.incl5760)),]
 
 betadisp.FB.H.agg <- aggregate(betadisp.H.BC.FB, by = list(MF.H.FB$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 betadisp.BL.H.agg <- aggregate(betadisp.H.BC.BL, by = list(MF.H.BL$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 betadisp.CR.H.agg <- aggregate(betadisp.H.BC.CR, by = list(MF.H.CR$Time), FUN = function(x) {c(mean = mean(x),sd = sd(x))} )
 
-betadisp.BC.time.forstat <- cbind(betadisp.BC.time$distances, MF.morphkeep[unlist(lapply(names(betadisp.BC.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.morphkeep))})),])
+betadisp.BC.time.forstat <- cbind(betadisp.BC.time$distances, MF.incl5760[unlist(lapply(names(betadisp.BC.time$distances), function(x) {grep(paste0("^",x,"$"), rownames(MF.incl5760))})),])
 colnames(betadisp.BC.time.forstat)[1] <- c("Distance")
 ANOVA.betadisp.BC <- anova(lm(Distance ~ Time*Morph, data = betadisp.BC.time.forstat))
 capture.output(ANOVA.betadisp.BC, file = "./BETAPLOTS_H/ANOVA.betadisp.BC.txt")
 
-xvalues <- c("20","60","360","720")
-ylimits <- c(0.3,0.65)
+xvalues <- c("20","60","360","720","5760")
+ylimits <- c(0,0.6)
 pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -4272,40 +4533,40 @@ plot(xvalues, NULL
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
-     , at = c(1,2,3,4)
-     , labels = c("20 min","1 h","6 h","12 h")
+     , at = c(1,2,3,4,5)
+     , labels = c("20 min","1 h","6 h","12 h","4 d")
      , las = 2)
-points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.FB.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "salmon"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*0.99
-       , x1 = c(1,2,3,4)*0.99
+arrows(x0 = c(1,2,3,4,5)*0.99
+       , x1 = c(1,2,3,4,5)*0.99
        , y0 = c(betadisp.FB.H.agg[,2][,1] - betadisp.FB.H.agg[,2][,2])
        , y1 = c(betadisp.FB.H.agg[,2][,1] + betadisp.FB.H.agg[,2][,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.BL.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "dodgerblue"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1
-       , x1 = c(1,2,3,4)*1
+arrows(x0 = c(1,2,3,4,5)*1
+       , x1 = c(1,2,3,4,5)*1
        , y0 = c(betadisp.BL.H.agg[,2][,1] - betadisp.BL.H.agg[,2][,2])
        , y1 = c(betadisp.BL.H.agg[,2][,1] + betadisp.BL.H.agg[,2][,2])
        , angle = 90
        , code = 3
        , length = 0.03)
-points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4)
+points(betadisp.CR.H.agg[,2][,1] ~ c(1,2,3,4,5)
        , type = 'l'
        , col = "darkorchid4"
        , lwd = 2
        , lty = 1)
-arrows(x0 = c(1,2,3,4)*1.01
-       , x1 = c(1,2,3,4)*1.01
+arrows(x0 = c(1,2,3,4,5)*1.01
+       , x1 = c(1,2,3,4,5)*1.01
        , y0 = c(betadisp.CR.H.agg[,2][,1] - betadisp.CR.H.agg[,2][,2])
        , y1 = c(betadisp.CR.H.agg[,2][,1] + betadisp.CR.H.agg[,2][,2])
        , angle = 90
@@ -4326,6 +4587,9 @@ legend("center"
        , lwd = 2 
 )
 dev.off()
+
+
+
 
 ############ PLOT 5760 ################
 dm.BC.5760<- dm.BC.inclWater[grep("(CR|FB|BL)-5760", rownames(dm.BC.inclWater)),grep("(CR|FB|BL)-5760", colnames(dm.BC.inclWater))]
@@ -4350,9 +4614,9 @@ NMDS.BC.5760.FB <- NMDS.BC.5760$points[grep("FB", rownames(NMDS.BC.5760$points))
 NMDS.BC.5760.FB.chull <- chull(NMDS.BC.5760.FB)
 NMDS.BC.5760.FB.chull <- c(NMDS.BC.5760.FB.chull, NMDS.BC.5760.FB.chull[1])
 
-ANOVA.BC.5760 <- adonis(dm.BC.5760 ~ Morph, data = MF.5760)
-# ANOSIM.BC.5760 <- anosim(dat = dm.BC.5760, grouping = MF.5760$Morph)
-capture.output(ANOVA.BC.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
+# ANOVA.BC.5760 <- adonis(dm.BC.5760 ~ Morph, data = MF.5760)
+# # ANOSIM.BC.5760 <- anosim(dat = dm.BC.5760, grouping = MF.5760$Morph)
+# capture.output(ANOVA.BC.5760, file = paste0("BETAPLOTS_H/anova_",metric,"_5760only.txt"))
 
 pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_5760Only.pdf"), pointsize = 14)
 par(fig = c(0,0.75,0,1))
@@ -4394,7 +4658,7 @@ allindividualTests <- c("ANOVA.BC.20.only"
                         ,"ANOVA.BC.60.only"
                         ,"ANOVA.BC.360.only"
                         ,"ANOVA.BC.720.only"
-                        ,"ANOVA.BC.5760"
+                        ,"ANOVA.BC.5760.only"
 )
 for (i in allindividualTests) {
   # print(get(i))
