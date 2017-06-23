@@ -5,6 +5,7 @@ library("MASS")
 library("vegan")
 library("nlme")
 library("optparse")
+library("xtable")
 ########################### OPT PARSE #################################
 
 
@@ -308,6 +309,7 @@ dm.UWUF.FirstTP <- dm.UWUF.inclWater[FirstTPNames,FirstTPNames]
 FB.BL.Firstvalues <- as.vector(as.dist(dm.UWUF.FirstTP[grep("FB", rownames(dm.UWUF.FirstTP)), grep("BL", colnames(dm.UWUF.FirstTP))]))
 FB.CR.Firstvalues <- as.vector(as.dist(dm.UWUF.FirstTP[grep("FB", rownames(dm.UWUF.FirstTP)), grep("CR", colnames(dm.UWUF.FirstTP))]))
 CR.BL.Firstvalues <- as.vector(as.dist(dm.UWUF.FirstTP[grep("CR", rownames(dm.UWUF.FirstTP)), grep("BL", colnames(dm.UWUF.FirstTP))]))
+
 # ANOVA
 dm.UWUF.20 <- dm.UWUF.inclWater[grep("(CR|BL|FB)-20-", rownames(dm.UWUF.inclWater)), grep("-20-", colnames(dm.UWUF.inclWater))]
 MF.UWUF.20.only <- MF.inclWater[grep("(CR|BL|FB)-20-", rownames(MF.inclWater)),]
@@ -439,7 +441,7 @@ ylimits <- c(0.4,0.7)
 
 # xvalues <- log(FB.BL.UWUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.ALL.mean[,1])
-pdf(paste0("BETAPLOTS_H/DispOverTime_",metric,".pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/DispOverTime_H_",metric,".pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -519,7 +521,7 @@ NMDS.UWUF.FB.chull <- c(NMDS.UWUF.FB.chull, NMDS.UWUF.FB.chull[1])
 
 MorphColours <- c("darkorchid4","dodgerblue","salmon") 
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_Morph.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/NMDS_H_",metric,"_Morph.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.UWUF.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -557,7 +559,7 @@ dev.off()
 ####### PLOT TIME ############
 TimeColours <- c("grey","lightblue","blue","darkblue")
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_Time.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/NMDS_H_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.UWUF.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -776,7 +778,7 @@ MF.UWUF.720.only$Morph <- factor(MF.UWUF.720.only$Morph, levels = c("CR","BL","F
 MF.UWUF.5760.only$Morph <- factor(MF.UWUF.5760.only$Morph, levels = c("CR","BL","FB"))
 
 
-pdf(paste0("BETAPLOTS_H/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
+pdf(paste0("BETAPLOTS_H/COMBO_H_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.8,0.3,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -839,7 +841,7 @@ legend("center"
        , lwd = 2 
        )
 # EACH GETS 0.15 SPACE TOTAL;
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
 plot(NMDS.UWUF.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -850,19 +852,23 @@ plot(NMDS.UWUF.20.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.20.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.20.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.20.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.20.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
+
 lines(NMDS.UWUF.20.only.CR[NMDS.UWUF.20.only.CR.chull,]
       , col = MorphColours[1])
 lines(NMDS.UWUF.20.only.BL[NMDS.UWUF.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.20.only.FB[NMDS.UWUF.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
 plot(NMDS.UWUF.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -873,11 +879,14 @@ plot(NMDS.UWUF.60.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.60.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.60.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.60.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.60.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.60.only.CR[NMDS.UWUF.60.only.CR.chull,]
       , col = MorphColours[1])
@@ -885,7 +894,7 @@ lines(NMDS.UWUF.60.only.BL[NMDS.UWUF.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.60.only.FB[NMDS.UWUF.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
 plot(NMDS.UWUF.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -896,11 +905,14 @@ plot(NMDS.UWUF.360.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.360.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.360.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.360.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.360.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.360.only.CR[NMDS.UWUF.360.only.CR.chull,]
       , col = MorphColours[1])
@@ -908,7 +920,7 @@ lines(NMDS.UWUF.360.only.BL[NMDS.UWUF.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.360.only.FB[NMDS.UWUF.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
 plot(NMDS.UWUF.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -919,11 +931,14 @@ plot(NMDS.UWUF.720.only
      , xlab = paste0("p = ", ANOVA.UWUF.720.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.720.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.720.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.720.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.720.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.720.only.CR[NMDS.UWUF.720.only.CR.chull,]
       , col = MorphColours[1])
@@ -931,7 +946,7 @@ lines(NMDS.UWUF.720.only.BL[NMDS.UWUF.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.720.only.FB[NMDS.UWUF.720.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
 plot(NMDS.UWUF.5760.only
      # , main = "12 Hours"
      , pch = 21
@@ -942,11 +957,14 @@ plot(NMDS.UWUF.5760.only
      , xlab = paste0("p = ", ANOVA.UWUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.5760.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.5760.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.5760.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.5760.only.CR[NMDS.UWUF.5760.only.CR.chull,]
       , col = MorphColours[1])
@@ -993,7 +1011,7 @@ capture.output(ANOVA.betadisp.UWUF, file = "./BETAPLOTS_H/ANOVA.betadisp.UWUF.tx
 
 xvalues <- c("20","60","360","720","5760")
 ylimits <- c(0.3,0.5)
-pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+pdf(paste0("./BETAPLOTS_H/BetaDisp_H_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
@@ -1120,20 +1138,7 @@ dev.off()
 
 
 
-# Combine individual stats and print out
 
-allindividualTests <- c("ANOVA.UWUF.20.only"
-                        ,"ANOVA.UWUF.60.only"
-                        ,"ANOVA.UWUF.360.only"
-                        ,"ANOVA.UWUF.720.only"
-                        ,"ANOVA.UWUF.5760.only"
-)
-for (i in allindividualTests) {
-  # print(get(i))
-  capture.output(get(i), file = paste0("./BETAPLOTS_H/individualtests/",i,".txt"))
-}
-
- 
 ######## --PM-- ###########
 ### NMDS #####
 rownames(dm.UWUF.P.morphonly) <- gsub(".","-", rownames(dm.UWUF.P.morphonly), fixed = TRUE)
@@ -1320,7 +1325,7 @@ ylimits <- c(0.3,0.7)
 
 # xvalues <- log(FB.BL.UWUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.P.ALL.mean[,1])
-pdf(paste0("BETAPLOTS_P/DispOverTime_",metric,".pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/DispOverTime_P_",metric,".pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -1404,7 +1409,7 @@ NMDS.UWUF.P.FB.chull <- c(NMDS.UWUF.P.FB.chull, NMDS.UWUF.P.FB.chull[1])
 
 MorphColours <- c("darkorchid4","dodgerblue","salmon") 
 
-pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Morph.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/NMDS_P_",metric,"_Morph.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.UWUF.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -1442,7 +1447,7 @@ dev.off()
 ####### PLOT TIME ############
 TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
-pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/NMDS_P_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.UWUF.P.morphonly$points[,1]
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -1710,7 +1715,7 @@ dev.off()
 # xvalues <- log(FB.BL.UWUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.UWUF.P.ALL.mean[,1])
 
-pdf(paste0("BETAPLOTS_P/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 14, height = 8)
+pdf(paste0("BETAPLOTS_P/COMBO_P_dispbeta_",metric,".pdf"), pointsize = 14, width = 14, height = 8)
 par(fig = c(0,0.8,0.23,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -1772,7 +1777,7 @@ legend("center"
        , col = c("darkgreen","purple","grey")
        , lwd = 2 
 )
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.05,0.158333,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.05,0.158333,0,0.3), new = TRUE)
 plot(NMDS.UWUF.P.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -1783,11 +1788,14 @@ plot(NMDS.UWUF.P.20.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.P.20.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.P.20.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.P.20.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.P.20.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.P.20.only.CR[NMDS.UWUF.P.20.only.CR.chull,]
       , col = MorphColours[1])
@@ -1795,7 +1803,7 @@ lines(NMDS.UWUF.P.20.only.BL[NMDS.UWUF.P.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.P.20.only.FB[NMDS.UWUF.P.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.178333,0.28666,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.178333,0.28666,0,0.3), new = TRUE)
 plot(NMDS.UWUF.P.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -1806,11 +1814,14 @@ plot(NMDS.UWUF.P.60.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.P.60.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.P.60.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.P.60.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.P.60.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.P.60.only.CR[NMDS.UWUF.P.60.only.CR.chull,]
       , col = MorphColours[1])
@@ -1818,7 +1829,7 @@ lines(NMDS.UWUF.P.60.only.BL[NMDS.UWUF.P.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.P.60.only.FB[NMDS.UWUF.P.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.30666,0.414999,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.30666,0.414999,0,0.3), new = TRUE)
 plot(NMDS.UWUF.P.180.only
      # , main = "6 Hours"
      , pch = 21
@@ -1829,11 +1840,14 @@ plot(NMDS.UWUF.P.180.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.P.180.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.P.180.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.P.180.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.P.180.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.P.180.only.CR[NMDS.UWUF.P.180.only.CR.chull,]
       , col = MorphColours[1])
@@ -1841,7 +1855,7 @@ lines(NMDS.UWUF.P.180.only.BL[NMDS.UWUF.P.180.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.P.180.only.FB[NMDS.UWUF.P.180.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.434999,0.543333,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.434999,0.543333,0,0.3), new = TRUE)
 plot(NMDS.UWUF.P.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -1852,11 +1866,14 @@ plot(NMDS.UWUF.P.360.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.P.360.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.P.360.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.P.360.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.P.360.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.P.360.only.CR[NMDS.UWUF.P.360.only.CR.chull,]
       , col = MorphColours[1])
@@ -1864,7 +1881,7 @@ lines(NMDS.UWUF.P.360.only.BL[NMDS.UWUF.P.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.P.360.only.FB[NMDS.UWUF.P.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.565555,0.671666,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.565555,0.671666,0,0.3), new = TRUE)
 plot(NMDS.UWUF.P.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -1875,11 +1892,14 @@ plot(NMDS.UWUF.P.720.only
      , xlab = paste0("p = ", ANOVA.UWUF.P.720.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.P.720.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.P.720.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.P.720.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.P.720.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.P.720.only.CR[NMDS.UWUF.P.720.only.CR.chull,]
       , col = MorphColours[1])
@@ -1887,7 +1907,7 @@ lines(NMDS.UWUF.P.720.only.BL[NMDS.UWUF.P.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.UWUF.P.720.only.FB[NMDS.UWUF.P.720.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.691666,0.79999,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.691666,0.79999,0,0.3), new = TRUE)
 plot(NMDS.UWUF.P.1440.only
      # , main = "12 Hours"
      , pch = 21
@@ -1898,11 +1918,14 @@ plot(NMDS.UWUF.P.1440.only
      , xlab = paste0("p = ", ANOVA.UWUF.P.1440.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.UWUF.P.1440.only$aov.tab[1]$Df[1],",",ANOVA.UWUF.P.1440.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.UWUF.P.1440.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.UWUF.P.1440.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.UWUF.P.1440.only.CR[NMDS.UWUF.P.1440.only.CR.chull,]
       , col = MorphColours[1])
@@ -1966,7 +1989,7 @@ ANOVA.betadisp.UWUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.UWUF.time
 capture.output(ANOVA.betadisp.UWUF, file = "./BETAPLOTS_P/ANOVA.betadisp.UWUF.txt")
 
 ylimits <- c(0.25,0.45)
-pdf(paste0("./BETAPLOTS_P/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+pdf(paste0("./BETAPLOTS_P/BetaDisp_P_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
@@ -2029,6 +2052,171 @@ legend("center"
 )
 dev.off()
 
+################## Combine individual stats and print out ####################
+### DO BETADISP FOR OVERALL ##
+anova.betadisp.UWUF.morph <- anova(betadisp.UWUF.morph)
+anova.betadisp.UWUF.time <- anova(betadisp.UWUF.time)
+anova.betadisp.P.UWUF.morph <- anova(betadisp.UWUF.P.morph)
+anova.betadisp.P.UWUF.time <- anova(betadisp.UWUF.P.time)
+
+# This is PERMADISP-- don't need a table, will quote in text
+capture.output(anova.betadisp.UWUF.morph, file = "BETAPLOTS_H/anova.betadisp.UWUF.morph.txt")
+capture.output(anova.betadisp.UWUF.time, file = "BETAPLOTS_H/anova.betadisp.UWUF.time.txt")
+capture.output(anova.betadisp.P.UWUF.morph, file = "BETAPLOTS_P/anova.betadisp.UWUF.P.morph.txt")
+capture.output(anova.betadisp.P.UWUF.time, file = "BETAPLOTS_P/anova.betadisp.UWUF.P.time.txt")
+
+### NOW DO EACH TIME POINT ##
+## This is a table with both Hakai and PM for the supplementary figures
+permdisp.morphology.across.time <- matrix(ncol = 8, nrow = 2)
+rownames(permdisp.morphology.across.time) <- c("P","H")
+colnames(permdisp.morphology.across.time) <- c("20","60","180","360","720","1440","5760", "Overall")
+for (t in c("20","60","180","360","720","1440")) {
+  assign(paste0("betadisp.P.",t), betadisper(dist(get(paste0("dm.UWUF.P.",t))), group = get(paste0("MF.P.UWUF.P.",t,".only"))$Morph))
+  assign(paste0("anova.betadisp.P.",t), anova(get(paste0("betadisp.P.",t))))
+  ptemp <- get(paste0("anova.betadisp.P.",t))$`Pr(>F)`[1]
+  ftemp <- get(paste0("anova.betadisp.P.",t))$`F value`[1]
+  dftemp <- get(paste0("anova.betadisp.P.",t))$Df[1]
+  
+  toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+  permdisp.morphology.across.time["P", paste0(t)] <- toPaste
+ }
+for (t in c("20","60","360","720","5760")) {
+  assign(paste0("betadisp.",t), betadisper(dist(get(paste0("dm.UWUF.",t))), group = get(paste0("MF.UWUF.",t,".only"))$Morph))
+  assign(paste0("anova.betadisp.",t), anova(get(paste0("betadisp.",t))))
+  ptemp <- get(paste0("anova.betadisp.",t))$`Pr(>F)`[1]
+  ftemp <- get(paste0("anova.betadisp.",t))$`F value`[1]
+  dftemp <- get(paste0("anova.betadisp.",t))$Df[1]
+  
+  toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+  permdisp.morphology.across.time["H", paste0(t)] <- toPaste
+  
+}
+# Get overall
+ptemp <- anova.betadisp.P.UWUF.morph$`Pr(>F)`[1]
+ftemp <- anova.betadisp.P.UWUF.morph$`F value`[1]
+dftemp <- anova.betadisp.P.UWUF.morph$Df[1]
+toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+permdisp.morphology.across.time["P","Overall"] <- toPaste
+
+ptemp <- anova.betadisp.UWUF.morph$`Pr(>F)`[1]
+ftemp <- anova.betadisp.UWUF.morph$`F value`[1]
+dftemp <- anova.betadisp.UWUF.morph$Df[1]
+toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+permdisp.morphology.across.time["H","Overall"] <- toPaste
+
+colnames(permdisp.morphology.across.time) <- c("20 minutes","1 hour","3 hours","6 hours","12 hours","1 day","4 days", "Overall")
+
+tempfile1 <- permdisp.morphology.across.time
+for (r in 1:nrow(tempfile1)) {
+  for (c in 1:ncol(tempfile1)) {
+    if (is.na(tempfile1[r,c])) {
+      permdisp.morphology.across.time[r,c] <- "-"
+    }}}
+
+
+# Make double header
+permdisp.morphology.across.time.UWUF <- permdisp.morphology.across.time
+rownames(permdisp.morphology.across.time.UWUF) <- c("Reed Point","Hakai")
+
+capture.output(xtable(permdisp.morphology.across.time.UWUF, digits = NULL), file = paste0("BETAPLOTS_LATEX/permdisp.morph.across.time.",metric,".txt"))
+
+### MAKE BETA DIV TABLES-- metrics separately but H and P together; extras will go in supp
+
+anova.morphology.across.time <- matrix(ncol = 8, nrow = 2)
+colnames(anova.morphology.across.time) <- c("20","60","180","360","720","1440","5760", "Overall")
+rownames(anova.morphology.across.time) <- c("P","H")
+for (t in c("20","60","180","360","720","1440")) {
+  ptemp <- get(paste0("ANOVA.UWUF.P.",t,".only"))$aov.tab$`Pr(>F)`[1]
+  rtemp <- get(paste0("ANOVA.UWUF.P.",t,".only"))$aov.tab$`R2`[1]
+  dftemp <- get(paste0("ANOVA.UWUF.P.",t,".only"))$aov.tab$`Df`[1]
+  toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+  
+  anova.morphology.across.time["P",paste0(t)] <- toPaste
+}
+for (t in c("20","60","360","720","5760")) {
+  ptemp <- get(paste0("ANOVA.UWUF.",t,".only"))$aov.tab$`Pr(>F)`[1]
+  rtemp <- get(paste0("ANOVA.UWUF.",t,".only"))$aov.tab$`R2`[1]
+  dftemp <- get(paste0("ANOVA.UWUF.",t,".only"))$aov.tab$`Df`[1]
+  toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+  
+  anova.morphology.across.time["H",paste0(t)] <- toPaste
+ }
+# Do overall P
+ptemp <- ANOVA.UWUF.P.morphtime$aov.tab$`Pr(>F)`[2]
+rtemp <- ANOVA.UWUF.P.morphtime$aov.tab$`R2`[2]
+dftemp <- ANOVA.UWUF.P.morphtime$aov.tab$`Df`[2]
+toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+anova.morphology.across.time["P","Overall"] <- toPaste
+
+# Do overall H
+ptemp <- ANOVA.UWUF.morphtime$aov.tab$`Pr(>F)`[2]
+rtemp <- ANOVA.UWUF.morphtime$aov.tab$`R2`[2]
+dftemp <- ANOVA.UWUF.morphtime$aov.tab$`Df`[2]
+toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+anova.morphology.across.time["H","Overall"] <- toPaste
+
+colnames(anova.morphology.across.time) <- c("20 minutes","1 hour","3 hours","6 hours","12 hours","1 day","4 days", "Overall")
+
+tempfile1 <- anova.morphology.across.time
+for (r in 1:nrow(tempfile1)) {
+  for (c in 1:ncol(tempfile1)) {
+    if (is.na(tempfile1[r,c])) {
+      anova.morphology.across.time[r,c] <- "-"
+    } 
+  }
+}
+
+# Make double header
+anova.morphology.across.time.UWUF <- anova.morphology.across.time
+rownames(anova.morphology.across.time.UWUF) <- c("Reed Point","Hakai")
+
+capture.output(xtable(anova.morphology.across.time.UWUF, digits = NULL), file = paste0("BETAPLOTS_LATEX/anova.morph.across.time.",metric,".txt"))
+
+### DO FB/CR/BL TEST FOR EACH
+# Make table
+pairwiseAdonis.all <- matrix(ncol = 7,nrow = 6)
+colnames(pairwiseAdonis.all) <- c("20","60","180","360","720","1440", "5760")
+rownames(pairwiseAdonis.all) <- c("pFB:BL","pFB:CR","pBL:CR","hFB:BL","hFB:CR","hBL:CR" )
+listMorphs <- c("FB","BL","CR")
+for (m in 1:(length(listMorphs)-1)) {
+  for (n in (m+1):length(listMorphs)) {
+    for (t in c("20","60","180","360","720","1440")) {
+      tempMF <- get(paste0("MF.P.UWUF.P.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.P.UWUF.P.",t,".only"))$Morph),]
+      tempDM <- get(paste0("dm.UWUF.P.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.UWUF.P.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.UWUF.P.",t))))]
+      tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
+      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+                         ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
+                         ,", Df = ", tempAdonis$aov.tab$Df[1] 
+                         , ")")
+      pairwiseAdonis.all[paste0("p",listMorphs[m],":",listMorphs[n]),paste0(t)] <- toPaste
+    }
+    for (t in c("20","60","360","720","5760")) {
+      tempMF <- get(paste0("MF.UWUF.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.UWUF.",t,".only"))$Morph),]
+      tempDM <- get(paste0("dm.UWUF.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.UWUF.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.UWUF.",t))))]
+      tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
+      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+                         ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
+                         ,", Df = ", tempAdonis$aov.tab$Df[1] 
+                         , ")")
+      pairwiseAdonis.all[paste0("h",listMorphs[m],":",listMorphs[n]),paste0(t)] <- toPaste
+    }
+  }
+}
+
+# Get rid of NAs
+for (r in 1:nrow(pairwiseAdonis.all)) {
+  for (c in 1:ncol(pairwiseAdonis.all)) {
+    if (is.na(pairwiseAdonis.all[r,c])) {
+      pairwiseAdonis.all[r,c] <- "-"
+    }
+  }
+}
+
+# Change Rownames
+pairwiseAdonis.all.UWUF <- cbind(c("FB:BL","FB:CR","BL:CR","FB:BL","FB:CR","BL:CR"), pairwiseAdonis.all)
+rownames(pairwiseAdonis.all.UWUF) <- c("Reed Point", " ","  ","Hakai","   ","    ")
+
+capture.output(xtable(pairwiseAdonis.all.UWUF), file = paste0("BETAPLOTS_LATEX/pairwiseAdonis.",metric,".txt"))
 
 ####### *********WUF********* ############# 
 metric <- "WUF"
@@ -2208,7 +2396,7 @@ ylimits <- c(0,0.4)
 
 # xvalues <- log(FB.BL.WUF.ALL.mean[,1])
 xvalues <- as.character(FB.BL.WUF.ALL.mean[,1])
-pdf(paste0("BETAPLOTS_H/DispOverTime_",metric,".pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/DispOverTime_H_",metric,".pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -2288,7 +2476,7 @@ NMDS.WUF.FB.chull <- c(NMDS.WUF.FB.chull, NMDS.WUF.FB.chull[1])
 
 MorphColours <- c("darkorchid4","dodgerblue","salmon") 
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_Morph.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/NMDS_H_",metric,"_Morph.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.WUF.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -2326,7 +2514,7 @@ dev.off()
 ####### PLOT TIME ############
 TimeColours <- c("grey","lightblue","blue","darkblue")
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_Time.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/NMDS_H_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.WUF.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -2545,7 +2733,7 @@ MF.WUF.720.only$Morph <- factor(MF.WUF.720.only$Morph, levels = c("CR","BL","FB"
 MF.WUF.5760.only$Morph <- factor(MF.WUF.5760.only$Morph, levels = c("CR","BL","FB"))
 
 
-pdf(paste0("BETAPLOTS_H/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
+pdf(paste0("BETAPLOTS_H/COMBO_H_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.8,0.3,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -2608,7 +2796,7 @@ legend("center"
        , lwd = 2 
 )
 # EACH GETS 0.15 SPACE TOTAL;
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
 plot(NMDS.WUF.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -2619,11 +2807,14 @@ plot(NMDS.WUF.20.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.20.only$aov.tab[1]$Df[1],",",ANOVA.WUF.20.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.20.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.20.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.20.only.CR[NMDS.WUF.20.only.CR.chull,]
       , col = MorphColours[1])
@@ -2631,7 +2822,7 @@ lines(NMDS.WUF.20.only.BL[NMDS.WUF.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.20.only.FB[NMDS.WUF.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
 plot(NMDS.WUF.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -2642,11 +2833,14 @@ plot(NMDS.WUF.60.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.60.only$aov.tab[1]$Df[1],",",ANOVA.WUF.60.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.60.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.60.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.60.only.CR[NMDS.WUF.60.only.CR.chull,]
       , col = MorphColours[1])
@@ -2654,7 +2848,7 @@ lines(NMDS.WUF.60.only.BL[NMDS.WUF.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.60.only.FB[NMDS.WUF.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
 plot(NMDS.WUF.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -2665,11 +2859,14 @@ plot(NMDS.WUF.360.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.360.only$aov.tab[1]$Df[1],",",ANOVA.WUF.360.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.360.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.360.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.360.only.CR[NMDS.WUF.360.only.CR.chull,]
       , col = MorphColours[1])
@@ -2677,7 +2874,7 @@ lines(NMDS.WUF.360.only.BL[NMDS.WUF.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.360.only.FB[NMDS.WUF.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
 plot(NMDS.WUF.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -2688,11 +2885,14 @@ plot(NMDS.WUF.720.only
      , xlab = paste0("p = ", ANOVA.WUF.720.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.720.only$aov.tab[1]$Df[1],",",ANOVA.WUF.720.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.720.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.720.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.720.only.CR[NMDS.WUF.720.only.CR.chull,]
       , col = MorphColours[1])
@@ -2700,7 +2900,7 @@ lines(NMDS.WUF.720.only.BL[NMDS.WUF.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.720.only.FB[NMDS.WUF.720.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
 plot(NMDS.WUF.5760.only
      # , main = "12 Hours"
      , pch = 21
@@ -2711,11 +2911,14 @@ plot(NMDS.WUF.5760.only
      , xlab = paste0("p = ", ANOVA.WUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.5760.only$aov.tab[1]$Df[1],",",ANOVA.WUF.5760.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.5760.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.5760.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.5760.only.CR[NMDS.WUF.5760.only.CR.chull,]
       , col = MorphColours[1])
@@ -2762,11 +2965,11 @@ capture.output(ANOVA.betadisp.WUF, file = "./BETAPLOTS_H/ANOVA.betadisp.WUF.txt"
 
 xvalues <- c("20","60","360","720","5760")
 ylimits <- c(0,0.35)
-pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+pdf(paste0("./BETAPLOTS_H/BetaDisp_H_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
-     , ylab = "Distance (Unweighted Unifrac)"
+     , ylab = "Distance (Weighted Unifrac)"
      , ylim = ylimits
      , xaxt = 'n')
 axis(side = 1
@@ -3087,7 +3290,7 @@ ylimits <- c(0,0.65)
 
 # xvalues <- log(FB.BL.WUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.WUF.P.ALL.mean[,1])
-pdf(paste0("BETAPLOTS_P/DispOverTime_",metric,".pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/DispOverTime_P_",metric,".pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -3170,7 +3373,7 @@ NMDS.WUF.P.FB.chull <- c(NMDS.WUF.P.FB.chull, NMDS.WUF.P.FB.chull[1])
 
 MorphColours <- c("darkorchid4","dodgerblue","salmon") 
 
-pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Morph.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/NMDS_P_",metric,"_Morph.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.WUF.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -3209,7 +3412,7 @@ dev.off()
 TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
 
-pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/NMDS_P_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.WUF.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -3477,7 +3680,7 @@ dev.off()
 # xvalues <- log(FB.BL.WUF.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.WUF.P.ALL.mean[,1])
 
-pdf(paste0("BETAPLOTS_P/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 14, height = 8)
+pdf(paste0("BETAPLOTS_P/COMBO_P_dispbeta_",metric,".pdf"), pointsize = 14, width = 14, height = 8)
 par(fig = c(0,0.8,0.23,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -3539,7 +3742,7 @@ legend("center"
        , col = c("darkgreen","purple","grey")
        , lwd = 2 
 )
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.05,0.158333,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.05,0.158333,0,0.3), new = TRUE)
 plot(NMDS.WUF.P.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -3550,11 +3753,14 @@ plot(NMDS.WUF.P.20.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.P.20.only$aov.tab[1]$Df[1],",",ANOVA.WUF.P.20.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.P.20.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.P.20.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.P.20.only.CR[NMDS.WUF.P.20.only.CR.chull,]
       , col = MorphColours[1])
@@ -3562,7 +3768,7 @@ lines(NMDS.WUF.P.20.only.BL[NMDS.WUF.P.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.P.20.only.FB[NMDS.WUF.P.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.178333,0.28666,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.178333,0.28666,0,0.3), new = TRUE)
 plot(NMDS.WUF.P.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -3573,11 +3779,14 @@ plot(NMDS.WUF.P.60.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.P.60.only$aov.tab[1]$Df[1],",",ANOVA.WUF.P.60.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.P.60.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.P.60.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.P.60.only.CR[NMDS.WUF.P.60.only.CR.chull,]
       , col = MorphColours[1])
@@ -3585,7 +3794,7 @@ lines(NMDS.WUF.P.60.only.BL[NMDS.WUF.P.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.P.60.only.FB[NMDS.WUF.P.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.30666,0.414999,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.30666,0.414999,0,0.3), new = TRUE)
 plot(NMDS.WUF.P.180.only
      # , main = "6 Hours"
      , pch = 21
@@ -3596,11 +3805,14 @@ plot(NMDS.WUF.P.180.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.P.180.only$aov.tab[1]$Df[1],",",ANOVA.WUF.P.180.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.P.180.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.P.180.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.P.180.only.CR[NMDS.WUF.P.180.only.CR.chull,]
       , col = MorphColours[1])
@@ -3608,7 +3820,7 @@ lines(NMDS.WUF.P.180.only.BL[NMDS.WUF.P.180.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.P.180.only.FB[NMDS.WUF.P.180.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.434999,0.543333,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.434999,0.543333,0,0.3), new = TRUE)
 plot(NMDS.WUF.P.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -3619,11 +3831,14 @@ plot(NMDS.WUF.P.360.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.P.360.only$aov.tab[1]$Df[1],",",ANOVA.WUF.P.360.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.P.360.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.P.360.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.P.360.only.CR[NMDS.WUF.P.360.only.CR.chull,]
       , col = MorphColours[1])
@@ -3631,7 +3846,7 @@ lines(NMDS.WUF.P.360.only.BL[NMDS.WUF.P.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.P.360.only.FB[NMDS.WUF.P.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.565555,0.671666,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.565555,0.671666,0,0.3), new = TRUE)
 plot(NMDS.WUF.P.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -3642,11 +3857,14 @@ plot(NMDS.WUF.P.720.only
      , xlab = paste0("p = ", ANOVA.WUF.P.720.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.P.720.only$aov.tab[1]$Df[1],",",ANOVA.WUF.P.720.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.P.720.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.P.720.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.P.720.only.CR[NMDS.WUF.P.720.only.CR.chull,]
       , col = MorphColours[1])
@@ -3654,7 +3872,7 @@ lines(NMDS.WUF.P.720.only.BL[NMDS.WUF.P.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.WUF.P.720.only.FB[NMDS.WUF.P.720.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.691666,0.79999,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.691666,0.79999,0,0.3), new = TRUE)
 plot(NMDS.WUF.P.1440.only
      # , main = "12 Hours"
      , pch = 21
@@ -3665,11 +3883,14 @@ plot(NMDS.WUF.P.1440.only
      , xlab = paste0("p = ", ANOVA.WUF.P.1440.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.WUF.P.1440.only$aov.tab[1]$Df[1],",",ANOVA.WUF.P.1440.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.WUF.P.1440.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.WUF.P.1440.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.WUF.P.1440.only.CR[NMDS.WUF.P.1440.only.CR.chull,]
       , col = MorphColours[1])
@@ -3729,7 +3950,7 @@ ANOVA.betadisp.WUF <- anova(lm(Distance ~ Time*Morph, data = betadisp.WUF.time.f
 capture.output(ANOVA.betadisp.WUF, file = "./BETAPLOTS_P/ANOVA.betadisp.WUF.txt")
 
 ylimits <- c(0,0.45)
-pdf(paste0("./BETAPLOTS_P/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+pdf(paste0("./BETAPLOTS_P/BetaDisp_P_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
@@ -3792,6 +4013,172 @@ legend("center"
 )
 dev.off()
 
+
+################## Combine individual stats and print out ####################
+### DO BETADISP FOR OVERALL ##
+anova.betadisp.WUF.morph <- anova(betadisp.WUF.morph)
+anova.betadisp.WUF.time <- anova(betadisp.WUF.time)
+anova.betadisp.P.WUF.morph <- anova(betadisp.WUF.P.morph)
+anova.betadisp.P.WUF.time <- anova(betadisp.WUF.P.time)
+
+# This is PERMADISP-- don't need a table, will quote in text
+capture.output(anova.betadisp.WUF.morph, file = "BETAPLOTS_H/anova.betadisp.WUF.morph.txt")
+capture.output(anova.betadisp.WUF.time, file = "BETAPLOTS_H/anova.betadisp.WUF.time.txt")
+capture.output(anova.betadisp.P.WUF.morph, file = "BETAPLOTS_P/anova.betadisp.WUF.P.morph.txt")
+capture.output(anova.betadisp.P.WUF.time, file = "BETAPLOTS_P/anova.betadisp.WUF.P.time.txt")
+
+### NOW DO EACH TIME POINT ##
+## This is a table with both Hakai and PM for the supplementary figures
+permdisp.morphology.across.time <- matrix(ncol = 8, nrow = 2)
+rownames(permdisp.morphology.across.time) <- c("P","H")
+colnames(permdisp.morphology.across.time) <- c("20","60","180","360","720","1440","5760", "Overall")
+for (t in c("20","60","180","360","720","1440")) {
+  assign(paste0("betadisp.P.",t), betadisper(dist(get(paste0("dm.WUF.P.",t))), group = get(paste0("MF.P.WUF.P.",t,".only"))$Morph))
+  assign(paste0("anova.betadisp.P.",t), anova(get(paste0("betadisp.P.",t))))
+  ptemp <- get(paste0("anova.betadisp.P.",t))$`Pr(>F)`[1]
+  ftemp <- get(paste0("anova.betadisp.P.",t))$`F value`[1]
+  dftemp <- get(paste0("anova.betadisp.P.",t))$Df[1]
+  
+  toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+  permdisp.morphology.across.time["P", paste0(t)] <- toPaste
+}
+for (t in c("20","60","360","720","5760")) {
+  assign(paste0("betadisp.",t), betadisper(dist(get(paste0("dm.WUF.",t))), group = get(paste0("MF.WUF.",t,".only"))$Morph))
+  assign(paste0("anova.betadisp.",t), anova(get(paste0("betadisp.",t))))
+  ptemp <- get(paste0("anova.betadisp.",t))$`Pr(>F)`[1]
+  ftemp <- get(paste0("anova.betadisp.",t))$`F value`[1]
+  dftemp <- get(paste0("anova.betadisp.",t))$Df[1]
+  
+  toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+  permdisp.morphology.across.time["H", paste0(t)] <- toPaste
+  
+}
+# Get overall
+ptemp <- anova.betadisp.P.WUF.morph$`Pr(>F)`[1]
+ftemp <- anova.betadisp.P.WUF.morph$`F value`[1]
+dftemp <- anova.betadisp.P.WUF.morph$Df[1]
+toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+permdisp.morphology.across.time["P","Overall"] <- toPaste
+
+ptemp <- anova.betadisp.WUF.morph$`Pr(>F)`[1]
+ftemp <- anova.betadisp.WUF.morph$`F value`[1]
+dftemp <- anova.betadisp.WUF.morph$Df[1]
+toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+permdisp.morphology.across.time["H","Overall"] <- toPaste
+
+colnames(permdisp.morphology.across.time) <- c("20 minutes","1 hour","3 hours","6 hours","12 hours","1 day","4 days", "Overall")
+
+tempfile1 <- permdisp.morphology.across.time
+for (r in 1:nrow(tempfile1)) {
+  for (c in 1:ncol(tempfile1)) {
+    if (is.na(tempfile1[r,c])) {
+      permdisp.morphology.across.time[r,c] <- "-"
+    }}}
+
+
+# Make double header
+permdisp.morphology.across.time.WUF <- permdisp.morphology.across.time
+rownames(permdisp.morphology.across.time.WUF) <- c("Reed Point","Hakai")
+
+capture.output(xtable(permdisp.morphology.across.time.WUF, digits = NULL), file = paste0("BETAPLOTS_LATEX/permdisp.morph.across.time.",metric,".txt"))
+
+### MAKE BETA DIV TABLES-- metrics separately but H and P together; extras will go in supp
+
+anova.morphology.across.time <- matrix(ncol = 8, nrow = 2)
+colnames(anova.morphology.across.time) <- c("20","60","180","360","720","1440","5760", "Overall")
+rownames(anova.morphology.across.time) <- c("P","H")
+for (t in c("20","60","180","360","720","1440")) {
+  ptemp <- get(paste0("ANOVA.WUF.P.",t,".only"))$aov.tab$`Pr(>F)`[1]
+  rtemp <- get(paste0("ANOVA.WUF.P.",t,".only"))$aov.tab$`R2`[1]
+  dftemp <- get(paste0("ANOVA.WUF.P.",t,".only"))$aov.tab$`Df`[1]
+  toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+  
+  anova.morphology.across.time["P",paste0(t)] <- toPaste
+}
+for (t in c("20","60","360","720","5760")) {
+  ptemp <- get(paste0("ANOVA.WUF.",t,".only"))$aov.tab$`Pr(>F)`[1]
+  rtemp <- get(paste0("ANOVA.WUF.",t,".only"))$aov.tab$`R2`[1]
+  dftemp <- get(paste0("ANOVA.WUF.",t,".only"))$aov.tab$`Df`[1]
+  toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+  
+  anova.morphology.across.time["H",paste0(t)] <- toPaste
+}
+# Do overall P
+ptemp <- ANOVA.WUF.P.morphtime$aov.tab$`Pr(>F)`[2]
+rtemp <- ANOVA.WUF.P.morphtime$aov.tab$`R2`[2]
+dftemp <- ANOVA.WUF.P.morphtime$aov.tab$`Df`[2]
+toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+anova.morphology.across.time["P","Overall"] <- toPaste
+
+# Do overall H
+ptemp <- ANOVA.WUF.morphtime$aov.tab$`Pr(>F)`[2]
+rtemp <- ANOVA.WUF.morphtime$aov.tab$`R2`[2]
+dftemp <- ANOVA.WUF.morphtime$aov.tab$`Df`[2]
+toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+anova.morphology.across.time["H","Overall"] <- toPaste
+
+colnames(anova.morphology.across.time) <- c("20 minutes","1 hour","3 hours","6 hours","12 hours","1 day","4 days", "Overall")
+
+tempfile1 <- anova.morphology.across.time
+for (r in 1:nrow(tempfile1)) {
+  for (c in 1:ncol(tempfile1)) {
+    if (is.na(tempfile1[r,c])) {
+      anova.morphology.across.time[r,c] <- "-"
+    } 
+  }
+}
+
+# Make double header
+anova.morphology.across.time.WUF <- anova.morphology.across.time
+rownames(anova.morphology.across.time.WUF) <- c("Reed Point","Hakai")
+
+capture.output(xtable(anova.morphology.across.time.WUF, digits = NULL), file = paste0("BETAPLOTS_LATEX/anova.morph.across.time.",metric,".txt"))
+
+### DO FB/CR/BL TEST FOR EACH
+# Make table
+pairwiseAdonis.all <- matrix(ncol = 7,nrow = 6)
+colnames(pairwiseAdonis.all) <- c("20","60","180","360","720","1440", "5760")
+rownames(pairwiseAdonis.all) <- c("pFB:BL","pFB:CR","pBL:CR","hFB:BL","hFB:CR","hBL:CR" )
+listMorphs <- c("FB","BL","CR")
+for (m in 1:(length(listMorphs)-1)) {
+  for (n in (m+1):length(listMorphs)) {
+    for (t in c("20","60","180","360","720","1440")) {
+      tempMF <- get(paste0("MF.P.WUF.P.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.P.WUF.P.",t,".only"))$Morph),]
+      tempDM <- get(paste0("dm.WUF.P.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.WUF.P.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.WUF.P.",t))))]
+      tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
+      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+                         ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
+                         ,", Df = ", tempAdonis$aov.tab$Df[1] 
+                         , ")")
+      pairwiseAdonis.all[paste0("p",listMorphs[m],":",listMorphs[n]),paste0(t)] <- toPaste
+    }
+    for (t in c("20","60","360","720","5760")) {
+      tempMF <- get(paste0("MF.WUF.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.WUF.",t,".only"))$Morph),]
+      tempDM <- get(paste0("dm.WUF.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.WUF.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.WUF.",t))))]
+      tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
+      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+                         ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
+                         ,", Df = ", tempAdonis$aov.tab$Df[1] 
+                         , ")")
+      pairwiseAdonis.all[paste0("h",listMorphs[m],":",listMorphs[n]),paste0(t)] <- toPaste
+    }
+  }
+}
+
+# Get rid of NAs
+for (r in 1:nrow(pairwiseAdonis.all)) {
+  for (c in 1:ncol(pairwiseAdonis.all)) {
+    if (is.na(pairwiseAdonis.all[r,c])) {
+      pairwiseAdonis.all[r,c] <- "-"
+    }
+  }
+}
+
+# Change Rownames
+pairwiseAdonis.all.WUF <- cbind(c("FB:BL","FB:CR","BL:CR","FB:BL","FB:CR","BL:CR"), pairwiseAdonis.all)
+rownames(pairwiseAdonis.all.WUF) <- c("Reed Point", " ","  ","Hakai","   ","    ")
+
+capture.output(xtable(pairwiseAdonis.all.WUF), file = paste0("BETAPLOTS_LATEX/pairwiseAdonis.",metric,".txt"))
 
 ####### *********BC********* ############# 
 metric <- "BC"
@@ -3971,7 +4358,7 @@ ylimits <- c(0.1,0.9)
 
 # xvalues <- log(FB.BL.BC.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.ALL.mean[,1])
-pdf(paste0("BETAPLOTS_H/DispOverTime_",metric,".pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/DispOverTime_H_",metric,".pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -4051,7 +4438,7 @@ NMDS.BC.FB.chull <- c(NMDS.BC.FB.chull, NMDS.BC.FB.chull[1])
 
 MorphColours <- c("darkorchid4","dodgerblue","salmon") 
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_Morph.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/NMDS_H_",metric,"_Morph.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.BC.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -4089,7 +4476,7 @@ dev.off()
 ####### PLOT TIME ############
 TimeColours <- c("grey","lightblue","blue","darkblue")
 
-pdf(paste0("BETAPLOTS_H/NMDS_",metric,"_Time.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_H/NMDS_H_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.BC.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -4308,7 +4695,7 @@ MF.BC.720.only$Morph <- factor(MF.BC.720.only$Morph, levels = c("CR","BL","FB"))
 MF.BC.5760.only$Morph <- factor(MF.BC.5760.only$Morph, levels = c("CR","BL","FB"))
 
 
-pdf(paste0("BETAPLOTS_H/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
+pdf(paste0("BETAPLOTS_H/COMBO_H_dispbeta_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.8,0.3,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -4371,7 +4758,7 @@ legend("center"
        , lwd = 2 
 )
 # EACH GETS 0.15 SPACE TOTAL;
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.049,0.1932,0,0.4), new = TRUE)
 plot(NMDS.BC.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -4382,11 +4769,14 @@ plot(NMDS.BC.20.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.20.only$aov.tab[1]$Df[1],",",ANOVA.BC.20.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.20.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.20.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.20.only.CR[NMDS.BC.20.only.CR.chull,]
       , col = MorphColours[1])
@@ -4394,7 +4784,7 @@ lines(NMDS.BC.20.only.BL[NMDS.BC.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.20.only.FB[NMDS.BC.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.2032,0.3474,0,0.4), new = TRUE)
 plot(NMDS.BC.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -4405,11 +4795,14 @@ plot(NMDS.BC.60.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.60.only$aov.tab[1]$Df[1],",",ANOVA.BC.60.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.60.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.60.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.60.only.CR[NMDS.BC.60.only.CR.chull,]
       , col = MorphColours[1])
@@ -4417,7 +4810,7 @@ lines(NMDS.BC.60.only.BL[NMDS.BC.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.60.only.FB[NMDS.BC.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.3574,0.5016,0,0.4), new = TRUE)
 plot(NMDS.BC.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -4428,11 +4821,14 @@ plot(NMDS.BC.360.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.360.only$aov.tab[1]$Df[1],",",ANOVA.BC.360.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.360.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.360.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.360.only.CR[NMDS.BC.360.only.CR.chull,]
       , col = MorphColours[1])
@@ -4440,7 +4836,7 @@ lines(NMDS.BC.360.only.BL[NMDS.BC.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.360.only.FB[NMDS.BC.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.5116,0.6558,0,0.4), new = TRUE)
 plot(NMDS.BC.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -4451,11 +4847,14 @@ plot(NMDS.BC.720.only
      , xlab = paste0("p = ", ANOVA.BC.720.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.720.only$aov.tab[1]$Df[1],",",ANOVA.BC.720.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.720.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.720.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.720.only.CR[NMDS.BC.720.only.CR.chull,]
       , col = MorphColours[1])
@@ -4463,7 +4862,7 @@ lines(NMDS.BC.720.only.BL[NMDS.BC.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.720.only.FB[NMDS.BC.720.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.6658,0.81,0,0.4), new = TRUE)
 plot(NMDS.BC.5760.only
      # , main = "12 Hours"
      , pch = 21
@@ -4474,11 +4873,14 @@ plot(NMDS.BC.5760.only
      , xlab = paste0("p = ", ANOVA.BC.5760.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.5760.only$aov.tab[1]$Df[1],",",ANOVA.BC.5760.only$aov.tab[1]$Df[3]) 
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.5760.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.5760.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.5760.only.CR[NMDS.BC.5760.only.CR.chull,]
       , col = MorphColours[1])
@@ -4525,7 +4927,7 @@ capture.output(ANOVA.betadisp.BC, file = "./BETAPLOTS_H/ANOVA.betadisp.BC.txt")
 
 xvalues <- c("20","60","360","720","5760")
 ylimits <- c(0,0.6)
-pdf(paste0("./BETAPLOTS_H/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+pdf(paste0("./BETAPLOTS_H/BetaDisp_H_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
@@ -4851,7 +5253,7 @@ ylimits <- c(0.3,1)
 
 # xvalues <- log(FB.BL.BC.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.P.ALL.mean[,1])
-pdf(paste0("BETAPLOTS_P/DispOverTime_",metric,".pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/DispOverTime_P_",metric,".pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -4933,7 +5335,7 @@ NMDS.BC.P.FB.chull <- c(NMDS.BC.P.FB.chull, NMDS.BC.P.FB.chull[1])
 
 MorphColours <- c("darkorchid4","dodgerblue","salmon") 
 
-pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Morph.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/NMDS_P_",metric,"_Morph.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.BC.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -4971,7 +5373,7 @@ dev.off()
 ####### PLOT TIME ############
 TimeColours <- c("grey","lightblue","deepskyblue","blue","darkblue", "purple")
 
-pdf(paste0("BETAPLOTS_P/NMDS_",metric,"_Time.pdf"), pointsize = 14)
+pdf(paste0("BETAPLOTS_P/NMDS_P_",metric,"_Time.pdf"), pointsize = 14)
 par(fig = c(0,0.8,0,1))
 plot(NMDS.BC.P.morphonly$points
      , main = "NMDS of Artificial Seaweed Shapes"
@@ -5239,7 +5641,7 @@ dev.off()
 # xvalues <- log(FB.BL.BC.P.ALL.mean[,1])
 xvalues <- as.character(FB.BL.BC.P.ALL.mean[,1])
 
-pdf(paste0("BETAPLOTS_P/COMBO_dispbeta_",metric,".pdf"), pointsize = 14, width = 14, height = 8)
+pdf(paste0("BETAPLOTS_P/COMBO_P_dispbeta_",metric,".pdf"), pointsize = 14, width = 14, height = 8)
 par(fig = c(0,0.8,0.23,1))
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
@@ -5301,7 +5703,7 @@ legend("center"
        , col = c("darkgreen","purple","grey")
        , lwd = 2 
 )
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.05,0.158333,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.05,0.158333,0,0.3), new = TRUE)
 plot(NMDS.BC.P.20.only
      # , main = "20 Minutes"
      , pch = 21
@@ -5312,11 +5714,14 @@ plot(NMDS.BC.P.20.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.P.20.only$aov.tab[1]$Df[1],",",ANOVA.BC.P.20.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.P.20.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.P.20.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.P.20.only.CR[NMDS.BC.P.20.only.CR.chull,]
       , col = MorphColours[1])
@@ -5324,7 +5729,7 @@ lines(NMDS.BC.P.20.only.BL[NMDS.BC.P.20.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.P.20.only.FB[NMDS.BC.P.20.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.178333,0.28666,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.178333,0.28666,0,0.3), new = TRUE)
 plot(NMDS.BC.P.60.only
      # , main = "1 Hour"
      , pch = 21
@@ -5335,11 +5740,14 @@ plot(NMDS.BC.P.60.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.P.60.only$aov.tab[1]$Df[1],",",ANOVA.BC.P.60.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.P.60.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.P.60.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.P.60.only.CR[NMDS.BC.P.60.only.CR.chull,]
       , col = MorphColours[1])
@@ -5347,7 +5755,7 @@ lines(NMDS.BC.P.60.only.BL[NMDS.BC.P.60.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.P.60.only.FB[NMDS.BC.P.60.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.30666,0.414999,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.30666,0.414999,0,0.3), new = TRUE)
 plot(NMDS.BC.P.180.only
      # , main = "6 Hours"
      , pch = 21
@@ -5358,11 +5766,14 @@ plot(NMDS.BC.P.180.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.P.180.only$aov.tab[1]$Df[1],",",ANOVA.BC.P.180.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.P.180.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.P.180.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.P.180.only.CR[NMDS.BC.P.180.only.CR.chull,]
       , col = MorphColours[1])
@@ -5370,7 +5781,7 @@ lines(NMDS.BC.P.180.only.BL[NMDS.BC.P.180.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.P.180.only.FB[NMDS.BC.P.180.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.434999,0.543333,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.434999,0.543333,0,0.3), new = TRUE)
 plot(NMDS.BC.P.360.only
      # , main = "6 Hours"
      , pch = 21
@@ -5381,11 +5792,14 @@ plot(NMDS.BC.P.360.only
      , xlab = 'n'
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.P.360.only$aov.tab[1]$Df[1],",",ANOVA.BC.P.360.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.P.360.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.P.360.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.P.360.only.CR[NMDS.BC.P.360.only.CR.chull,]
       , col = MorphColours[1])
@@ -5393,7 +5807,7 @@ lines(NMDS.BC.P.360.only.BL[NMDS.BC.P.360.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.P.360.only.FB[NMDS.BC.P.360.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.565555,0.671666,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.565555,0.671666,0,0.3), new = TRUE)
 plot(NMDS.BC.P.720.only
      # , main = "12 Hours"
      , pch = 21
@@ -5404,11 +5818,14 @@ plot(NMDS.BC.P.720.only
      , xlab = paste0("p = ", ANOVA.BC.P.720.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.P.720.only$aov.tab[1]$Df[1],",",ANOVA.BC.P.720.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.P.720.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.P.720.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.P.720.only.CR[NMDS.BC.P.720.only.CR.chull,]
       , col = MorphColours[1])
@@ -5416,7 +5833,7 @@ lines(NMDS.BC.P.720.only.BL[NMDS.BC.P.720.only.BL.chull,]
       , col = MorphColours[2])
 lines(NMDS.BC.P.720.only.FB[NMDS.BC.P.720.only.FB.chull,]
       , col = MorphColours[3])
-par(oma = c(1,0.1,1,0.1), mar = c(2,0,2,0), fig = c(0.691666,0.79999,0,0.3), new = TRUE)
+par(oma = c(1,0.1,1,0.1), mar = c(3,0,2,0), fig = c(0.691666,0.79999,0,0.3), new = TRUE)
 plot(NMDS.BC.P.1440.only
      # , main = "12 Hours"
      , pch = 21
@@ -5427,11 +5844,14 @@ plot(NMDS.BC.P.1440.only
      , xlab = paste0("p = ", ANOVA.BC.P.1440.only$aov.tab[6]$`Pr(>F)`[1])
      , ylab = ''
 )
+title(xlab = paste0("Df = ", ANOVA.BC.P.1440.only$aov.tab[1]$Df[1],",",ANOVA.BC.P.1440.only$aov.tab[1]$Df[3])
+      , line = 0.25
+      , cex.axis = 0.5)
 title(xlab = substitute(paste(R^2 == X), list(X = format(ANOVA.BC.P.1440.only$aov.tab[5]$R2[1], digits = 2))) 
-      , line= 0.25
+      , line= 1
       , cex.axis = 0.5)
 title(xlab = paste0("p = ", ANOVA.BC.P.1440.only$aov.tab[6]$`Pr(>F)`[1])
-      , line = 1
+      , line = 1.75
       , cex.axis = 0.5)
 lines(NMDS.BC.P.1440.only.CR[NMDS.BC.P.1440.only.CR.chull,]
       , col = MorphColours[1])
@@ -5491,7 +5911,7 @@ ANOVA.betadisp.BC <- anova(lm(Distance ~ Time*Morph, data = betadisp.BC.time.for
 capture.output(ANOVA.betadisp.BC, file = "./BETAPLOTS_P/ANOVA.betadisp.BC.txt")
 
 ylimits <- c(0.15,0.7)
-pdf(paste0("./BETAPLOTS_P/BetaDisp_",metric,"_eachmorph.pdf"),pointsize = 14)
+pdf(paste0("./BETAPLOTS_P/BetaDisp_P_",metric,"_eachmorph.pdf"),pointsize = 14)
 plot(xvalues, NULL
      , main = "Dispersion of morphologies across time"
      , xlab = 'Time'
@@ -5556,96 +5976,322 @@ dev.off()
 
 
 
+################## Combine individual stats and print out ####################
+### DO BETADISP FOR OVERALL ##
 
-############ PRINTING LATEX-DEP STATS ############
-# "\newcommand{\newCommandName}{text to insert}"
-# BETA ANOVA RESULTS
+anova.betadisp.BC.morph <- anova(betadisp.BC.morph)
+anova.betadisp.BC.time <- anova(betadisp.BC.time)
+anova.betadisp.P.BC.morph <- anova(betadisp.BC.P.morph)
+anova.betadisp.P.BC.time <- anova(betadisp.BC.P.time)
 
-BetaDivResultsToPrint <- matrix(ncol = 1)
-for (i in c("UWUF","WUF","BC")) {
-  # Assign all names
-  assign(paste0("aov.",i,".H.Time.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[1], digits= 2))
-  assign(paste0("aov.",i,".H.Time.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[1], digits = 2))
-  assign(paste0("aov.",i,".H.Morph.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[2], digits = 2))
-  assign(paste0("aov.",i,".H.Morph.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[2], digits = 2))
-  assign(paste0("aov.",i,".H.TimeMorph.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[3], digits = 2))
-  assign(paste0("aov.",i,".H.TimeMorph.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[3], digits = 2))
+# This is PERMADISP-- don't need a table, will quote in text
+capture.output(anova.betadisp.BC.morph, file = "BETAPLOTS_H/anova.betadisp.BC.morph.txt")
+capture.output(anova.betadisp.BC.time, file = "BETAPLOTS_H/anova.betadisp.BC.time.txt")
+capture.output(anova.betadisp.P.BC.morph, file = "BETAPLOTS_P/anova.betadisp.BC.P.morph.txt")
+capture.output(anova.betadisp.P.BC.time, file = "BETAPLOTS_P/anova.betadisp.BC.P.time.txt")
+
+### NOW DO EACH TIME POINT ##
+## This is a table with both Hakai and PM for the supplementary figures
+permdisp.morphology.across.time <- matrix(ncol = 8, nrow = 2)
+rownames(permdisp.morphology.across.time) <- c("P","H")
+colnames(permdisp.morphology.across.time) <- c("20","60","180","360","720","1440","5760", "Overall")
+for (t in c("20","60","180","360","720","1440")) {
+  assign(paste0("betadisp.P.",t), betadisper(dist(get(paste0("dm.BC.P.",t))), group = get(paste0("MF.P.BC.P.",t,".only"))$Morph))
+  assign(paste0("anova.betadisp.P.",t), anova(get(paste0("betadisp.P.",t))))
+  ptemp <- get(paste0("anova.betadisp.P.",t))$`Pr(>F)`[1]
+  ftemp <- get(paste0("anova.betadisp.P.",t))$`F value`[1]
+  dftemp <- paste0(get(paste0("anova.betadisp.P.",t))$Df[1],",",get(paste0("anova.betadisp.P.",t))$Df[3])
   
-  assign(paste0("aov.",i,".P.Time.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[1], digits= 2))
-  assign(paste0("aov.",i,".P.Time.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[1], digits = 2))
-  assign(paste0("aov.",i,".P.Morph.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[2], digits = 2))
-  assign(paste0("aov.",i,".P.Morph.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[2], digits = 2))
-  assign(paste0("aov.",i,".P.TimeMorph.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[3], digits = 2))
-  assign(paste0("aov.",i,".P.TimeMorph.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[3], digits = 2))
+  toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+  permdisp.morphology.across.time["P", paste0(t)] <- toPaste
+}
+for (t in c("20","60","360","720","5760")) {
+  assign(paste0("betadisp.",t), betadisper(dist(get(paste0("dm.BC.",t))), group = get(paste0("MF.BC.",t,".only"))$Morph))
+  assign(paste0("anova.betadisp.",t), anova(get(paste0("betadisp.",t))))
+  ptemp <- get(paste0("anova.betadisp.",t))$`Pr(>F)`[1]
+  ftemp <- get(paste0("anova.betadisp.",t))$`F value`[1]
+  dftemp <- paste0(get(paste0("anova.betadisp.",t))$Df[1],",",get(paste0("anova.betadisp.",t))$Df[3])
   
-  tempFile <- c(  paste0("aov.",i,".H.Time.p")
-                , paste0("aov.",i,".H.Time.r")
-                , paste0("aov.",i,".H.Morph.p")
-                , paste0("aov.",i,".H.Morph.r")
-                , paste0("aov.",i,".H.TimeMorph.p")
-                , paste0("aov.",i,".H.TimeMorph.r")
-
-                , paste0("aov.",i,".P.Time.p")
-                , paste0("aov.",i,".P.Time.r")
-                , paste0("aov.",i,".P.Morph.p")
-                , paste0("aov.",i,".P.Morph.r")
-                , paste0("aov.",i,".P.TimeMorph.p")
-                , paste0("aov.",i,".P.TimeMorph.r")
-  )
+  toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+  permdisp.morphology.across.time["H", paste0(t)] <- toPaste
   
+}
+# Get overall
+ptemp <- anova.betadisp.P.BC.morph$`Pr(>F)`[1]
+ftemp <- anova.betadisp.P.BC.morph$`F value`[1]
+dftemp <- paste0(anova.betadisp.P.BC.morph$Df[1],",",anova.betadisp.P.BC.morph$Df[12])
+toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+permdisp.morphology.across.time["P","Overall"] <- toPaste
 
-  for (i in tempFile) {
-    tempName <- gsub("[.]","", i)
-    #"\newcommand{\newCommandName}{text to insert}"
-    tempInsert <- paste0("\\","newcommand{","\\",tempName,"}{",get(i),"}")
-     BetaDivResultsToPrint <- rbind(BetaDivResultsToPrint, paste0("\\newcommand{\\",tempName,"}{",get(i),"}"))
+ptemp <- anova.betadisp.BC.morph$`Pr(>F)`[1]
+ftemp <- anova.betadisp.BC.morph$`F value`[1]
+dftemp <- paste0(anova.betadisp.BC.morph$Df[1],",",anova.betadisp.BC.morph$Df[2])
+toPaste <- paste0(signif(ptemp,2), " (f=",round(ftemp,2),",Df=",dftemp,")")
+permdisp.morphology.across.time["H","Overall"] <- toPaste
+
+colnames(permdisp.morphology.across.time) <- c("20 minutes","1 hour","3 hours","6 hours","12 hours","1 day","4 days", "Overall")
+
+tempfile1 <- permdisp.morphology.across.time
+for (r in 1:nrow(tempfile1)) {
+  for (c in 1:ncol(tempfile1)) {
+    if (is.na(tempfile1[r,c])) {
+      permdisp.morphology.across.time[r,c] <- "-"
+    }}}
+
+
+# Make double header
+permdisp.morphology.across.time.BC <- permdisp.morphology.across.time
+rownames(permdisp.morphology.across.time.BC) <- c("Reed Point","Hakai")
+
+capture.output(xtable(permdisp.morphology.across.time.BC, digits = NULL), file = paste0("BETAPLOTS_LATEX/permdisp.morph.across.time.",metric,".txt"))
+
+### MAKE BETA DIV TABLES-- metrics separately but H and P together; extras will go in supp
+
+anova.morphology.across.time <- matrix(ncol = 8, nrow = 2)
+colnames(anova.morphology.across.time) <- c("20","60","180","360","720","1440","5760", "Overall")
+rownames(anova.morphology.across.time) <- c("P","H")
+for (t in c("20","60","180","360","720","1440")) {
+  ptemp <- get(paste0("ANOVA.BC.P.",t,".only"))$aov.tab$`Pr(>F)`[1]
+  rtemp <- get(paste0("ANOVA.BC.P.",t,".only"))$aov.tab$`R2`[1]
+  dftemp <- paste0(get(paste0("ANOVA.BC.P.",t,".only"))$aov.tab$`Df`[1],",",get(paste0("ANOVA.BC.P.",t,".only"))$aov.tab$`Df`[3])
+  toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+  
+  anova.morphology.across.time["P",paste0(t)] <- toPaste
+}
+for (t in c("20","60","360","720","5760")) {
+  ptemp <- get(paste0("ANOVA.BC.",t,".only"))$aov.tab$`Pr(>F)`[1]
+  rtemp <- get(paste0("ANOVA.BC.",t,".only"))$aov.tab$`R2`[1]
+  dftemp <- paste0(get(paste0("ANOVA.BC.",t,".only"))$aov.tab$`Df`[1],",",get(paste0("ANOVA.BC.",t,".only"))$aov.tab$`Df`[3])
+  toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+  
+  anova.morphology.across.time["H",paste0(t)] <- toPaste
+}
+# Do overall P
+ptemp <- ANOVA.BC.P.morphtime$aov.tab$`Pr(>F)`[2]
+rtemp <- ANOVA.BC.P.morphtime$aov.tab$`R2`[2]
+dftemp <- paste0(ANOVA.BC.P.morphtime$aov.tab$`Df`[2],",",ANOVA.BC.P.morphtime$aov.tab$`Df`[5])
+toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+anova.morphology.across.time["P","Overall"] <- toPaste
+
+# Do overall H
+ptemp <- ANOVA.BC.morphtime$aov.tab$`Pr(>F)`[2]
+rtemp <- ANOVA.BC.morphtime$aov.tab$`R2`[2]
+dftemp <- paste0(ANOVA.BC.morphtime$aov.tab$`Df`[2],",",ANOVA.BC.morphtime$aov.tab$`Df`[5])
+toPaste <- paste0(signif(ptemp,2), " (R^2=",round(rtemp,2),",Df=",dftemp,")")
+anova.morphology.across.time["H","Overall"] <- toPaste
+
+colnames(anova.morphology.across.time) <- c("20 minutes","1 hour","3 hours","6 hours","12 hours","1 day","4 days", "Overall")
+
+tempfile1 <- anova.morphology.across.time
+for (r in 1:nrow(tempfile1)) {
+  for (c in 1:ncol(tempfile1)) {
+    if (is.na(tempfile1[r,c])) {
+      anova.morphology.across.time[r,c] <- "-"
+    } 
   }
 }
-write.matrix(BetaDivResultsToPrint,file = "./BETAPLOTS_LATEX/BetaDivStats.txt")
 
+# Make double header
+anova.morphology.across.time.BC <- anova.morphology.across.time
+rownames(anova.morphology.across.time.BC) <- c("Reed Point","Hakai")
+
+capture.output(xtable(anova.morphology.across.time.BC, digits = NULL), file = paste0("BETAPLOTS_LATEX/anova.morph.across.time.",metric,".txt"))
+
+### DO FB/CR/BL TEST FOR EACH
+# Make table
+pairwiseAdonis.all <- matrix(ncol = 7,nrow = 6)
+colnames(pairwiseAdonis.all) <- c("20","60","180","360","720","1440", "5760")
+rownames(pairwiseAdonis.all) <- c("pFB:BL","pFB:CR","pBL:CR","hFB:BL","hFB:CR","hBL:CR" )
+listMorphs <- c("FB","BL","CR")
+for (m in 1:(length(listMorphs)-1)) {
+  for (n in (m+1):length(listMorphs)) {
+    for (t in c("20","60","180","360","720","1440")) {
+      tempMF <- get(paste0("MF.P.BC.P.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.P.BC.P.",t,".only"))$Morph),]
+      tempDM <- get(paste0("dm.BC.P.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.BC.P.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.BC.P.",t))))]
+      tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
+      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+                         ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
+                         ,", Df = ", paste0(tempAdonis$aov.tab$Df[1],",",tempAdonis$aov.tab$Df[3]) 
+                         , ")")
+      pairwiseAdonis.all[paste0("p",listMorphs[m],":",listMorphs[n]),paste0(t)] <- toPaste
+    }
+    for (t in c("20","60","360","720","5760")) {
+      tempMF <- get(paste0("MF.BC.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.BC.",t,".only"))$Morph),]
+      tempDM <- get(paste0("dm.BC.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.BC.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.BC.",t))))]
+      tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
+      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+                         ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
+                         ,", Df = ", paste0(tempAdonis$aov.tab$Df[1],",",tempAdonis$aov.tab$Df[3])
+                         , ")")
+      pairwiseAdonis.all[paste0("h",listMorphs[m],":",listMorphs[n]),paste0(t)] <- toPaste
+    }
+  }
+}
+
+# Get rid of NAs
+for (r in 1:nrow(pairwiseAdonis.all)) {
+  for (c in 1:ncol(pairwiseAdonis.all)) {
+    if (is.na(pairwiseAdonis.all[r,c])) {
+      pairwiseAdonis.all[r,c] <- "-"
+    }
+  }
+}
+
+# Change Rownames
+pairwiseAdonis.all.BC <- cbind(c("FB:BL","FB:CR","BL:CR","FB:BL","FB:CR","BL:CR"), pairwiseAdonis.all)
+rownames(pairwiseAdonis.all.BC) <- c("Reed Point", " ","  ","Hakai","   ","    ")
+
+capture.output(xtable(pairwiseAdonis.all.BC), file = paste0("BETAPLOTS_LATEX/pairwiseAdonis.",metric,".txt"))
+
+
+############ PRINTING LATEX-DEP STATS ############
+# COMBINING BETA DISP
+permdisp.morphology.across.time.MASTER <- matrix(ncol = 8, nrow = 6)
+colnames(permdisp.morphology.across.time.MASTER) <- colnames(permdisp.morphology.across.time.UWUF)
+rownames(permdisp.morphology.across.time.MASTER) <- c("pBC","pWUF","pUWUF", "hBC","hWUF","hUWUF")
+for (met in c("BC","WUF","UWUF")) {
+  PMtemp <- get(paste0("permdisp.morphology.across.time.",met))[1,]
+  HKtemp <- get(paste0("permdisp.morphology.across.time.",met))[2,]
+  
+  permdisp.morphology.across.time.MASTER[paste0("p",met),] <- PMtemp
+  permdisp.morphology.across.time.MASTER[paste0("h",met),] <- HKtemp
+  
+}
+# Change rownames
+
+permdisp.morphology.across.time.MASTER.edit <- cbind(rep(c("Bray-Curtis","Weighted Unifrac","Un-weighted Unifrac"),2), permdisp.morphology.across.time.MASTER)
+rownames(permdisp.morphology.across.time.MASTER.edit) <- c("Reed Point"," ","  ","Hakai","   ","    ")
+
+capture.output(xtable(permdisp.morphology.across.time.MASTER.edit), file = paste0("BETAPLOTS_LATEX/permdisp.morphology.across.time.MASTER.txt"))
+
+
+
+
+
+# COMBINING BETA ANOVAs
+anova.morphology.across.time.MASTER <- matrix(ncol = 8, nrow = 6)
+colnames(anova.morphology.across.time.MASTER) <- colnames(anova.morphology.across.time.UWUF)
+rownames(anova.morphology.across.time.MASTER) <- c("pBC","pWUF","pUWUF", "hBC","hWUF","hUWUF")
+for (met in c("BC","WUF","UWUF")) {
+  PMtemp <- get(paste0("anova.morphology.across.time.",met))[1,]
+  HKtemp <- get(paste0("anova.morphology.across.time.",met))[2,]
+  
+  anova.morphology.across.time.MASTER[paste0("p",met),] <- PMtemp
+  anova.morphology.across.time.MASTER[paste0("h",met),] <- HKtemp
+  
+}
+# Change rownames
+
+anova.morphology.across.time.MASTER.edit <- cbind(rep(c("Bray-Curtis","Weighted Unifrac","Un-weighted Unifrac"),2), anova.morphology.across.time.MASTER)
+rownames(anova.morphology.across.time.MASTER.edit) <- c("Reed Point"," ","  ","Hakai","   ","    ")
+
+capture.output(xtable(anova.morphology.across.time.MASTER.edit), file = paste0("BETAPLOTS_LATEX/anova.morphology.across.time.MASTER.txt"))
+
+
+# Combine all pairwise Adonises too? No. Too many
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# "\newcommand{\newCommandName}{text to insert}"
+# BETA ANOVA RESULTS
+# 
+# BetaDivResultsToPrint <- matrix(ncol = 1)
+# BetaDivResultsToPrint <- matrix()
+# for (i in c("UWUF","WUF","BC")) {
+#   # Assign all names
+#   assign(paste0("aov.",i,".H.Time.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[1], digits= 2))
+#   assign(paste0("aov.",i,".H.Time.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[1], digits = 2))
+#   assign(paste0("aov.",i,".H.Morph.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[2], digits = 2))
+#   assign(paste0("aov.",i,".H.Morph.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[2], digits = 2))
+#   assign(paste0("aov.",i,".H.TimeMorph.p"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$`Pr(>F)`[3], digits = 2))
+#   assign(paste0("aov.",i,".H.TimeMorph.r"), format(get(paste0("ANOVA.",i,".morphtime"))$aov.tab$R2[3], digits = 2))
+#   
+#   assign(paste0("aov.",i,".P.Time.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[1], digits= 2))
+#   assign(paste0("aov.",i,".P.Time.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[1], digits = 2))
+#   assign(paste0("aov.",i,".P.Morph.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[2], digits = 2))
+#   assign(paste0("aov.",i,".P.Morph.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[2], digits = 2))
+#   assign(paste0("aov.",i,".P.TimeMorph.p"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$`Pr(>F)`[3], digits = 2))
+#   assign(paste0("aov.",i,".P.TimeMorph.r"), format(get(paste0("ANOVA.",i,".P.morphtime"))$aov.tab$R2[3], digits = 2))
+#   
+#   tempFile <- c(  paste0("aov.",i,".H.Time.p")
+#                 , paste0("aov.",i,".H.Time.r")
+#                 , paste0("aov.",i,".H.Morph.p")
+#                 , paste0("aov.",i,".H.Morph.r")
+#                 , paste0("aov.",i,".H.TimeMorph.p")
+#                 , paste0("aov.",i,".H.TimeMorph.r")
+# 
+#                 , paste0("aov.",i,".P.Time.p")
+#                 , paste0("aov.",i,".P.Time.r")
+#                 , paste0("aov.",i,".P.Morph.p")
+#                 , paste0("aov.",i,".P.Morph.r")
+#                 , paste0("aov.",i,".P.TimeMorph.p")
+#                 , paste0("aov.",i,".P.TimeMorph.r")
+#   )
+#   
+# 
+#   for (i in tempFile) {
+#     tempName <- gsub("[.]","", i)
+#     #"\newcommand{\newCommandName}{text to insert}"
+#     tempInsert <- paste0("\\","newcommand{","\\",tempName,"}{",get(i),"}")
+#      BetaDivResultsToPrint <- rbind(BetaDivResultsToPrint, paste0("\\newcommand{\\",tempName,"}{",get(i),"}"))
+#   }
+# }
+# write.matrix(BetaDivResultsToPrint,file = "./BETAPLOTS_LATEX/BetaDivStats.txt")
+# 
 
 
 
 # BETA INDIVIDUAL RESULTS
-
-ANOVA.BC.5760.only <- ANOVA.BC.5760
-ANOVA.UWUF.5760.only <- ANOVA.UWUF.5760
-ANOVA.WUF.5760.only <- ANOVA.WUF.5760
-
-BetaDivSepToPrint <- matrix(ncol = 1)
-translated <- cbind(c("20","60","180","360","720","1440","5760"), c("A","B","C","D","E","F","G"))
-for (i in c("UWUF","WUF","BC")) {
-  tempFile <- c()
-  for (j in c("20","60","360","720","5760")) {
-    TRANS <- translated[grep(paste0("^",j,"$"), translated[,1]),2]
-    # Assign all names
-    assign(paste0("aov.",i,".H.",TRANS,".p"), format(get(paste0("ANOVA.",i,".",j,".only"))$aov.tab$`Pr(>F)`[1], digits= 2))
-    assign(paste0("aov.",i,".H.",TRANS,".r"), format(get(paste0("ANOVA.",i,".",j,".only"))$aov.tab$R2[1], digits = 2))
-    tempFile <- c(  tempFile
-                    , paste0("aov.",i,".H.",TRANS,".p")
-                    , paste0("aov.",i,".H.",TRANS,".r")
-    )
-    
-  }
-  for (l in c("20","60","180","360","720","1440")) {
-    TRANS <- translated[grep(paste0("^",l,"$"), translated[,1]),2]
-    # Assign all names
-    assign(paste0("aov.",i,".P.",TRANS,".p"), format(get(paste0("ANOVA.",i,".P.",l,".only"))$aov.tab$`Pr(>F)`[1], digits= 2))
-    assign(paste0("aov.",i,".P.",TRANS,".r"), format(get(paste0("ANOVA.",i,".P.",l,".only"))$aov.tab$R2[1], digits = 2))
-    tempFile <- c(  tempFile
-                    , paste0("aov.",i,".P.",TRANS,".p")
-                    , paste0("aov.",i,".P.",TRANS,".r"))
-  }
-  
-
-  for (k in tempFile) {
-    tempName <- gsub("[.]","", k)
-    #"\newcommand{\newCommandName}{text to insert}"
-    BetaDivSepToPrint <- rbind(BetaDivSepToPrint, paste0("\\newcommand{\\",tempName,"}{",get(k),"}"))
-  }
-  
-}
-write.matrix(BetaDivSepToPrint,file = "./BETAPLOTS_LATEX/BetaSepStats.txt")
+# 
+# ANOVA.BC.5760.only <- ANOVA.BC.5760
+# ANOVA.UWUF.5760.only <- ANOVA.UWUF.5760
+# ANOVA.WUF.5760.only <- ANOVA.WUF.5760
+# 
+# BetaDivSepToPrint <- matrix(ncol = 1)
+# translated <- cbind(c("20","60","180","360","720","1440","5760"), c("A","B","C","D","E","F","G"))
+# for (i in c("UWUF","WUF","BC")) {
+#   tempFile <- c()
+#   for (j in c("20","60","360","720","5760")) {
+#     TRANS <- translated[grep(paste0("^",j,"$"), translated[,1]),2]
+#     # Assign all names
+#     assign(paste0("aov.",i,".H.",TRANS,".p"), format(get(paste0("ANOVA.",i,".",j,".only"))$aov.tab$`Pr(>F)`[1], digits= 2))
+#     assign(paste0("aov.",i,".H.",TRANS,".r"), format(get(paste0("ANOVA.",i,".",j,".only"))$aov.tab$R2[1], digits = 2))
+#     tempFile <- c(  tempFile
+#                     , paste0("aov.",i,".H.",TRANS,".p")
+#                     , paste0("aov.",i,".H.",TRANS,".r")
+#     )
+#     
+#   }
+#   for (l in c("20","60","180","360","720","1440")) {
+#     TRANS <- translated[grep(paste0("^",l,"$"), translated[,1]),2]
+#     # Assign all names
+#     assign(paste0("aov.",i,".P.",TRANS,".p"), format(get(paste0("ANOVA.",i,".P.",l,".only"))$aov.tab$`Pr(>F)`[1], digits= 2))
+#     assign(paste0("aov.",i,".P.",TRANS,".r"), format(get(paste0("ANOVA.",i,".P.",l,".only"))$aov.tab$R2[1], digits = 2))
+#     tempFile <- c(  tempFile
+#                     , paste0("aov.",i,".P.",TRANS,".p")
+#                     , paste0("aov.",i,".P.",TRANS,".r"))
+#   }
+#   
+# 
+#   for (k in tempFile) {
+#     tempName <- gsub("[.]","", k)
+#     #"\newcommand{\newCommandName}{text to insert}"
+#     BetaDivSepToPrint <- rbind(BetaDivSepToPrint, paste0("\\newcommand{\\",tempName,"}{",get(k),"}"))
+#   }
+#   
+# }
+# write.matrix(BetaDivSepToPrint,file = "./BETAPLOTS_LATEX/BetaSepStats.txt")
 
 
 
