@@ -171,7 +171,6 @@ xlabels <- c("20 m"
 hc <- hclust(as.dist(1-cor(t(OTUTable.filt.col))))
 hc.v <- hclust(as.dist(1-cor(OTUTable.filt.col)))
 
-colnames(OTUTable.filt.col)
 pdf("./OTUHEATMAP/OTUHeatmap_Hakai_scaled.pdf", pointsize = 14)
 par(fig = c(0,1,0,1))
 heatmap.2(as.matrix(OTUTable.filt.col)
@@ -197,6 +196,33 @@ legend("topright"
        , cex = 0.7
        )
 dev.off()
+# 
+# pdf("./OTUHEATMAP/OTUHeatmap_Hakai_scaledZERO.pdf", pointsize = 14)
+# par(fig = c(0,1,0,1))
+# heatmap.2(as.matrix(OTUTable.filt.col)
+#           , Colv = NA
+#           , Rowv = as.dendrogram(hc)
+#           , cexCol = 1
+#           , labRow = NA
+#           , labCol = xlabels
+#           , col = colortemp(10)
+#           , margins = c(10,0.5)
+#           , density.info= "none"
+#           , trace = "none"
+#           # , breaks = c(0,0.00001,0.0001,0.001,0.01,0.1)
+#           , dendrogram = 'none'
+#           , ColSideColors = c(rep("salmon",5),rep("dodgerblue",5),rep("darkorchid",5), rep("darkblue",2))
+#           , scale = "row"
+#           , breaks = seq(0,3,length.out = 11)
+# )
+# par(fig = c(0,1,0,1))
+# legend("topright"
+#        , legend = c("Finely branched","Bladed","Crustose","Water")
+#        , col = c("salmon","dodgerblue","darkorchid","darkblue")
+#        , pch = 19
+#        , cex = 0.7
+# )
+# dev.off()
 
 pdf("./OTUHEATMAP/OTUHeatmap_Hakai_coreorot.pdf", pointsize = 14)
 heatmap.2(OTUTable.core
@@ -370,6 +396,34 @@ legend("topright"
        , cex = 0.7
 )
 dev.off()
+
+# 
+# pdf("./OTUHEATMAP/OTUHeatmap_PM_scaledZERO.pdf", pointsize = 14)
+# par(fig = c(0,1,0,1))
+# heatmap.2(as.matrix(OTUTable.filt.col)
+#           , Colv = NA
+#           , Rowv = as.dendrogram(hc)
+#           , cexCol = 1
+#           , labRow = NA
+#           , labCol = xlabels
+#           , col = colortemp(10)
+#           , margins = c(10,0.5)
+#           , density.info= "none"
+#           , trace = "none"
+#           # , breaks = c(0,0.00001,0.0001,0.001,0.01,0.1)
+#           , dendrogram = 'none'
+#           , ColSideColors = c(rep("salmon",6),rep("dodgerblue",6),rep("darkorchid",6), rep("darkblue",2))
+#           , scale = "row"
+#           , breaks = seq(0,4,length.out = 11)
+# )
+# par(fig = c(0,1,0,1))
+# legend("topright"
+#        , legend = c("Finely branched","Bladed","Crustose","Water")
+#        , col = c("salmon","dodgerblue","darkorchid","darkblue")
+#        , pch = 19
+#        , cex = 0.7
+# )
+# dev.off()
 
 pdf("./OTUHEATMAP/OTUHeatmap_PM_coreornot.pdf", pointsize = 14)
 par(fig = c(0,1,0,1))

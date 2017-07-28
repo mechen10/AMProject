@@ -6109,7 +6109,8 @@ for (m in 1:(length(listMorphs)-1)) {
       tempMF <- get(paste0("MF.P.BC.P.",t,".only"))[grep(paste0(listMorphs[m],"|",listMorphs[n]), get(paste0("MF.P.BC.P.",t,".only"))$Morph),]
       tempDM <- get(paste0("dm.BC.P.",t))[grep(paste0(listMorphs[m],"|",listMorphs[n]), rownames(get(paste0("dm.BC.P.",t)))),grep(paste0(listMorphs[m],"|",listMorphs[n]), colnames(get(paste0("dm.BC.P.",t))))]
       tempAdonis <- adonis(tempDM ~ Morph, data = tempMF, by = "marginal")
-      toPaste <- paste0( tempAdonis$aov.tab$`Pr(>F)`[1]
+      newP <- p.adjust(tempAdonis$aov.tab$`Pr(>F)`[1], method = "fdr", n = 3)
+      toPaste <- paste0( newP
                          ," (R^2 = ", round(tempAdonis$aov.tab$R2[1],digits = 2)
                          ,", Df = ", paste0(tempAdonis$aov.tab$Df[1],",",tempAdonis$aov.tab$Df[3]) 
                          , ")")
