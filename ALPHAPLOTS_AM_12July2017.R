@@ -376,7 +376,7 @@ for (metric in metrics) {
   pdf(paste0("ALPHAPLOTS_H/Alpha_diversity_Hakai_",metric,".pdf"), pointsize = 14)
   par(fig = c(0,0.7,0,1))
   plot(c(0,0,0,0) ~ TimeChar[1:4]
-       , main = paste0(metric)
+       # , main = paste0(metric)
        , ylim = c(min(MF.Alpha.morphonly.H[,paste0(metric)]), max(MF.Alpha.morphonly.H[,paste0(metric)]))
        , xlab = "Time"
        , ylab = paste0("Richness (",metric,")")
@@ -453,7 +453,7 @@ for (metric in metrics) {
   pdf(paste0("ALPHAPLOTS_P/Alpha_diversity_PM_",metric,".pdf"), pointsize = 14)
   par(fig = c(0,0.7,0,1))
   plot(c(0,0,0,0,0,0) ~ TimeChar[1:6]
-       , main = paste0(metric)
+       # , main = paste0(metric)
        , ylim = c(min(MF.Alpha.morphonly.P[,paste0(metric)]), max(MF.Alpha.morphonly.P[,paste0(metric)]))
        , xlab = "Time"
        , ylab = paste0("Richness (",metric,")")
